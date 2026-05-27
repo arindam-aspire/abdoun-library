@@ -1,0 +1,85 @@
+{
+  "name": "@abdoun/abdoun-library",
+  "version": "0.1.0",
+  "description": "Shared React UI component library for Abdoun applications",
+  "license": "ISC",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./styles.css": "./src/styles/globals.css"
+  },
+  "files": [
+    "dist",
+    "src/styles"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://coderlook.visualstudio.com/Abdoun%20Real%20Estate/_git/abdoun-library"
+  },
+  "keywords": [
+    "react",
+    "components",
+    "ui",
+    "tailwind"
+  ],
+  "dependencies": {
+    "@headlessui/react": "^2.2.10",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.16.0",
+    "tailwind-merge": "^3.6.0"
+  },
+  "devDependencies": {
+    "@chromatic-com/storybook": "^5.2.1",
+    "@storybook/addon-a11y": "^10.4.1",
+    "@storybook/addon-docs": "^10.4.1",
+    "@storybook/addon-mcp": "^0.6.0",
+    "@storybook/addon-vitest": "^10.4.1",
+    "@storybook/react-vite": "^10.4.1",
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "@vitest/browser-playwright": "^4.1.7",
+    "@vitest/coverage-v8": "^4.1.7",
+    "autoprefixer": "^10.5.0",
+    "playwright": "^1.60.0",
+    "postcss": "^8.5.15",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "storybook": "^10.4.1",
+    "tailwindcss": "^4.3.0",
+    "tailwindcss-animate": "^1.0.7",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.14",
+    "vitest": "^4.1.7"
+  },
+  "peerDependencies": {
+    "next": "^16.2.6",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    }
+  }
+}

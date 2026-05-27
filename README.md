@@ -1,20 +1,58 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# @abdoun/abdoun-library
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+Shared React UI component library for Abdoun applications. Built with Tailwind CSS, Headless UI, and Storybook.
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+## Install
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+Consumers must install peer dependencies:
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+```bash
+npm install @abdoun/abdoun-library react react-dom
+# optional, for Next.js apps
+npm install next
+```
+
+## Usage
+
+Import global styles once in your app root (Next.js `app/layout.tsx`, etc.):
+
+```tsx
+import "@abdoun/abdoun-library/styles.css";
+```
+
+```tsx
+import {
+  Button,
+  PropertyCard,
+  PropertyList,
+  PropertyDetails,
+  PropertyCardImageGallery,
+  cn,
+} from "@abdoun/abdoun-library";
+
+export function Example() {
+  return <Button color="primary">Click me</Button>;
+}
+```
+
+Override CSS variables in your app for Abdoun or MLS branding (see `.storybook/theme_*.css` for token values).
+
+## Development
+
+```bash
+npm run dev          # watch library build (tsup)
+npm run build        # production build
+npm run storybook    # component docs & playground
+npm run test         # Vitest (Storybook browser tests)
+```
+
+## Scripts
+
+| Script | Description |
+|--------|-------------|
+| `build` | Bundle library to `dist/` |
+| `dev` | Watch mode for library build |
+| `storybook` | Start Storybook on port 6006 |
+| `build-storybook` | Static Storybook export |
+| `test` | Run Vitest (includes Storybook tests) |
+| `test:coverage` | Vitest with coverage |

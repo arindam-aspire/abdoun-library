@@ -1,0 +1,1 @@
+export { ImageLightBox } from "./index";

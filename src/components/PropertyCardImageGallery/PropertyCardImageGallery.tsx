@@ -1,0 +1,1 @@
+export { PropertyCardImageGallery } from "./index";
