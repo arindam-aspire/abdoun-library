@@ -25,7 +25,6 @@ import {
   Button,
   PropertyCard,
   PropertyList,
-  PropertyDetails,
   PropertyCardImageGallery,
   cn,
 } from "@abdoun/abdoun-library";
@@ -35,7 +34,9 @@ export function Example() {
 }
 ```
 
-Override CSS variables in your app for Abdoun or MLS branding (see `.storybook/theme_*.css` for token values).
+Override CSS variables in your app for Abdoun or MLS branding (see `src/.storybook/theme_*.css` in this repo for token values).
+
+Styles are Tailwind v4–first: `@abdoun/abdoun-library/styles.css` does not reference a `tailwind.config` inside the package, so it works from `node_modules` in Next.js (Turbopack) and Vite. Ensure your app uses Tailwind v4 (`tailwindcss` ^4 and `@tailwindcss/postcss` or the Vite plugin) so PostCSS can process `@import "tailwindcss"` in that file.
 
 ## Development
 

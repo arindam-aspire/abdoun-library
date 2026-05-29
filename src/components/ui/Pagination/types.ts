@@ -1,3 +1,6 @@
+import type { ButtonSize } from "../Button/types";
+import type { SelectDropdownSize } from "../SelectDropdown/types";
+
 export const DEFAULT_PAGE_SIZE_OPTIONS = [4, 8, 12, 24] as const;
 
 export type PaginationProps = {
@@ -16,6 +19,10 @@ export type PaginationProps = {
   perPageLabel?: string;
   /** Defaults to `"results"`. */
   resultsLabel?: string;
+  /** Size for page buttons. Defaults to `"md"`. */
+  buttonSize?: ButtonSize;
+  /** Size for page-size selector. Defaults to `"md"`. */
+  pageSizeSelectSize?: SelectDropdownSize;
   className?: string;
   disabled?: boolean;
 };

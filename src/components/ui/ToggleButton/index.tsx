@@ -169,7 +169,7 @@ const containerSizeClasses: Record<ToggleButtonSize, string> = {
 
 const segmentSizeClasses: Record<ToggleButtonSize, string> = {
   sm: "gap-1 px-3 py-1.5 text-sm",
-  md: "gap-1.5 px-4 py-2 text-[14px]",
+  md: "gap-1.5 px-4 py-2 text-sm",
   lg: "gap-2 px-5 py-2.5 text-base",
 };
 

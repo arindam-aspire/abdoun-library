@@ -1,0 +1,13 @@
+---
+description: Enforce responsive-first UI design decisions
+alwaysApply: true
+---
+
+# Responsive Design Rule
+
+- Treat responsiveness as a default requirement for all UI changes.
+- Build mobile-first layouts, then enhance with breakpoint utilities.
+- Avoid fixed widths/heights unless there is a clear requirement; prefer fluid sizing.
+- Use responsive spacing, typography, and layout behavior across common breakpoints.
+- Ensure interactive controls remain usable on small screens.
+- When adding or updating components, verify behavior in small, medium, and large viewports.

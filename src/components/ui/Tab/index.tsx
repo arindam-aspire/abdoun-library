@@ -35,7 +35,11 @@ export function Tab<T extends string = string>({
       id={id}
       role="tablist"
       aria-label={ariaLabel}
-      className={cn("flex border-b border-secondary/15", className)}
+      className={cn(
+        "flex w-full min-w-0 border-b border-secondary/15",
+        "sm:overflow-x-auto sm:overscroll-x-contain sm:[scrollbar-width:thin] sm:[&::-webkit-scrollbar]:h-1",
+        className,
+      )}
     >
       {items.map((item) => {
         const isSelected = selectedValue === item.value;
@@ -75,7 +79,8 @@ function TabTrigger<T extends string>({
       disabled={disabled}
       onClick={onSelect}
       className={cn(
-        "inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors",
+        "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 border-b-2 px-1 py-2 text-center text-xs font-medium transition-colors",
+        "sm:inline-flex sm:shrink-0 sm:flex-none sm:flex-row sm:items-center sm:justify-start sm:gap-2 sm:px-4 sm:py-3 sm:text-left sm:text-sm",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/40 focus-visible:ring-offset-1",
         "disabled:cursor-not-allowed disabled:opacity-50",
         isSelected
@@ -91,7 +96,9 @@ function TabTrigger<T extends string>({
           {item.icon}
         </span>
       ) : null}
-      <span>{item.label}</span>
+      <span className="w-full truncate text-center sm:w-auto sm:text-left">
+        {item.label}
+      </span>
     </button>
   );
 }

@@ -42,7 +42,7 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="mx-auto w-full max-w-5xl bg-page p-4">
+      <div className="mx-auto w-full bg-page p-4">
         <Story />
       </div>
     ),

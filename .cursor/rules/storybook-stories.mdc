@@ -1,0 +1,11 @@
+---
+description: Add Storybook stories when implementing UI from design
+alwaysApply: true
+---
+
+# Storybook Stories Rule
+
+- When implementing or updating UI to match a design, add or update a Storybook story for that component.
+- Colocate stories with the component (e.g. `ComponentName.stories.tsx`) and follow existing story patterns in this repo.
+- Stories should reflect the design variants and key states (default, loading, empty, error, disabled, etc.) when those apply.
+- After visual or API changes to a component, keep the story in sync so design review and regression checks stay accurate.

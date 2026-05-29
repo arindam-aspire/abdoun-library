@@ -100,3 +100,12 @@ export const Uncontrolled: Story = {
     defaultValue: "overview",
   },
 };
+
+export const NarrowViewport: Story = {
+  name: "Narrow viewport (scroll)",
+  render: () => (
+    <div className="w-[280px] max-w-full border border-dashed border-secondary/20 p-2">
+      <TabDemo items={tabsWithIcons} />
+    </div>
+  ),
+};

@@ -1,0 +1,1 @@
+﻿export { LocationLightBox } from "./index";

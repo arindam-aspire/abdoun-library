@@ -1,0 +1,12 @@
+---
+description: Enforce light and dark theme support in UI design
+alwaysApply: true
+---
+
+# Light and Dark Theme Rule
+
+- Treat dual-theme support as a default requirement for all UI and visual design work.
+- Use semantic tokens (e.g. theme variables, `bg-surface`, `text-text`, `border-secondary`) instead of hard-coded light-only colors when the design system provides them.
+- Ensure contrast and readability in both themes; avoid colors that only work on light or only on dark backgrounds.
+- Verify interactive states (hover, focus, disabled) in both themes.
+- When adding or updating components, check appearance in light mode and dark mode.

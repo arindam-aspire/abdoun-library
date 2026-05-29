@@ -1,0 +1,10 @@
+---
+description: Default UI component size to md unless specified otherwise
+alwaysApply: true
+---
+
+# Default Size `md` Rule
+
+- For components that expose a `size` prop (or equivalent), default to **`md`** when implementing or updating UI.
+- Do not pick `sm` or `lg` unless the design or product requirements explicitly call for a different size.
+- When adding stories or examples, use **`md`** as the baseline unless the story is meant to demonstrate another size.

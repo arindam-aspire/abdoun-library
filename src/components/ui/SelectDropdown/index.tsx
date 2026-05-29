@@ -9,7 +9,7 @@ import {
   ListboxOptions,
 } from "@headlessui/react";
 import { ChevronDown } from "lucide-react";
-import { useId, useLayoutEffect, useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { cn } from "../../../lib/cn";
 import {
   inheritOutlineFocusVisibleClasses,
@@ -76,22 +76,13 @@ function buildOptions(
   options: SelectDropdownOption[],
 ): SelectDropdownOption[] {
   return [
-    { value: SELECT_DROPDOWN_EMPTY_VALUE, label: placeholder },
+    {
+      value: SELECT_DROPDOWN_EMPTY_VALUE,
+      label: placeholder,
+      disabled: true,
+    },
     ...options,
   ];
-}
-
-function useIsRtl(isRtlProp?: boolean) {
-  const [autoRtl, setAutoRtl] = useState(false);
-
-  useLayoutEffect(() => {
-    if (isRtlProp !== undefined) {
-      return;
-    }
-    setAutoRtl(document.documentElement.dir === "rtl");
-  }, [isRtlProp]);
-
-  return isRtlProp ?? autoRtl;
 }
 
 export function SelectDropdown({
@@ -121,12 +112,16 @@ export function SelectDropdown({
   isRtl: isRtlProp,
   "aria-label": ariaLabel,
 }: SelectDropdownProps) {
-  const isRtl = useIsRtl(isRtlProp);
   const generatedId = useId();
   const selectId = idProp ?? generatedId;
   const errorId = `${selectId}-error`;
   const hintId = `${selectId}-hint`;
   const hasError = Boolean(error);
+  const isRtl = useMemo(() => {
+    if (isRtlProp !== undefined) return isRtlProp;
+    if (typeof document === "undefined") return false;
+    return document.documentElement.dir === "rtl";
+  }, [isRtlProp]);
 
   const describedBy =
     [hasError ? errorId : null, !hasError && hint ? hintId : null]

@@ -1,6 +1,6 @@
 {
   "name": "@abdoun/abdoun-library",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Shared React UI component library for Abdoun applications",
   "license": "ISC",
   "type": "module",
@@ -27,8 +27,8 @@
     "dev": "tsup --watch",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "storybook": "storybook dev -c src/.storybook -p 6006",
+    "build-storybook": "storybook build -c src/.storybook"
   },
   "repository": {
     "type": "git",
@@ -73,9 +73,9 @@
     "vitest": "^4.1.7"
   },
   "peerDependencies": {
-    "next": "^16.2.6",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "next": "^16.0.0"
   },
   "peerDependenciesMeta": {
     "next": {

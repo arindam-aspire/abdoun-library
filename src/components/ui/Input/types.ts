@@ -1,12 +1,18 @@
 import type { InputHTMLAttributes, ReactNode } from "react";
+import {
+  UI_CONTROL_SIZES,
+  UI_FIELD_VARIANTS,
+  type UiControlSize,
+  type UiFieldVariant,
+} from "../commonTypes";
 
-export const INPUT_VARIANTS = ["outline", "ghost", "clear"] as const;
+export const INPUT_VARIANTS = UI_FIELD_VARIANTS;
 
-export type InputVariant = (typeof INPUT_VARIANTS)[number];
+export type InputVariant = UiFieldVariant;
 
-export const INPUT_SIZES = ["sm", "md", "lg"] as const;
+export const INPUT_SIZES = UI_CONTROL_SIZES;
 
-export type InputSize = (typeof INPUT_SIZES)[number];
+export type InputSize = UiControlSize;
 
 export interface InputProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {

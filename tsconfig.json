@@ -20,6 +20,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", ".storybook", "vitest.config.ts", "tsup.config.ts"],
+  "include": ["src", "vitest.config.ts", "tsup.config.ts"],
   "exclude": ["node_modules", "dist", "storybook-static"]
 }

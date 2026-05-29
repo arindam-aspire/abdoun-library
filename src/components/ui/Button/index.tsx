@@ -3,7 +3,6 @@
 import { Button as HeadlessButton } from "@headlessui/react";
 import { Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
-import { cn } from "../../../lib/cn";
 import type {
   ButtonColor,
   ButtonProps,
@@ -80,6 +79,10 @@ const iconSizeClasses: Record<ButtonSize, string> = {
   lg: "size-6",
 };
 
+function cn(...classes: (string | false | undefined)[]) {
+  return classes.filter(Boolean).join(" ");
+}
+
 function ButtonIcon({
   icon,
   size,
@@ -120,7 +123,6 @@ export function Button({
   "aria-label": ariaLabel,
   role,
   "aria-checked": ariaChecked,
-  "aria-pressed": ariaPressed,
 }: ButtonProps) {
   const isDisabled = Boolean(disabled || isLoading);
   const label = isLoading ? (loadingLabel ?? children) : children;
@@ -134,7 +136,6 @@ export function Button({
       role={role}
       aria-label={ariaLabel}
       aria-checked={ariaChecked}
-      aria-pressed={ariaPressed}
       aria-busy={isLoading || undefined}
       aria-disabled={isDisabled || undefined}
       onClick={onClick}
