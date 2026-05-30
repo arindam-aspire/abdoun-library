@@ -237,7 +237,7 @@ export function HeroSection({
                       className={cn(
                         "size-4",
                         isFavourite
-                          ? "fill-red-500 text-red-500"
+                          ? "fill-danger text-danger"
                           : "text-secondary",
                       )}
                       aria-hidden

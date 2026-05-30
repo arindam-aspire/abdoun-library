@@ -1,0 +1,33 @@
+/**
+ * Tailwind ↔ app CSS variables. Use in globals.css AFTER your :root / .dark / .light blocks.
+ *
+ * Prefer pasting this @theme block into your globals.css (avoids @import hoisting).
+ * Or: @import "@abdoun/abdoun-library/theme.css"; at the end of globals.css, after :root.
+ */
+@theme inline {
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-light: var(--primary-light);
+  --color-accent: var(--accent);
+  --color-secondary: var(--secondary);
+  --color-secondary-light: var(--secondary-light);
+  --color-secondary-dark: var(--secondary-dark);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-dark: var(--tertiary-dark);
+  --color-tertiary-light: var(--tertiary-light);
+  --color-page: var(--page);
+  --color-page-ghost: color-mix(in srgb, var(--page) 20%, var(--surface));
+  --color-surface: var(--surface);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-white: var(--white);
+  --color-black: var(--black);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-inherit-color: var(--inherit);
+  --color-hero-on-image: var(--hero-on-image, var(--white));
+  --color-background: var(--page);
+  --color-foreground: var(--text);
+  --color-card-background: var(--card-background, var(--surface));
+}

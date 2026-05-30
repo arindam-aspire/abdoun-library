@@ -1,0 +1,10 @@
+/**
+ * Import at the END of your globals.css (after :root and @theme inline).
+ * Do not import from layout.tsx — use a single globals.css entry.
+ *
+ * @import "tailwindcss";
+ * :root { --page: ...; --surface: ...; --card-background: var(--surface); }
+ * @theme inline { --color-page: var(--page); --color-surface: var(--surface); ... }
+ * @import "@abdoun/abdoun-library/integration.css";
+ */
+@source "../../dist/**/*.{js,cjs}";

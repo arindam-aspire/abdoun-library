@@ -1,59 +1,92 @@
 # @abdoun/abdoun-library
 
-Shared React UI component library for Abdoun applications. Built with Tailwind CSS, Headless UI, and Storybook.
+Shared React UI component library for Abdoun applications. Components use your app’s CSS variables — the library does not ship colors.
 
 ## Install
 
-Consumers must install peer dependencies:
-
 ```bash
 npm install @abdoun/abdoun-library react react-dom
-# optional, for Next.js apps
-npm install next
 ```
 
-## Usage
+## Theme + styles (single `globals.css`)
 
-Import global styles once in your app root (Next.js `app/layout.tsx`, etc.):
+### Do not
+
+- `import "@abdoun/abdoun-library/styles.css"` in `layout.tsx` (second CSS bundle).
+- `@import "@abdoun/abdoun-library/theme.css"` in CSS — **`@import` is hoisted above `:root`**, so Tailwind can map `page` / `surface` before your variables exist and colors look swapped.
+
+### Do
+
+Use **one** `globals.css`. Order matters:
+
+1. `@import "tailwindcss"` (+ plugins)
+2. `:root` / `.dark` / `.light` — your hex values
+3. `@theme inline` — map `--color-page` → `var(--page)`, `--color-surface` → `var(--surface)` (in this file, after `:root`)
+4. `@import "@abdoun/abdoun-library/integration.css"` — library scan only
+
+```css
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --page: #f8fafc;       /* app background */
+  --surface: #ffffff;    /* cards, panels */
+  --card-background: var(--surface);
+  /* …primary, secondary, text, etc.… */
+}
+
+/* .dark / .light / prefers-color-scheme blocks */
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-page-ghost: color-mix(in srgb, var(--page) 20%, var(--surface));
+  --color-card-background: var(--card-background);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  /* …see src/styles/theme.css (commented reference)… */
+}
+
+@import "@abdoun/abdoun-library/integration.css";
+```
 
 ```tsx
-import "@abdoun/abdoun-library/styles.css";
+// layout.tsx
+import "./globals.css";
 ```
+
+### Token semantics (do not swap)
+
+| Variable | Role | Example (light) |
+|----------|------|-----------------|
+| `--page` | App / body background | `#f8fafc` |
+| `--surface` | Cards, elevated panels | `#ffffff` |
+| `--card-background` | `Card` component fill | `var(--surface)` |
+
+## Components
 
 ```tsx
 import {
-  Button,
-  PropertyCard,
-  PropertyList,
-  PropertyCardImageGallery,
-  cn,
+  PropertyView,
+  PropertyViewSkeleton,
+  PropertyCardList,
+  PropertyCardListSkeleton,
+  PropertyListCard,
+  PropertyListCardSkeleton,
+  type PropertyViewProps,
+  type PropertyDetails,
+  type PropertyCardListProps,
+  type PropertyListings,
+  type PropertyListCardProps,
 } from "@abdoun/abdoun-library";
-
-export function Example() {
-  return <Button color="primary">Click me</Button>;
-}
 ```
-
-Override CSS variables in your app for Abdoun or MLS branding (see `src/.storybook/theme_*.css` in this repo for token values).
-
-Styles are Tailwind v4–first: `@abdoun/abdoun-library/styles.css` does not reference a `tailwind.config` inside the package, so it works from `node_modules` in Next.js (Turbopack) and Vite. Ensure your app uses Tailwind v4 (`tailwindcss` ^4 and `@tailwindcss/postcss` or the Vite plugin) so PostCSS can process `@import "tailwindcss"` in that file.
 
 ## Development
 
 ```bash
-npm run dev          # watch library build (tsup)
-npm run build        # production build
-npm run storybook    # component docs & playground
-npm run test         # Vitest (Storybook browser tests)
+npm run build
+npm run storybook
 ```
-
-## Scripts
-
-| Script | Description |
-|--------|-------------|
-| `build` | Bundle library to `dist/` |
-| `dev` | Watch mode for library build |
-| `storybook` | Start Storybook on port 6006 |
-| `build-storybook` | Static Storybook export |
-| `test` | Run Vitest (includes Storybook tests) |
-| `test:coverage` | Vitest with coverage |

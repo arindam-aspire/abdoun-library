@@ -138,3 +138,16 @@ export function PropertyView({
     </article>
   );
 }
+
+export { PropertyViewLoading as PropertyViewSkeleton } from "./PropertyViewLoading";
+export type { PropertyViewLoadingProps as PropertyViewSkeletonProps } from "./PropertyViewLoading";
+export type {
+  ApplicationKey,
+  Locale,
+  PropertyDetails,
+  PropertyFeatureDefinition,
+  PropertyMediaItem,
+  PropertyViewProps,
+  PropertyViewTabOption,
+  PropertyViewTabs,
+} from "./types";

@@ -2,8 +2,9 @@
 
 import { ChevronLeft, ChevronRight, Heart, Loader2 } from "lucide-react";
 import type { MouseEvent } from "react";
-import { useCallback, useMemo, useState } from "react";
-import propertyFallbackImage from "@/assets/property-fallback-image.svg";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { PROPERTY_FALLBACK_IMAGE } from "../../lib/propertyFallbackImage";
+import { resolveListingImageUrls } from "../../lib/resolveListingImageUrls";
 import type { PropertyListing } from "../PropertyCardList/types";
 import { cn } from "../../lib/cn";
 import { Badge } from "../ui/Badge";
@@ -12,8 +13,10 @@ import { IconButton } from "../ui/IconButton";
 import { ImageLightBox } from "../ui/ImageLightBox";
 import type { ImageGallaryProps } from "./types";
 
-const FALLBACK_IMAGE = propertyFallbackImage;
 const TRANSITION_MS = 260;
+
+const fallbackImageClasses =
+  "object-contain bg-page-ghost p-6 opacity-70 dark:invert dark:opacity-85";
 
 type GalleryBadge = {
   label: string;
@@ -64,23 +67,6 @@ function resolveTitle(title: PropertyListing["title"]): string {
   return title.en || title.ar || title.esp || title.fr || "";
 }
 
-function resolveImages(propertyDetails: PropertyListing): string[] {
-  const fromMedia = [...propertyDetails.media.images]
-    .sort((a, b) => a.order - b.order)
-    .map((image) => image.url)
-    .filter(Boolean);
-
-  if (fromMedia.length > 0) {
-    return fromMedia;
-  }
-
-  if (propertyDetails.media.thumbnail) {
-    return [propertyDetails.media.thumbnail];
-  }
-
-  return [];
-}
-
 function resolveBadges(propertyDetails: PropertyListing): GalleryBadge[] {
   const mapped = mapStringBadges(propertyDetails.badges);
   if (
@@ -124,7 +110,7 @@ export function ImageGallary({
   );
 
   const images = useMemo(
-    () => resolveImages(propertyDetails),
+    () => resolveListingImageUrls(propertyDetails.media),
     [propertyDetails.media],
   );
 
@@ -143,12 +129,24 @@ export function ImageGallary({
   const [activeIndex, setActiveIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
   const gallery = useMemo(
-    () => (images.length > 0 ? images : [FALLBACK_IMAGE]),
+    () => (images.length > 0 ? images : [PROPERTY_FALLBACK_IMAGE]),
     [images],
   );
   const isFallbackGallery = images.length === 0;
+
+  const activeSrc = gallery[activeIndex] ?? PROPERTY_FALLBACK_IMAGE;
+  const displaySrc =
+    failedSrc === activeSrc && !isFallbackGallery
+      ? PROPERTY_FALLBACK_IMAGE
+      : activeSrc;
+  const showFallbackStyles = isFallbackGallery || displaySrc === PROPERTY_FALLBACK_IMAGE;
+
+  useEffect(() => {
+    setFailedSrc(null);
+  }, [activeSrc, images]);
 
   const carouselEnabled = gallery.length > 1;
   const visibleDots = getVisibleDotIndices(gallery.length, activeIndex);
@@ -211,16 +209,17 @@ export function ImageGallary({
         aria-label={`View full-size image for ${title}`}
       >
         <img
-          src={gallery[activeIndex] ?? FALLBACK_IMAGE}
+          src={displaySrc}
           alt={title}
           sizes={imageSizes}
           loading={activeIndex === 0 ? "eager" : "lazy"}
           decoding="async"
-          className={cn(
-            imageClasses,
-            isFallbackGallery &&
-              "object-contain bg-black/10 p-5 dark:bg-white/40 scale-125",
-          )}
+          onError={() => {
+            if (!isFallbackGallery) {
+              setFailedSrc(activeSrc);
+            }
+          }}
+          className={cn(imageClasses, showFallbackStyles && fallbackImageClasses)}
         />
       </button>
 
@@ -266,7 +265,7 @@ export function ImageGallary({
             <Heart
               className={cn(
                 "size-4",
-                isFavourite ? "fill-red-500 text-red-500" : "text-secondary",
+                isFavourite ? "fill-danger text-danger" : "text-secondary",
               )}
               aria-hidden
             />

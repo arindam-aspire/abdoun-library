@@ -516,6 +516,50 @@ export const EmptyList: Story = {
   },
 };
 
+export const EmptyImages: Story = {
+  args: {
+    isLoading: false,
+    data: {
+      items: [
+        buildProperty(99, "Property without photos", "JOD 250,000", {
+          media: {
+            thumbnail: null,
+            images: [],
+            videos: [],
+            virtual_tour_url: null,
+            floor_plan_images: [],
+            documents: [],
+          },
+        }),
+      ],
+    },
+    toolbar: {
+      layoutVariant: "grid",
+      title: "Properties",
+      totalCount: 1,
+    },
+    canViewOwners: true,
+    canViewAgents: true,
+    canViewBadges: true,
+    onClick: fn(),
+    onClickEmail: fn(),
+    onClickCall: fn(),
+    onClickWhatsApp: fn(),
+    onClickFavourite: fn(),
+  },
+};
+
+export const EmptyImagesList: Story = {
+  args: {
+    ...EmptyImages.args,
+    toolbar: {
+      layoutVariant: "list",
+      title: "Properties",
+      totalCount: 1,
+    },
+  },
+};
+
 export const PaginationWithEllipsis: Story = {
   render: () => (
     <InteractivePropertyCardList
