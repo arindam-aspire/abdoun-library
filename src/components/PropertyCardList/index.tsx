@@ -3,11 +3,14 @@ import { ListToolbar } from "./ListToolbar";
 import { CardGridView } from "./CardGridView";
 import { CardListView } from "./CardListView";
 import { NoDataFound } from "./NoDataFound";
-import { PropertyPaginition } from "@/components/PropertyCardList/PropertyPaginition";
+import { PropertyPaginition } from "./PropertyPaginition";
+import { PropertyCardListSkeleton } from "./PropertyCardListSkeleton";
 import type { PropertyCardListProps } from "./types";
 
 export function PropertyCardList({
   isLoading = false,
+  layoutVariant = "grid",
+  listTitle = "Properties",
   data,
   toolbar,
   noDataFound,
@@ -22,23 +25,39 @@ export function PropertyCardList({
   pagination,
   className,
 }: PropertyCardListProps) {
-  const layoutVariant = toolbar.layoutVariant;
-  const loadingCount = pagination?.pagination.pageSize ?? data.meta?.pageSize;
-  const items = data.items ?? [];
-  const showNoData = !isLoading && items.length === 0;
+  const loadingCount = pagination?.pageSize ?? (layoutVariant === "list" ? 4 : 6);
+
+  if (isLoading) {
+    return (
+      <PropertyCardListSkeleton
+        layoutVariant={layoutVariant}
+        loadingCount={loadingCount}
+        canViewOwners={canViewOwners}
+        canViewAgents={canViewAgents}
+        showPagination={Boolean(pagination)}
+        className={className}
+      />
+    );
+  }
+
+  const showNoData = data.length === 0;
+  const totalCount = pagination?.total ?? (showNoData ? 0 : data.length);
 
   return (
     <section
       className={cn("space-y-2 md:space-y-4 lg:space-y-6", className)}
     >
-      <ListToolbar isLoading={isLoading} {...toolbar} />
+      <ListToolbar
+        layoutVariant={layoutVariant}
+        title={listTitle}
+        totalCount={totalCount}
+        {...toolbar}
+      />
       {showNoData ? (
         <NoDataFound {...noDataFound} />
       ) : layoutVariant === "list" ? (
         <CardListView
-          isLoading={isLoading}
           data={data}
-          loadingCount={loadingCount}
           canViewOwners={canViewOwners}
           canViewAgents={canViewAgents}
           canViewBadges={canViewBadges}
@@ -50,9 +69,7 @@ export function PropertyCardList({
         />
       ) : (
         <CardGridView
-          isLoading={isLoading}
           data={data}
-          loadingCount={loadingCount}
           canViewOwners={canViewOwners}
           canViewAgents={canViewAgents}
           canViewBadges={canViewBadges}
@@ -64,23 +81,8 @@ export function PropertyCardList({
         />
       )}
       {pagination && !showNoData ? (
-        <PropertyPaginition {...pagination} isLoading={isLoading} />
+        <PropertyPaginition {...pagination} />
       ) : null}
     </section>
   );
 }
-
-export { PropertyCardListSkeleton } from "./PropertyCardListSkeleton";
-export type { PropertyCardListSkeletonProps } from "./PropertyCardListSkeleton";
-export type {
-  ApplicationKey,
-  CardLayoutVariant,
-  NoDataFoundProps,
-  PaginationMeta,
-  PropertyCardListProps,
-  PropertyCardListSortOptions,
-  PropertyCardListToolbarProps,
-  PropertyListing,
-  PropertyListings,
-  PropertyPaginitionProps,
-} from "./types";

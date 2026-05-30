@@ -4,21 +4,25 @@ import { SelectDropdown } from "../ui/SelectDropdown";
 import { SELECT_DROPDOWN_EMPTY_VALUE } from "../ui/SelectDropdown/types";
 import { ToggleButton } from "../ui/ToggleButton";
 import { ListToolbarSkleton } from "./ListToolbarSkleton";
-import type { PropertyCardListToolbarProps } from "./types";
+import type { CardLayoutVariant, PropertyCardListToolbarProps } from "./types";
+
+type ListToolbarProps = PropertyCardListToolbarProps & {
+  layoutVariant: CardLayoutVariant;
+  title?: string;
+};
 
 export function ListToolbar({
   isLoading = false,
-  title = "Properties",
   layoutVariant,
+  title = "Properties",
   totalCount,
   listingsLabel = "listings",
   sortOptions,
   sortValue,
-  defaultSortValue = "newest",
   onSortChange,
   onViewChange,
   className,
-}: PropertyCardListToolbarProps) {
+}: ListToolbarProps) {
   if (isLoading) {
     return <ListToolbarSkleton className={className} />;
   }
@@ -30,7 +34,7 @@ export function ListToolbar({
   return (
     <div
       className={cn(
-        "flex flex-col gap-2 md:gap-4 lg:gap-6 sm:flex-row sm:items-center sm:justify-between",
+        "flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between md:gap-4 lg:gap-6",
         className,
       )}
     >
@@ -54,7 +58,6 @@ export function ListToolbar({
               options={resolvedSortOptions}
               placeholder="Sort by"
               value={sortValue}
-              defaultValue={defaultSortValue}
               onChange={(value) => {
                 if (value !== SELECT_DROPDOWN_EMPTY_VALUE) {
                   onSortChange?.(value);
@@ -84,7 +87,7 @@ export function ListToolbar({
             },
           ]}
           value={layoutVariant}
-          onChange={(view) => onViewChange?.(view as "grid" | "list")}
+          onChange={(view) => onViewChange?.(view as CardLayoutVariant)}
           color="primary"
           variant="solid"
           size="md"

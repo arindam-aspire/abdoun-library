@@ -6,9 +6,11 @@ import type { PropertyPaginitionProps } from "./types";
 
 export function PropertyPaginition({
   isLoading = false,
+  total,
+  page,
+  pageSize = 10,
   pageOptions,
   maxPageButtons,
-  pagination,
   onPageChange,
   onPageSizeChange,
   className,
@@ -18,14 +20,14 @@ export function PropertyPaginition({
   }
 
   return createElement(Pagination, {
-    currentPage: pagination.page,
-    totalItems: pagination.total,
-    pageSize: pagination.pageSize,
+    currentPage: page,
+    totalItems: total,
+    pageSize,
     pageSizeOptions: pageOptions ?? [10, 15, 20],
     maxPageButtons: maxPageButtons ?? 2,
-    onPageChange: (page: number) => onPageChange?.(page),
+    onPageChange: (nextPage: number) => onPageChange?.(nextPage),
     onPageSizeChange: onPageSizeChange
-      ? (pageSize: number) => onPageSizeChange(pageSize)
+      ? (nextPageSize: number) => onPageSizeChange(nextPageSize)
       : undefined,
     className: cn(className),
   });

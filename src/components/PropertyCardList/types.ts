@@ -50,6 +50,7 @@ export interface PropertyListing {
 
   is_exclusive: boolean;
   is_favourite: boolean;
+  is_favourite_loading?: boolean;
   favourite_id?: string;
   property_hash?: string;
   user_id?: string;
@@ -179,35 +180,62 @@ interface AgentDetails {
 
 export type CardLayoutVariant = "grid" | "list";
 
-export interface PropertyCardListProps {
-  isLoading?: boolean;
-  data: PropertyListings;
-  layoutVariant?: CardLayoutVariant;
-  toolbar: PropertyCardListToolbarProps;
-  noDataFound?: NoDataFoundProps;
+export interface CardListProps {
+  data: PropertyListing[];
   canViewOwners?: boolean;
   canViewAgents?: boolean;
   canViewBadges?: boolean;
-  pagination?: PropertyPaginitionProps;
   onClick?: (propertyDetails: PropertyListing) => void;
   onClickEmail?: (propertyDetails: PropertyListing) => void;
   onClickCall?: (propertyDetails: PropertyListing) => void;
   onClickWhatsApp?: (propertyDetails: PropertyListing) => void;
   onClickFavourite?: (propertyDetails: PropertyListing) => void;
+}
+
+export interface PropertyCardListProps extends CardListProps {
+  isLoading?: boolean;
+  layoutVariant?: CardLayoutVariant;
+  listTitle?: string;
+  toolbar: PropertyCardListToolbar;
+  noDataFound?: NoDataFoundContent;
+  pagination?: PaginitionContent;
   className?: string;
 }
 
-export interface PropertyCardListToolbarProps {
-  isLoading?: boolean;
-  layoutVariant: CardLayoutVariant;
-  title?: string;
-  totalCount?: number;
+export interface PaginitionContent {
+  total: number;
+  page: number;
+  pageOptions?: number[];
+  pageSize?: number;
+  totalPages?: number;
+  hasNext?: boolean;
+  hasPrevious?: boolean;
+  maxPageButtons?: number;
+  onPageSizeChange?: (pageSize: number) => void;
+  onPageChange?: (page: number) => void;
+}
+
+export interface PropertyCardListToolbar {
   listingsLabel?: string;
   sortOptions?: PropertyCardListSortOptions[];
   sortValue?: string;
-  defaultSortValue?: string;
   onSortChange?: (value: string) => void;
   onViewChange?: (view: CardLayoutVariant) => void;
+}
+
+export interface PropertyCardListToolbarProps extends PropertyCardListToolbar {
+  isLoading?: boolean;
+  totalCount?: number;
+  className?: string;
+}
+
+export interface NoDataFoundContent {
+  title?: string;
+  description?: string;
+  actions?: ReactNode;
+}
+
+export interface NoDataFoundProps extends NoDataFoundContent {
   className?: string;
 }
 
@@ -217,34 +245,7 @@ export interface PropertyCardListSortOptions {
   disabled?: boolean;
 }
 
-export interface PropertyPaginitionProps {
+export interface PropertyPaginitionProps extends PaginitionContent {
   isLoading?: boolean;
-  pageOptions?: number[];
-  maxPageButtons?: number;
-  pagination: PaginationMeta;
-  onPageChange?: (page: number) => void;
-  onPageSizeChange?: (pageSize: number) => void;
   className?: string;
-}
-
-export interface PropertyListings {
-  items?: PropertyListing[];
-  meta?: PaginationMeta;
-}
-
-export interface PaginationMeta {
-  total: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrevious: boolean;
-}
-
-export interface NoDataFoundProps {
-  title?: string;
-  description?: string;
-  className?: string;
-  /** Optional footer content (e.g. buttons, links). Rendered as-is without extra styling. */
-  actions?: ReactNode;
 }

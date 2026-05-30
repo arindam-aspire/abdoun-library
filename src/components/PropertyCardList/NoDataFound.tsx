@@ -128,8 +128,8 @@ function EmptyPropertiesIllustration({ className }: { className?: string }) {
 }
 
 export function NoDataFound({
-  title,
-  description,
+  title = "No properties found",
+  description = "No properties found for the selected filters. Try adjusting your search criteria or clearing filters to see more results.",
   className,
   actions,
 }: NoDataFoundProps) {
@@ -142,7 +142,7 @@ export function NoDataFound({
         className,
       )}
     >
-      <div className="relative overflow-hidden bg-gradient-to-b from-primary-light/90 via-primary-light/40 to-surface px-4 py-8 sm:px-8 sm:py-10">
+      <div className="relative overflow-hidden bg-primary-light px-4 py-8 sm:px-8 sm:py-10">
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.55] dark:opacity-35"
           aria-hidden
@@ -162,19 +162,15 @@ export function NoDataFound({
       </div>
 
       <div className="flex flex-col items-center px-4 pb-8 pt-6 text-center sm:px-8 sm:pb-10">
-        {title ? (
           <h3 className="text-xl font-bold text-secondary sm:text-2xl">{title}</h3>
-        ) : null}
-        {description ? (
           <p
             className={cn(
               "max-w-lg text-sm leading-relaxed text-muted sm:text-base",
-              title ? "mt-3" : undefined,
+              "mt-3",
             )}
           >
             {description}
           </p>
-        ) : null}
 
         {actions ? (
           <div
