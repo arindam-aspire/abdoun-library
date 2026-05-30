@@ -42,13 +42,15 @@ export function ListCard({
   canViewBadges,
   canViewOwners,
   applicationKey,
-  isFavouriteLoading,
+  isFavouriteLoading: isFavouriteLoadingProp,
   onClickFavourite,
   onClick,
   onClickEmail,
   onClickCall,
   onClickWhatsApp,
 }: PropertyListCardProps) {
+  const isFavouriteLoading =
+    isFavouriteLoadingProp ?? propertyDetails.is_favourite_loading;
   const [isLocationLightBoxOpen, setIsLocationLightBoxOpen] = useState(false);
   const title = resolveTitle(propertyDetails.title);
   const { latitude, longitude, map_embed_url: mapEmbedUrlFromApi } =
@@ -174,8 +176,12 @@ export function ListCard({
         </div>
 
         <div className="mt-auto pt-4">
-          {owners.length > 0 ? (
-            <div className="mb-4 grid grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
+          {canViewOwners && owners.length > 0 ? (
+            <div className="mb-4">
+              <h4 className="mb-1.5 text-xs font-semibold tracking-[0.12em] text-muted uppercase">
+                Owners
+              </h4>
+              <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
               {owners.map((owner) => (
                 <div
                   key={owner.owner_id}
@@ -187,12 +193,13 @@ export function ListCard({
                   <span className="text-text/65">{owner.email || "No email"}</span>
                 </div>
               ))}
+              </div>
             </div>
           ) : null}
 
-          <div className="flex flex-col gap-3 border-t-0 pt-0 md:border-t md:border-secondary/15 md:pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 border-t-0 pt-0 md:border-t md:border-secondary/15 md:pt-5 sm:flex-row sm:items-center">
             {hasAgentDetails ? (
-              <div className="flex min-w-0 items-center gap-3 rounded-md bg-page p-2 md:flex-1 md:max-w-[70%] lg:max-w-none lg:flex-none">
+              <div className="flex min-w-0 flex-1 items-center gap-3 rounded-md bg-page p-2 md:max-w-[70%] lg:max-w-none lg:flex-none">
                 {agent?.photo ? (
                   <img
                     src={agent.photo}
@@ -217,7 +224,7 @@ export function ListCard({
               </div>
             ) : null}
 
-            <div className="flex w-full justify-end gap-2 sm:w-auto md:gap-4 lg:hidden">
+            <div className="flex w-full shrink-0 justify-end gap-2 sm:ms-auto sm:w-auto md:gap-4 lg:hidden">
               <IconButton
                 color="primary"
                 variant="solid"
@@ -246,7 +253,7 @@ export function ListCard({
                 aria-label="WhatsApp"
               />
             </div>
-            <div className="hidden w-full flex-col justify-end gap-2 lg:flex lg:w-auto lg:flex-row lg:gap-4">
+            <div className="hidden w-full shrink-0 flex-col justify-end gap-2 sm:ms-auto lg:flex lg:w-auto lg:flex-row lg:gap-4">
               <Button
                 color="primary"
                 variant="solid"

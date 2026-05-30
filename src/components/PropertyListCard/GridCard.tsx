@@ -32,13 +32,15 @@ export function GridCard({
   canViewBadges,
   canViewOwners,
   applicationKey,
-  isFavouriteLoading,
+  isFavouriteLoading: isFavouriteLoadingProp,
   onClickFavourite,
   onClick,
   onClickEmail,
   onClickCall,
   onClickWhatsApp,
 }: PropertyListCardProps) {
+  const isFavouriteLoading =
+    isFavouriteLoadingProp ?? propertyDetails.is_favourite_loading;
   const [isLocationLightBoxOpen, setIsLocationLightBoxOpen] = useState(false);
   const formattedPrice = formatPrice(propertyDetails.price);
   const areaValue = Number(propertyDetails.area);
@@ -130,8 +132,12 @@ export function GridCard({
           </div>
         ) : null}
 
-        {owners.length > 0 ? (
-          <div className="mt-2 grid grid-cols-1 gap-1.5">
+        {canViewOwners && owners.length > 0 ? (
+          <div className="mt-2">
+            <h4 className="mb-1.5 text-xs font-semibold tracking-[0.12em] text-muted uppercase">
+              Owners
+            </h4>
+            <div className="grid grid-cols-1 gap-1.5">
             {owners.map((owner) => (
               <div
                 key={owner.owner_id}
@@ -143,6 +149,7 @@ export function GridCard({
                 <span className="text-text/65">{owner.email || "No email"}</span>
               </div>
             ))}
+            </div>
           </div>
         ) : null}
 

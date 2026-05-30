@@ -15,13 +15,6 @@ export type {
 } from "./components/PropertyCardList/types";
 
 // Single property card (grid or list layout)
-export {
-  PropertyListCard,
-  PropertyListCardSkeleton,
-} from "./components/PropertyListCard";
-export type {
-  ApplicationKey as PropertyListCardApplicationKey,
-  PropertyListing as PropertyListCardListing,
-  PropertyListCardProps,
-  PropertyListCardSkeletonProps,
-} from "./components/PropertyListCard";
+export { PropertyListCard } from "./components/PropertyListCard";
+export { PropertyListCardSkeleton } from "./components/PropertyListCard/PropertyListCardSkeleton";
+export type { PropertyListCardProps } from "./components/PropertyListCard/types";

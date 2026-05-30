@@ -5,7 +5,9 @@ import type { PropertyListing } from "../PropertyCardList/types";
 type LocalizedText = PropertyListing["title"];
 type LocalizedNullableText = PropertyListing["description"];
 type PropertyLocation = PropertyListing["location"];
-import { GridCardSkeleton, ListCardSkeleton, PropertyListCard } from "./index";
+import { PropertyListCard } from "./index";
+import { GridCardSkeleton } from "./GridCardSkeleton";
+import { ListCardSkeleton } from "./ListCardSkeleton";
 import type { PropertyListCardProps } from "./types";
 
 const sampleImages = [

@@ -1,13 +1,6 @@
-import type { CardLayoutVariant } from "../PropertyCardList/types";
 import { GridCardSkeleton } from "./GridCardSkeleton";
-import type { GridCardSkeletonProps } from "./GridCardSkeleton";
 import { ListCardSkeleton } from "./ListCardSkeleton";
-import type { ListCardSkeletonProps } from "./ListCardSkeleton";
-
-export type PropertyListCardSkeletonProps = GridCardSkeletonProps &
-  ListCardSkeletonProps & {
-    layoutVariant: CardLayoutVariant;
-  };
+import type { PropertyListCardSkeletonProps } from "./types";
 
 export function PropertyListCardSkeleton({
   layoutVariant,

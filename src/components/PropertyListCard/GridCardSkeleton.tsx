@@ -1,9 +1,5 @@
 import { Card, Skeleton } from "../ui";
-
-export type GridCardSkeletonProps = {
-  canViewOwners?: boolean;
-  canViewAgents?: boolean;
-};
+import type { GridCardSkeletonProps } from "./types";
 
 export function GridCardSkeleton({
   canViewOwners = true,
@@ -35,7 +31,9 @@ export function GridCardSkeleton({
         ) : null}
 
         {canViewOwners ? (
-          <div className="mt-2 grid grid-cols-1 gap-1.5">
+          <div className="mt-2">
+            <Skeleton variant="text" className="mb-1.5 h-3 w-16" />
+            <div className="grid grid-cols-1 gap-1.5">
             <div className="rounded-md bg-page p-2">
               <Skeleton variant="text" className="h-4 w-28" />
               <Skeleton variant="text" className="mt-1 h-4 w-40" />
@@ -43,6 +41,7 @@ export function GridCardSkeleton({
             <div className="rounded-md bg-page p-2">
               <Skeleton variant="text" className="h-4 w-24" />
               <Skeleton variant="text" className="mt-1 h-4 w-36" />
+            </div>
             </div>
           </div>
         ) : null}

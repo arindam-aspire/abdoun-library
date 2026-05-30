@@ -2,9 +2,7 @@
 
 import type { PropertyListCardProps } from "./types";
 import { GridCard } from "./GridCard";
-import { GridCardSkeleton } from "./GridCardSkeleton";
 import { ListCard } from "./ListCard";
-import { ListCardSkeleton } from "./ListCardSkeleton";
 
 export function PropertyListCard(props: PropertyListCardProps) {
   if (props.layoutVariant === "list") {
@@ -13,11 +11,3 @@ export function PropertyListCard(props: PropertyListCardProps) {
 
   return <GridCard {...props} />;
 }
-
-export { PropertyListCardSkeleton } from "./PropertyListCardSkeleton";
-export type { PropertyListCardSkeletonProps } from "./PropertyListCardSkeleton";
-export type {
-  ApplicationKey,
-  PropertyListing,
-  PropertyListCardProps,
-} from "./types";

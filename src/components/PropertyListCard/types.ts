@@ -1,33 +1,52 @@
-import type { ApplicationKey, PropertyListing } from "../PropertyCardList/types";
+import type {
+  ApplicationKey,
+  CardLayoutVariant,
+  PropertyListing,
+} from "../PropertyCardList/types";
 
-export type { ApplicationKey, PropertyListing };
+export type { ApplicationKey, CardLayoutVariant, PropertyListing };
 
-export interface PropertyListCardProps {
+export interface PropertyListCardCoreProps {
   propertyDetails: PropertyListing;
   canViewOwners?: boolean;
   canViewAgents?: boolean;
   canViewBadges?: boolean;
-  layoutVariant: "grid" | "list";
-  applicationKey?: ApplicationKey;
-  isFavouriteLoading?: boolean;
-
+  onClick?: (propertyDetails: PropertyListing) => void;
   onClickEmail?: (propertyDetails: PropertyListing) => void;
   onClickCall?: (propertyDetails: PropertyListing) => void;
   onClickWhatsApp?: (propertyDetails: PropertyListing) => void;
   onClickFavourite?: (propertyDetails: PropertyListing) => void;
-  onClick?: (propertyDetails: PropertyListing) => void;
 }
 
-export interface ImageGallaryProps {
-  propertyDetails: PropertyListing;
+export interface PropertyListCardProps extends PropertyListCardCoreProps {
+  layoutVariant: CardLayoutVariant;
+  applicationKey?: ApplicationKey;
+  isFavouriteLoading?: boolean;
+}
+
+export interface ImageGallaryProps
+  extends Pick<
+    PropertyListCardCoreProps,
+    "propertyDetails" | "canViewAgents" | "canViewBadges"
+  > {
+  layoutVariant: CardLayoutVariant;
+  applicationKey?: ApplicationKey;
+  onClickFavourite?: PropertyListCardCoreProps["onClickFavourite"];
+  isFavouriteLoading?: boolean;
+}
+
+export interface GridCardSkeletonProps {
   canViewOwners?: boolean;
   canViewAgents?: boolean;
-  canViewBadges?: boolean;
-  layoutVariant: "grid" | "list";
-  applicationKey?: ApplicationKey;
+}
 
-  onClickFavourite?: (propertyDetails: PropertyListing) => void;
+export interface ListCardSkeletonProps {
+  canViewOwners?: boolean;
+  canViewAgents?: boolean;
+}
 
-  /** When true, the favourite control shows a loading spinner and ignores clicks. */
-  isFavouriteLoading?: boolean;
+export interface PropertyListCardSkeletonProps
+  extends GridCardSkeletonProps,
+    ListCardSkeletonProps {
+  layoutVariant: CardLayoutVariant;
 }
