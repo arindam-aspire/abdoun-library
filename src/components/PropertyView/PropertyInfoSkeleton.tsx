@@ -9,18 +9,20 @@ export type PropertyInfoSkeletonProps = {
 
 function ContactActionsSkeleton() {
   return (
-    <>
-      <div className="flex justify-end gap-2 lg:hidden">
-        <Skeleton className="size-[42px] shrink-0 rounded-lg" variant="default" />
-        <Skeleton className="size-[42px] shrink-0 rounded-lg" variant="default" />
-        <Skeleton className="size-[42px] shrink-0 rounded-lg" variant="default" />
-      </div>
-      <div className="hidden gap-2 lg:flex">
-        <Skeleton className="h-[42px] min-w-0 flex-1 rounded-lg" variant="default" />
-        <Skeleton className="h-[42px] min-w-0 flex-1 rounded-lg" variant="default" />
-        <Skeleton className="size-[42px] shrink-0 rounded-lg" variant="default" />
-      </div>
-    </>
+    <div className="flex w-full flex-row justify-end gap-2 md:gap-4">
+      <Skeleton
+        className="h-8 min-w-0 flex-1 rounded-lg sm:h-11"
+        variant="default"
+      />
+      <Skeleton
+        className="h-8 min-w-0 flex-1 rounded-lg sm:h-11"
+        variant="default"
+      />
+      <Skeleton
+        className="size-8 shrink-0 rounded-lg sm:size-11"
+        variant="default"
+      />
+    </div>
   );
 }
 

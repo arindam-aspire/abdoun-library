@@ -10,6 +10,11 @@ import {
   type ReactNode,
 } from "react";
 import { cn } from "../../../lib/cn";
+import {
+  toggleContainerSizeClasses,
+  toggleIconSizeClasses,
+  toggleSegmentSizeClasses,
+} from "../controlSizes";
 import type {
   ToggleButtonColor,
   ToggleButtonProps,
@@ -161,24 +166,6 @@ const inactiveLabelVariantClasses: Record<
   },
 };
 
-const containerSizeClasses: Record<ToggleButtonSize, string> = {
-  sm: "p-0.5",
-  md: "p-1",
-  lg: "p-1",
-};
-
-const segmentSizeClasses: Record<ToggleButtonSize, string> = {
-  sm: "gap-1 px-3 py-1.5 text-sm",
-  md: "gap-1.5 px-4 py-2 text-sm",
-  lg: "gap-2 px-5 py-2.5 text-base",
-};
-
-const iconSizeClasses: Record<ToggleButtonSize, string> = {
-  sm: "size-3.5 shrink-0",
-  md: "size-4 shrink-0",
-  lg: "size-[1.125rem] shrink-0",
-};
-
 function ToggleButtonIcon({
   icon,
   size,
@@ -188,7 +175,10 @@ function ToggleButtonIcon({
 }) {
   return (
     <span
-      className={cn("inline-flex [&>svg]:size-full", iconSizeClasses[size])}
+      className={cn(
+        "inline-flex shrink-0 [&>svg]:size-full",
+        toggleIconSizeClasses[size],
+      )}
       aria-hidden
     >
       {icon}
@@ -287,7 +277,7 @@ export function ToggleButton<T extends string = string>({
       className={cn(
         "relative inline-flex",
         roundedContainer,
-        containerSizeClasses[size],
+        toggleContainerSizeClasses[size],
         containerVariantClasses[color][variant],
         fullWidth && "flex w-full",
         className,
@@ -327,7 +317,7 @@ export function ToggleButton<T extends string = string>({
               "relative z-10 inline-flex min-w-0 flex-1 items-center justify-center font-medium transition-colors",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/40 focus-visible:ring-offset-1",
               "data-disabled:cursor-not-allowed data-disabled:opacity-50",
-              segmentSizeClasses[size],
+              toggleSegmentSizeClasses[size],
               isSelected
                 ? activeLabelVariantClasses[color][variant]
                 : inactiveLabelVariantClasses[color][variant],

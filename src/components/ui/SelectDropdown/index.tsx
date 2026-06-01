@@ -12,30 +12,24 @@ import { ChevronDown } from "lucide-react";
 import { useId, useMemo, useState } from "react";
 import { cn } from "../../../lib/cn";
 import {
+  dropdownOptionSizeClasses,
+  dropdownPanelSizeClasses,
+  fieldErrorSizeClasses,
+  fieldHintSizeClasses,
+  fieldIconSizeClasses,
+  fieldLabelSizeClasses,
+  selectTriggerLeadingIconPaddingClasses,
+  selectTriggerSizeClasses,
+} from "../controlSizes";
+import {
   inheritOutlineFocusVisibleClasses,
   inheritOutlineVariantClasses,
 } from "../fieldVariants";
-import type {
-  SelectDropdownProps,
-  SelectDropdownSize,
-  SelectDropdownVariant,
-} from "./types";
+import type { SelectDropdownProps, SelectDropdownVariant } from "./types";
 import {
   SELECT_DROPDOWN_EMPTY_VALUE,
   type SelectDropdownOption,
 } from "./types";
-
-const triggerSizeClasses: Record<SelectDropdownSize, string> = {
-  sm: "h-9 gap-1.5 px-3 text-sm",
-  md: "h-11 gap-2 px-4 text-sm",
-  lg: "h-12 gap-2 px-5 text-base",
-};
-
-const iconSizeClasses: Record<SelectDropdownSize, string> = {
-  sm: "size-3.5",
-  md: "size-4",
-  lg: "size-5",
-};
 
 const triggerBaseClasses = cn(
   "relative flex w-full items-center rounded-xl transition-colors",
@@ -60,12 +54,14 @@ const triggerVariantClasses: Record<SelectDropdownVariant, string> = {
 };
 
 const panelClasses = cn(
-  "z-50 max-h-64 min-w-64 w-(--button-width) overflow-auto rounded-2xl border border-secondary-light/80 bg-surface p-2 text-sm leading-5 shadow-xl ring-1 ring-black/5",
+  "z-50 max-h-64 min-w-64 w-(--button-width) overflow-auto rounded-2xl border border-secondary-light/80 bg-surface shadow-xl ring-1 ring-black/5",
   "[scrollbar-width:thin] focus:outline-none",
+  dropdownPanelSizeClasses,
 );
 
 const optionBaseClasses = cn(
-  "cursor-pointer rounded-xl px-3 py-2 text-sm leading-5 text-text transition-colors",
+  "cursor-pointer rounded-xl text-text transition-colors",
+  dropdownOptionSizeClasses,
   "data-focus:bg-page data-hover:bg-page",
   "data-selected:bg-page data-selected:font-medium data-selected:text-secondary-dark",
   "data-disabled:cursor-not-allowed data-disabled:opacity-50",
@@ -101,6 +97,7 @@ export function SelectDropdown({
   onBlur,
   fullWidth = true,
   wrapperClassName,
+  hasLeadingIcon = false,
   triggerClassName,
   panelClassName,
   optionClassName,
@@ -161,10 +158,7 @@ export function SelectDropdown({
       {label != null && (
         <Label
           htmlFor={selectId}
-          className={cn(
-            "mb-1.5 block text-sm font-medium text-text",
-            labelClassName,
-          )}
+          className={cn(fieldLabelSizeClasses, labelClassName)}
         >
           {label}
           {isRequired && (
@@ -193,7 +187,8 @@ export function SelectDropdown({
             onBlur={onBlur}
             className={cn(
               triggerBaseClasses,
-              triggerSizeClasses[size],
+              selectTriggerSizeClasses[size],
+              hasLeadingIcon && selectTriggerLeadingIconPaddingClasses[size],
               triggerVariantClasses[variant],
               isRtl ? "text-end" : "text-left",
               hasError &&
@@ -213,7 +208,7 @@ export function SelectDropdown({
               {hasSelection ? selectedOption.label : placeholder}
             </span>
             <ChevronDown
-              className={cn("shrink-0 text-muted", iconSizeClasses[size])}
+              className={cn("shrink-0 text-muted", fieldIconSizeClasses[size])}
               aria-hidden
             />
           </ListboxButton>
@@ -244,13 +239,13 @@ export function SelectDropdown({
       </Listbox>
 
       {hasError && (
-        <p id={errorId} role="alert" className="mt-1.5 text-sm text-danger">
+        <p id={errorId} role="alert" className={fieldErrorSizeClasses}>
           {error}
         </p>
       )}
 
       {!hasError && hint != null && (
-        <p id={hintId} className="mt-1.5 text-sm text-muted">
+        <p id={hintId} className={fieldHintSizeClasses}>
           {hint}
         </p>
       )}

@@ -16,6 +16,12 @@ import {
   type HeroGalleryItem,
 } from "./heroGallery";
 import type { HeroSectionProps } from "./types";
+import {
+  textBadgeClasses,
+  textHeroEyebrowClasses,
+  textHeroSubtitleClasses,
+  textHeroTitleClasses,
+} from "../../lib/typography";
 
 const TRANSITION_MS = 260;
 const AUTOPLAY_MS = 5000;
@@ -42,6 +48,7 @@ function getThumbLabel(item: HeroGalleryItem, index: number): string {
 
 export function HeroSection({
   images,
+  lightboxImages: lightboxImagesProp,
   videos = [],
   virtualTourUrl = null,
   title,
@@ -60,7 +67,13 @@ export function HeroSection({
     () => buildHeroGallery(images, videos, virtualTourUrl),
     [images, videos, virtualTourUrl],
   );
-  const lightboxImages = useMemo(() => getHeroImageSources(gallery), [gallery]);
+  const lightboxImages = useMemo(
+    () =>
+      lightboxImagesProp && lightboxImagesProp.length > 0
+        ? lightboxImagesProp
+        : getHeroImageSources(gallery),
+    [gallery, lightboxImagesProp],
+  );
   const isFallbackGallery = images.length === 0;
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -135,6 +148,16 @@ export function HeroSection({
     setIsLightboxOpen(true);
   }, [isActiveVideo, isFallbackGallery]);
 
+  const activeLightboxIndex = useMemo(() => {
+    if (!activeItem || activeItem.type !== "image") {
+      return 0;
+    }
+
+    return gallery
+      .slice(0, activeIndex + 1)
+      .filter((item) => item.type === "image").length - 1;
+  }, [activeIndex, activeItem, gallery]);
+
   const renderMainMedia = () => {
     if (!activeItem) {
       return null;
@@ -191,6 +214,9 @@ export function HeroSection({
         <img
           src={activeItem.src}
           alt={title}
+          loading={activeIndex === 0 ? "eager" : "lazy"}
+          decoding="async"
+          fetchPriority={activeIndex === 0 ? "high" : "low"}
           className={cn(
             "absolute inset-0 h-full w-full object-cover transition-all duration-[260ms]",
             isTransitioning && "opacity-90 blur-[1px]",
@@ -217,7 +243,10 @@ export function HeroSection({
                 <Badge
                   variant="warning"
                   appearance="solid"
-                  className="rounded-md px-3 py-1 text-xs font-bold uppercase tracking-wide"
+                  className={cn(
+                    "rounded-md px-2.5 py-1 font-bold uppercase tracking-wide sm:px-3",
+                    textBadgeClasses,
+                  )}
                 >
                   {badgeLabel}
                 </Badge>
@@ -231,11 +260,9 @@ export function HeroSection({
                   isRounded
                   size="md"
                   isLoading={isFavouriteLoading}
-                  loadingLabel="Updating favourites"
                   icon={
                     <Heart
                       className={cn(
-                        "size-4",
                         isFavourite
                           ? "fill-danger text-danger"
                           : "text-secondary",
@@ -248,7 +275,10 @@ export function HeroSection({
                     event.stopPropagation();
                     onFavourite();
                   }}
-                  className="absolute top-3 right-4 z-30 bg-page/90 shadow-sm backdrop-blur-sm sm:top-4"
+                  className={cn(
+                    "absolute top-3 right-3 z-40 sm:top-4 sm:right-4",
+                    heroCarouselButtonClasses,
+                  )}
                   aria-label={
                     isFavourite
                       ? "Remove from favourites"
@@ -266,7 +296,7 @@ export function HeroSection({
                     variant="outline"
                     isRounded
                     size="md"
-                    icon={<ChevronLeft className="size-4" />}
+                    icon={<ChevronLeft />}
                     onClick={(event) => {
                       event.preventDefault();
                       event.stopPropagation();
@@ -284,7 +314,7 @@ export function HeroSection({
                     variant="outline"
                     isRounded
                     size="md"
-                    icon={<ChevronRight className="size-4" />}
+                    icon={<ChevronRight />}
                     onClick={(event) => {
                       event.preventDefault();
                       event.stopPropagation();
@@ -302,14 +332,14 @@ export function HeroSection({
               <div className="pointer-events-none absolute right-3 bottom-3 left-3 z-20 flex flex-col gap-2 pb-1 sm:right-4 sm:bottom-4 sm:left-4 sm:flex-row sm:items-end sm:justify-between md:gap-4 lg:gap-6">
                 <div className="min-w-0 max-w-2xl flex-1 text-page">
                   {isExclusive ? (
-                    <p className="text-[11px] font-bold tracking-[0.14em] text-accent uppercase">
+                    <p className={cn(textHeroEyebrowClasses, "text-accent")}>
                       {exclusiveText}
                     </p>
                   ) : null}
-                  <h1 className="mt-1 text-2xl font-bold leading-tight sm:text-3xl">
+                  <h1 className={cn("mt-1 leading-tight", textHeroTitleClasses)}>
                     {title}
                   </h1>
-                  <p className="mt-1 text-sm text-page/90 sm:text-base">
+                  <p className={cn("mt-1 text-page/90", textHeroSubtitleClasses)}>
                     {location}
                   </p>
                 </div>
@@ -375,6 +405,8 @@ export function HeroSection({
                       <img
                         src={thumbSrc}
                         alt=""
+                        loading="lazy"
+                        decoding="async"
                         className={cn(
                           "absolute inset-0 h-full w-full object-cover transition-transform duration-300",
                           hasCarousel &&
@@ -405,18 +437,18 @@ export function HeroSection({
           isOpen={isLightboxOpen}
           onClose={() => setIsLightboxOpen(false)}
           images={lightboxImages}
-          activeIndex={
-            activeItem?.type === "image"
-              ? lightboxImages.indexOf(activeItem.src)
-              : 0
-          }
+          activeIndex={activeLightboxIndex}
           onActiveIndexChange={(index) => {
-            const imageSrc = lightboxImages[index];
-            const galleryIndex = gallery.findIndex(
-              (item) => item.type === "image" && item.src === imageSrc,
-            );
-            if (galleryIndex >= 0) {
-              setActiveIndex(galleryIndex);
+            let imageCount = 0;
+            for (let galleryIndex = 0; galleryIndex < gallery.length; galleryIndex++) {
+              if (gallery[galleryIndex]?.type !== "image") {
+                continue;
+              }
+              if (imageCount === index) {
+                setActiveIndex(galleryIndex);
+                break;
+              }
+              imageCount++;
             }
           }}
           title={title}

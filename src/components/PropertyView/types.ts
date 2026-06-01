@@ -26,6 +26,8 @@ export interface HeroSectionLightBoxProps {
 
 export interface HeroSectionProps {
   images: string[];
+  /** Full-size URLs for the lightbox; defaults to `images` when omitted. */
+  lightboxImages?: string[];
   videos?: string[];
   virtualTourUrl?: NullableString;
   title: string;
@@ -83,7 +85,7 @@ interface PropertyLocationDetail {
   address: LocalizedText;
   latitude: NullableNumber;
   longitude: NullableNumber;
-  map_embed_url: string | null;
+  map_embed_url: NullableString;
   local_highlights?: string[];
   lifestyle_description?: NullableString;
 }
@@ -162,7 +164,7 @@ interface PropertyCreatedBy {
 export interface PropertyDetails {
   id: number;
   reference_number: string;
-  url: string | null;
+  url: NullableString;
 
   title: LocalizedText;
   description: LocalizedNullableText;
@@ -201,7 +203,7 @@ export interface PropertyDetails {
   features: PropertyFeatures;
 
   /** Selected features/amenities for this listing (matched to catalog by `id`). */
-  feature_list: PropertyFeatureListItem[];
+  features_list: PropertyFeatureListItem[];
 
   pricing: PropertyPricing;
 
@@ -213,9 +215,9 @@ export interface PropertyDetails {
   sold_at: NullableString;
   rented_at: NullableString;
 
-  agent: PropertyAgent;
+  agent: PropertyAgent | null;
 
-  owner: PropertyOwner;
+  owner: PropertyOwner | null;
 
   created_by: PropertyCreatedBy;
 
@@ -241,20 +243,20 @@ export type OverviewTabProps = {
   className?: string;
 };
 
-export type PropertyFeatureType = "feature" | "amenities";
+export type PropertyFeatureType = "FEATURE" | "AMENITIES";
 
 /** Catalog entry for a feature or amenity (from API / CMS). */
 export type PropertyFeatureDefinition = {
   id: number;
-  type: PropertyFeatureType;
+  feature_group: PropertyFeatureType;
   slug: string;
-  label: string;
+  name: string;
 };
 
 /** Property listing reference to a catalog feature or amenity. */
 export type PropertyFeatureListItem = {
   id: number;
-  type: PropertyFeatureType;
+  feature_group: PropertyFeatureType;
 };
 
 export type FeatureTabProps = {
@@ -292,6 +294,8 @@ export type PropertyViewTabOption = {
   label: string;
   value: string;
   icon?: ReactNode;
+  /** Alias of `icon` (e.g. when matching ToggleButton item shape). */
+  iconStart?: ReactNode;
 };
 
 export type PropertyViewTabs = {
@@ -328,7 +332,7 @@ export interface PropertyViewProps {
   isFavouriteLoading?: boolean;
   onClickFavourite?: (id: number) => void;
   tabs?: PropertyViewTabs;
-  /** Catalog of feature/amenity definitions; matched against `propertyDetails.feature_list` by `id`. */
+  /** Catalog of feature/amenity definitions; matched against `propertyDetails.features_list` by `id`. */
   features?: PropertyFeatureDefinition[];
   showAgent?: boolean;
   showOwner?: boolean;

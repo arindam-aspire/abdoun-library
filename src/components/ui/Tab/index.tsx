@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "../../../lib/cn";
+import { textTabTriggerClasses } from "../../../lib/typography";
 import type { TabItem, TabProps } from "./types";
 
 export function Tab<T extends string = string>({
@@ -70,6 +71,8 @@ function TabTrigger<T extends string>({
   disabled?: boolean;
   onSelect: () => void;
 }) {
+  const icon = item.icon ?? item.iconStart;
+
   return (
     <button
       type="button"
@@ -79,8 +82,9 @@ function TabTrigger<T extends string>({
       disabled={disabled}
       onClick={onSelect}
       className={cn(
-        "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 border-b-2 px-1 py-2 text-center text-xs font-medium transition-colors",
-        "sm:inline-flex sm:shrink-0 sm:flex-none sm:flex-row sm:items-center sm:justify-start sm:gap-2 sm:px-4 sm:py-3 sm:text-left sm:text-sm",
+        "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 border-b-2 px-1 py-2 text-center transition-colors",
+        textTabTriggerClasses,
+        "sm:inline-flex sm:shrink-0 sm:flex-none sm:flex-row sm:items-center sm:justify-start sm:gap-2 sm:px-4 sm:py-3 sm:text-left",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/40 focus-visible:ring-offset-1",
         "disabled:cursor-not-allowed disabled:opacity-50",
         isSelected
@@ -88,12 +92,12 @@ function TabTrigger<T extends string>({
           : "border-transparent text-muted hover:text-text",
       )}
     >
-      {item.icon != null ? (
+      {icon != null ? (
         <span
-          className="inline-flex size-4 shrink-0 [&>svg]:size-full"
+          className="inline-flex size-4 shrink-0 items-center justify-center text-current [&_svg]:size-4 [&_svg]:shrink-0"
           aria-hidden
         >
-          {item.icon}
+          {icon}
         </span>
       ) : null}
       <span className="w-full truncate text-center sm:w-auto sm:text-left">

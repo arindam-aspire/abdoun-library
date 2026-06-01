@@ -1,5 +1,9 @@
 import { useState } from "react";
 import { Mail, MapPin, Phone } from "lucide-react";
+import {
+  runCardControlAction,
+  runCardListingAction,
+} from "./cardClickHandlers";
 import type { PropertyListCardProps } from "./types";
 import { Card } from "../ui";
 import { Button } from "../ui/Button";
@@ -7,6 +11,17 @@ import { IconButton } from "../ui/IconButton";
 import { WhatsAppIcon } from "../ui/WhatsAppIcon";
 import { ImageGallary } from "./ImageGallary";
 import { LocationLightBox } from "../ui/LocationLightBox";
+import { cn } from "../../lib/cn";
+import {
+  textAvatarInitialClasses,
+  textBodyTightClasses,
+  textCardPriceClasses,
+  textCardTitleClasses,
+  textEyebrowClasses,
+  textOwnerChipClasses,
+  textPersonDetailClasses,
+  textPersonNameClasses,
+} from "../../lib/typography";
 
 function formatPrice(price: string): string {
   const normalized = price.trim();
@@ -77,10 +92,15 @@ export function GridCard({
         applicationKey={applicationKey}
       />
       <div className="flex flex-col p-4">
-        <p className="text-lg font-bold leading-tight text-secondary md:text-xl">
+        <p className={cn(textCardPriceClasses, "text-secondary")}>
           {formattedPrice}
         </p>
-        <div className="mt-1 flex items-center gap-1 text-sm leading-tight text-text/75 md:text-base">
+        <div
+          className={cn(
+            "mt-1 flex items-center gap-1 text-text/75",
+            textBodyTightClasses,
+          )}
+        >
           {formattedArea ? <span>{formattedArea}</span> : null}
           {formattedArea && propertyDetails.propertyType ? <span>•</span> : null}
           {propertyDetails.propertyType ? (
@@ -90,8 +110,13 @@ export function GridCard({
         {hasLocationMapData ? (
           <button
             type="button"
-            onClick={() => setIsLocationLightBoxOpen(true)}
-            className="mt-1 inline-flex items-center gap-1.5 text-left text-sm leading-tight text-inherit transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/30 md:text-base"
+            onClick={(event) =>
+              runCardControlAction(event, () => setIsLocationLightBoxOpen(true))
+            }
+            className={cn(
+              "mt-1 inline-flex items-center gap-1.5 text-left text-inherit transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/30",
+              textBodyTightClasses,
+            )}
             aria-label={`Open map for ${locationLabel}`}
           >
             <MapPin className="size-4 shrink-0" aria-hidden />
@@ -100,7 +125,12 @@ export function GridCard({
             </span>
           </button>
         ) : (
-          <div className="mt-1 flex items-center gap-1.5 text-sm leading-tight text-text md:text-base">
+          <div
+            className={cn(
+              "mt-1 flex items-center gap-1.5 text-text",
+              textBodyTightClasses,
+            )}
+          >
             <MapPin className="size-4 shrink-0" aria-hidden />
             <span className="truncate">{locationLabel}</span>
           </div>
@@ -117,15 +147,20 @@ export function GridCard({
                 decoding="async"
               />
             ) : (
-              <div className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary/15 text-sm font-semibold text-secondary">
+              <div
+                className={cn(
+                  "inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary/15 text-secondary",
+                  textAvatarInitialClasses,
+                )}
+              >
                 {getAgentInitials(agent?.name)}
               </div>
             )}
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold leading-tight text-secondary">
+              <p className={cn("truncate text-secondary", textPersonNameClasses)}>
                 {agent?.name}
               </p>
-              <p className="truncate text-sm leading-tight text-text/65">
+              <p className={cn("truncate", textPersonDetailClasses)}>
                 {agent?.phone || agent?.email || "No contact info"}
               </p>
             </div>
@@ -134,14 +169,17 @@ export function GridCard({
 
         {canViewOwners && owners.length > 0 ? (
           <div className="mt-2">
-            <h4 className="mb-1.5 text-xs font-semibold tracking-[0.12em] text-muted uppercase">
+            <h4 className={cn("mb-1.5 text-muted", textEyebrowClasses)}>
               Owners
             </h4>
             <div className="grid grid-cols-1 gap-1.5">
             {owners.map((owner) => (
               <div
                 key={owner.owner_id}
-                className="flex flex-col rounded-md bg-page p-2 text-sm leading-tight text-text/85"
+                className={cn(
+                  "flex flex-col rounded-md bg-page p-2 text-text/85",
+                  textOwnerChipClasses,
+                )}
               >
                 <span className="font-medium text-secondary/90">
                   {owner.full_name || "Owner"}
@@ -153,43 +191,16 @@ export function GridCard({
           </div>
         ) : null}
 
-        <div className="mt-4 flex w-full justify-end gap-2 md:gap-4 lg:hidden">
-          <IconButton
-            color="primary"
-            variant="solid"
-            size="md"
-            onClick={() => onClickEmail?.(propertyDetails)}
-            className="w-11"
-            icon={<Mail className="size-4 shrink-0" aria-hidden />}
-            aria-label="Email"
-          />
-          <IconButton
-            color="inherit"
-            variant="outline"
-            size="md"
-            onClick={() => onClickCall?.(propertyDetails)}
-            className="w-11"
-            icon={<Phone className="size-4 shrink-0" aria-hidden />}
-            aria-label="Call"
-          />
-          <IconButton
-            color="inherit"
-            variant="outline"
-            size="md"
-            onClick={() => onClickWhatsApp?.(propertyDetails)}
-            className="w-11"
-            icon={<WhatsAppIcon className="size-5" />}
-            aria-label="WhatsApp"
-          />
-        </div>
-        <div className="mt-4 hidden w-full flex-col gap-2 lg:flex lg:flex-row lg:gap-4">
+        <div className="mt-4 flex w-full flex-row justify-end gap-2 md:gap-4">
           <Button
             color="primary"
             variant="solid"
             size="md"
-            onClick={() => onClickEmail?.(propertyDetails)}
-            className="min-w-0 shrink-0 flex-1 gap-2 px-4 py-2 text-sm"
-            iconStart={<Mail className="size-4 shrink-0" aria-hidden />}
+            onClick={(event) =>
+              runCardListingAction(event, onClickEmail, propertyDetails)
+            }
+            className="min-w-0 shrink-0 flex-1"
+            iconStart={<Mail aria-hidden />}
           >
             <span className="truncate">Email</span>
           </Button>
@@ -197,9 +208,11 @@ export function GridCard({
             color="inherit"
             variant="outline"
             size="md"
-            onClick={() => onClickCall?.(propertyDetails)}
-            className="min-w-0 shrink-0 flex-1 gap-2 px-4 py-2 text-sm"
-            iconStart={<Phone className="size-4 shrink-0" aria-hidden />}
+            onClick={(event) =>
+              runCardListingAction(event, onClickCall, propertyDetails)
+            }
+            className="min-w-0 shrink-0 flex-1"
+            iconStart={<Phone aria-hidden />}
           >
             <span className="truncate">Call</span>
           </Button>
@@ -207,9 +220,11 @@ export function GridCard({
             color="inherit"
             variant="outline"
             size="md"
-            onClick={() => onClickWhatsApp?.(propertyDetails)}
-            className="w-11"
-            icon={<WhatsAppIcon className="size-5" />}
+            onClick={(event) =>
+              runCardListingAction(event, onClickWhatsApp, propertyDetails)
+            }
+            className="shrink-0"
+            icon={<WhatsAppIcon />}
             aria-label="WhatsApp"
           />
         </div>

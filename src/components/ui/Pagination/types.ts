@@ -11,7 +11,7 @@ export type PaginationProps = {
   onPageChange: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
   pageSizeOptions?: number[];
-  /** Maximum number of page buttons to display. Defaults to `5`. */
+  /** Maximum page buttons in the `md+` sliding window. Defaults to `5`. (Compact ellipsis on `sm`.) */
   maxPageButtons?: number;
   showPageSizeSelector?: boolean;
   showResultsSummary?: boolean;

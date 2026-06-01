@@ -4,6 +4,8 @@ export type TabItem<T extends string = string> = {
   value: T;
   label: ReactNode;
   icon?: ReactNode;
+  /** Alias of `icon`. */
+  iconStart?: ReactNode;
   disabled?: boolean;
 };
 

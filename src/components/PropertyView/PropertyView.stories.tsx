@@ -14,39 +14,39 @@ import type {
 const storyFeatures: PropertyFeatureDefinition[] = [
   {
     id: 1,
-    type: "amenities",
+    feature_group: "AMENITIES",
     slug: "elevator",
-    label: "Elevator",
+    name: "Elevator",
   },
   {
     id: 2,
-    type: "amenities",
+    feature_group: "AMENITIES",
     slug: "decorations",
-    label: "Decorations",
+    name: "Decorations",
   },
   {
     id: 3,
-    type: "amenities",
+    feature_group: "AMENITIES",
     slug: "wall_hung_toilets",
-    label: "Wall-hung toilets",
+    name: "Wall-hung toilets",
   },
   {
     id: 4,
-    type: "amenities",
+    feature_group: "AMENITIES",
     slug: "marble_floors",
-    label: "Marble floors",
+    name: "Marble floors",
   },
   {
     id: 5,
-    type: "amenities",
+    feature_group: "AMENITIES",
     slug: "wall_closets",
-    label: "Wall closets",
+    name: "Wall closets",
   },
   {
     id: 6,
-    type: "feature",
+    feature_group: "FEATURE",
     slug: "smart_home",
-    label: "Smart home system",
+    name: "Smart home system",
   },
 ];
 
@@ -194,13 +194,13 @@ const sampleProperty: PropertyViewDetails = {
   features: {
     amenities: [],
   },
-  feature_list: [
-    { id: 1, type: "amenities" },
-    { id: 2, type: "amenities" },
-    { id: 3, type: "amenities" },
-    { id: 4, type: "amenities" },
-    { id: 5, type: "amenities" },
-    { id: 6, type: "feature" },
+  features_list: [
+    { id: 1, feature_group: "AMENITIES" },
+    { id: 2, feature_group: "AMENITIES" },
+    { id: 3, feature_group: "AMENITIES" },
+    { id: 4, feature_group: "AMENITIES" },
+    { id: 5, feature_group: "AMENITIES" },
+    { id: 6, feature_group: "FEATURE" },
   ],
   pricing: {
     listing_type: "rent",
@@ -419,7 +419,7 @@ export const NoFeatures: Story = {
   args: {
     propertyDetails: {
       ...sampleProperty,
-      feature_list: [],
+      features_list: [],
     },
     tabs: {
       tabOptions: storyTabOptions,

@@ -1,6 +1,7 @@
 import { cn } from "../../lib/cn";
 import { Card } from "../ui";
 import type { NoDataFoundProps } from "./types";
+import { textEmptyBodyClasses, textEmptyTitleClasses } from "../../lib/typography";
 
 function GhostPropertyCard({ className }: { className?: string }) {
   return (
@@ -162,13 +163,8 @@ export function NoDataFound({
       </div>
 
       <div className="flex flex-col items-center px-4 pb-8 pt-6 text-center sm:px-8 sm:pb-10">
-          <h3 className="text-xl font-bold text-secondary sm:text-2xl">{title}</h3>
-          <p
-            className={cn(
-              "max-w-lg text-sm leading-relaxed text-muted sm:text-base",
-              "mt-3",
-            )}
-          >
+          <h3 className={cn(textEmptyTitleClasses, "text-secondary")}>{title}</h3>
+          <p className={cn("mt-3 max-w-lg text-muted", textEmptyBodyClasses)}>
             {description}
           </p>
 

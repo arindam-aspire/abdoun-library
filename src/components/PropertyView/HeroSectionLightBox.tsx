@@ -3,6 +3,8 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { cn } from "../../lib/cn";
+import { textOverlayButtonClasses } from "../../lib/typography";
 import { IconButton } from "../ui/IconButton";
 import { HeroCarouselControls } from "./HeroCarouselControls";
 import type { HeroSectionLightBoxProps } from "./types";
@@ -72,7 +74,10 @@ export function HeroSectionLightBox({
       <button
         type="button"
         onClick={onClose}
-        className="absolute top-5 left-5 z-20 inline-flex items-center gap-1.5 text-sm font-medium text-page transition-opacity hover:opacity-80 sm:top-6 sm:left-6"
+        className={cn(
+          "absolute top-5 left-5 z-20 inline-flex items-center gap-1.5 text-page transition-opacity hover:opacity-80 sm:top-6 sm:left-6",
+          textOverlayButtonClasses,
+        )}
       >
         <ChevronLeft className="size-5 shrink-0" aria-hidden />
         Back
@@ -92,7 +97,7 @@ export function HeroSectionLightBox({
               color="inherit"
               variant="outline"
               isRounded
-              icon={<ChevronLeft className="size-5" />}
+              icon={<ChevronLeft />}
               onClick={goPrev}
               className="absolute top-1/2 left-4 z-20 -translate-y-1/2 bg-page/90 sm:left-6"
               aria-label="Previous image"
@@ -102,7 +107,7 @@ export function HeroSectionLightBox({
               color="inherit"
               variant="outline"
               isRounded
-              icon={<ChevronRight className="size-5" />}
+              icon={<ChevronRight />}
               onClick={goNext}
               className="absolute top-1/2 right-4 z-20 -translate-y-1/2 bg-page/90 sm:right-6"
               aria-label="Next image"

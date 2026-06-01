@@ -4,22 +4,17 @@ import { Field, Label } from "@headlessui/react";
 import { forwardRef, useId, type ReactNode } from "react";
 import { cn } from "../../../lib/cn";
 import {
+  fieldControlSizeClasses,
+  fieldErrorSizeClasses,
+  fieldHintSizeClasses,
+  fieldIconSizeClasses,
+  fieldLabelSizeClasses,
+} from "../controlSizes";
+import {
   inheritOutlineFocusWithinClasses,
   inheritOutlineVariantClasses,
 } from "../fieldVariants";
 import type { InputProps, InputSize, InputVariant } from "./types";
-
-const wrapperSizeClasses: Record<InputSize, string> = {
-  sm: "h-9 gap-1.5 px-3 text-sm",
-  md: "h-11 gap-2 px-4 text-sm",
-  lg: "h-12 gap-2 px-5 text-base",
-};
-
-const iconSizeClasses: Record<InputSize, string> = {
-  sm: "size-3.5",
-  md: "size-4",
-  lg: "size-5",
-};
 
 const variantClasses: Record<InputVariant, string> = {
   outline: cn(inheritOutlineVariantClasses, inheritOutlineFocusWithinClasses),
@@ -58,7 +53,7 @@ function InputIcon({
     <span
       className={cn(
         "inline-flex shrink-0 text-muted [&>svg]:size-full",
-        iconSizeClasses[size],
+        fieldIconSizeClasses[size],
         className,
       )}
       aria-hidden
@@ -111,10 +106,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       {label != null && (
         <Label
           htmlFor={inputId}
-          className={cn(
-            "mb-1.5 block text-sm font-medium text-text",
-            labelClassName,
-          )}
+          className={cn(fieldLabelSizeClasses, labelClassName)}
         >
           {label}
           {isRequired && (
@@ -128,7 +120,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       <div
         className={cn(
           controlWrapperClasses,
-          wrapperSizeClasses[size],
+          fieldControlSizeClasses[size],
           variantClasses[variant],
           hasError &&
             "border-danger hover:border-danger focus-within:border-danger focus-within:ring-danger/20",
@@ -155,13 +147,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       </div>
 
       {hasError && (
-        <p id={errorId} role="alert" className="mt-1.5 text-sm text-danger">
+        <p id={errorId} role="alert" className={fieldErrorSizeClasses}>
           {error}
         </p>
       )}
 
       {!hasError && hint != null && (
-        <p id={hintId} className="mt-1.5 text-sm text-muted">
+        <p id={hintId} className={fieldHintSizeClasses}>
           {hint}
         </p>
       )}

@@ -7,8 +7,8 @@ import type {
 export type MatchedPropertyFeature = {
   id: number;
   slug: string;
-  label: string;
-  type: PropertyFeatureType;
+  name: string;
+  feature_group: PropertyFeatureType;
 };
 
 export function mapPropertyFeatures(
@@ -31,8 +31,8 @@ export function mapPropertyFeatures(
       {
         id: definition.id,
         slug: definition.slug,
-        label: definition.label,
-        type: item.type,
+        name: definition.name,
+        feature_group: item.feature_group,
       },
     ];
   });

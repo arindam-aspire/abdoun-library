@@ -1,9 +1,10 @@
 import { cva } from "class-variance-authority";
 import { cn } from "../../../lib/cn";
+import { textBadgeClasses } from "../../../lib/typography";
 import type { BadgeProps } from "./types";
 
 export const badgeVariants = cva(
-  "inline-flex items-center rounded-full px-3 py-0.5 text-[11px] font-semibold",
+  cn("inline-flex items-center rounded-full px-2.5 py-0.5 sm:px-3", textBadgeClasses),
   {
     variants: {
       variant: {

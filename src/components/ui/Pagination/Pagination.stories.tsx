@@ -94,3 +94,36 @@ export const EmptyResults: Story = {
     />
   ),
 };
+
+/** Below `md`: page 4 → `1, …, 3, 4, 5, …, 147` */
+export const CompactPageFour: Story = {
+  render: () => (
+    <PaginationDemo initialPage={4} initialPageSize={1} totalItems={147} />
+  ),
+  parameters: {
+    viewport: { defaultViewport: "mobile1" },
+  },
+};
+
+/** Below `md`: page 5 → `1, …, 4, 5, 6, …, 147` */
+export const ManyPagesMiddle: Story = {
+  render: () => (
+    <PaginationDemo initialPage={5} initialPageSize={1} totalItems={147} />
+  ),
+  parameters: {
+    viewport: { defaultViewport: "mobile1" },
+  },
+};
+
+/** 147 pages — page 40 → `1, …, 39, 40, 41, …, 147` */
+export const ManyPagesMidRange: Story = {
+  render: () => (
+    <PaginationDemo initialPage={40} initialPageSize={1} totalItems={147} />
+  ),
+};
+
+export const ManyPagesNearEnd: Story = {
+  render: () => (
+    <PaginationDemo initialPage={146} initialPageSize={1} totalItems={147} />
+  ),
+};

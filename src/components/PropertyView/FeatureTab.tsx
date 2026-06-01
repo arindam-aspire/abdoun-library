@@ -10,14 +10,20 @@ import type {
   PropertyFeatureType,
 } from "./types";
 import type { MatchedPropertyFeature } from "./featureUtils";
+import {
+  textBodySmClasses,
+  textEmptyHeadingClasses,
+  textFeatureItemClasses,
+  textSectionTitleClasses,
+} from "../../lib/typography";
 
 const EMPTY_FEATURES_TITLE = "No amenities listed";
 const EMPTY_FEATURES_DESCRIPTION =
   "Features and amenities for this property haven't been added yet. Contact the agent if you'd like more details.";
 
 const featureTypeIcons: Record<PropertyFeatureType, LucideIcon> = {
-  feature: Layers,
-  amenities: Sparkles,
+  FEATURE: Layers,
+  AMENITIES: Sparkles,
 };
 
 function GhostFeatureIcon({ className }: { className?: string }) {
@@ -54,25 +60,25 @@ function FeaturesEmptyState() {
         </span>
       </div>
 
-      <h4 className="text-base font-semibold text-text sm:text-lg">
+      <h4 className={cn(textEmptyHeadingClasses, "text-text")}>
         {EMPTY_FEATURES_TITLE}
       </h4>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted">
+      <p className={cn("mx-auto mt-2 max-w-md text-muted", textBodySmClasses)}>
         {EMPTY_FEATURES_DESCRIPTION}
       </p>
     </div>
   );
 }
 
-function FeatureItem({ label, type }: MatchedPropertyFeature) {
-  const Icon = featureTypeIcons[type];
+function FeatureItem({ name, feature_group }: MatchedPropertyFeature) {
+  const Icon = featureTypeIcons[feature_group];
 
   return (
     <li className="flex items-center gap-4">
       <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-secondary/10 text-secondary">
         <Icon className="size-5" aria-hidden />
       </span>
-      <span className="text-sm font-medium text-text/80">{label}</span>
+      <span className={cn(textFeatureItemClasses, "text-text/80")}>{name}</span>
     </li>
   );
 }
@@ -83,8 +89,8 @@ export function FeatureTab({
   className,
 }: FeatureTabProps) {
   const matchedFeatures = useMemo(
-    () => mapPropertyFeatures(propertyDetails.feature_list, features),
-    [features, propertyDetails.feature_list],
+    () => mapPropertyFeatures(propertyDetails.features_list, features),
+    [features, propertyDetails.features_list],
   );
 
   return (
@@ -93,14 +99,17 @@ export function FeatureTab({
       aria-label="Features and amenities"
     >
       <Card className="border border-secondary/10 p-5 shadow-none sm:p-6">
-        <h3 className="text-sm font-bold tracking-[0.08em] text-secondary uppercase">
+        <h3 className={cn(textSectionTitleClasses, "text-secondary")}>
           Features & Amenities
         </h3>
 
         {matchedFeatures.length > 0 ? (
           <ul className="mt-5 grid grid-cols-1 gap-y-4 gap-x-12 md:grid-cols-2">
             {matchedFeatures.map((feature) => (
-              <FeatureItem key={`${feature.id}-${feature.type}`} {...feature} />
+              <FeatureItem
+                key={`${feature.id}-${feature.feature_group}`}
+                {...feature}
+              />
             ))}
           </ul>
         ) : (

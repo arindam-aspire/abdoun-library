@@ -9,7 +9,8 @@ import type { PropertyViewProps } from "./types";
 import {
   formatPropertyLocation,
   getLocalizedText,
-  resolvePropertyImageUrls,
+  resolvePropertyDisplayImageUrls,
+  resolvePropertyFullImageUrls,
 } from "./utils";
 
 function resolveListingType(
@@ -66,7 +67,8 @@ export function PropertyView({
 
   const title = getLocalizedText(propertyDetails.title, locale);
   const location = formatPropertyLocation(propertyDetails, locale);
-  const images = resolvePropertyImageUrls(propertyDetails.media);
+  const displayImages = resolvePropertyDisplayImageUrls(propertyDetails.media);
+  const fullImages = resolvePropertyFullImageUrls(propertyDetails.media);
 
   return (
     <article
@@ -76,14 +78,17 @@ export function PropertyView({
       )}
     >
       <HeroSection
-        images={images}
+        images={displayImages}
+        lightboxImages={fullImages}
         videos={propertyDetails.media.videos}
         virtualTourUrl={propertyDetails.media.virtual_tour_url}
         title={title}
         location={location}
         listingType={resolveListingType(propertyDetails.listing_type)}
         isExclusive={propertyDetails.is_exclusive}
-        brokerName={propertyDetails.agent.name}
+        brokerName={
+          propertyDetails.agency?.agency_name ?? propertyDetails.agent?.name
+        }
         isFavouriteLoading={isFavouriteLoading}
         onFavourite={
           onClickFavourite
@@ -146,6 +151,8 @@ export type {
   Locale,
   PropertyDetails,
   PropertyFeatureDefinition,
+  PropertyFeatureListItem,
+  PropertyFeatureType,
   PropertyMediaItem,
   PropertyViewProps,
   PropertyViewTabOption,

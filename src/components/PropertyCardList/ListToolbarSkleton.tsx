@@ -16,8 +16,10 @@ export function ListToolbarSkleton({ className }: ListToolbarSkletonProps) {
       <Skeleton className="h-8 w-40 md:w-48" />
 
       <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center md:gap-4 lg:gap-6">
-        <Skeleton className="h-11 w-full rounded-lg sm:w-[8.75rem] md:w-[11rem] lg:w-[12rem]" />
-        <Skeleton className="h-11 w-full rounded-lg sm:w-40 md:w-[11rem] lg:w-[12rem]" />
+        <div className="flex w-full flex-row flex-nowrap items-center gap-2 md:contents">
+          <Skeleton className="h-8 min-w-0 flex-1 rounded-lg sm:h-11 md:w-[11rem] md:flex-none lg:w-[12rem]" />
+          <Skeleton className="h-8 shrink-0 rounded-lg sm:h-11 sm:w-auto md:w-[11rem] lg:w-[12rem]" />
+        </div>
         <Skeleton className="hidden h-5 w-20 sm:block" />
       </div>
     </div>

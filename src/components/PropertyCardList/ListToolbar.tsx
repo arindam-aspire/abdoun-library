@@ -1,8 +1,15 @@
 import { LayoutGrid, List, ListFilter } from "lucide-react";
 import { cn } from "../../lib/cn";
+import { selectLeadingIconPositionClasses } from "../ui/controlSizes";
+import {
+  textPageTitleClasses,
+  textPageTitleMetaClasses,
+  textToolbarCountClasses,
+} from "../../lib/typography";
 import { SelectDropdown } from "../ui/SelectDropdown";
 import { SELECT_DROPDOWN_EMPTY_VALUE } from "../ui/SelectDropdown/types";
 import { ToggleButton } from "../ui/ToggleButton";
+import type { ToggleButtonItem } from "../ui/ToggleButton/types";
 import { ListToolbarSkleton } from "./ListToolbarSkleton";
 import type { CardLayoutVariant, PropertyCardListToolbarProps } from "./types";
 
@@ -31,6 +38,19 @@ export function ListToolbar({
   const showSort = Boolean(sortOptions && sortOptions.length > 0);
   const resolvedSortOptions = sortOptions ?? [];
 
+  const viewToggleItems: ToggleButtonItem<CardLayoutVariant>[] = [
+    {
+      value: "grid",
+      label: <span className="hidden md:inline">Grid</span>,
+      iconStart: <LayoutGrid />,
+    },
+    {
+      value: "list",
+      label: <span className="hidden md:inline">List</span>,
+      iconStart: <List />,
+    },
+  ];
+
   return (
     <div
       className={cn(
@@ -38,66 +58,62 @@ export function ListToolbar({
         className,
       )}
     >
-      <h2 className="text-xl font-bold text-secondary">
+      <h2 className={cn("font-bold text-secondary", textPageTitleClasses)}>
         {title}
         {showCount ? (
-          <span className="ms-1 text-base font-normal text-muted sm:hidden">
+          <span className={cn("ms-1 sm:hidden", textPageTitleMetaClasses)}>
             ({totalCount} {listingsLabel})
           </span>
         ) : null}
       </h2>
 
       <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center md:gap-4 lg:gap-6">
-        {showSort ? (
-          <div className="relative w-full sm:w-auto">
-            <ListFilter
-              className="pointer-events-none absolute start-3 top-1/2 z-10 size-4 -translate-y-1/2 text-muted"
-              aria-hidden
-            />
-            <SelectDropdown
-              options={resolvedSortOptions}
-              placeholder="Sort by"
-              value={sortValue}
-              onChange={(value) => {
-                if (value !== SELECT_DROPDOWN_EMPTY_VALUE) {
-                  onSortChange?.(value);
-                }
-              }}
-              fullWidth
-              wrapperClassName="w-full sm:w-auto"
-              triggerClassName="h-11 min-w-[8.75rem] rounded-lg ps-9 pe-3 text-sm font-medium md:min-w-[11rem] lg:min-w-[12rem]"
-              variant="outline"
-              size="md"
-              aria-label="Sort properties"
-            />
-          </div>
-        ) : null}
+        <div className="flex w-full flex-row flex-nowrap items-center gap-2 md:contents">
+          {showSort ? (
+            <div className="relative min-w-0 flex-1 md:w-auto md:flex-none">
+              <ListFilter
+                className={cn(
+                  "pointer-events-none absolute z-10 text-muted",
+                  selectLeadingIconPositionClasses.md,
+                )}
+                aria-hidden
+              />
+              <SelectDropdown
+                options={resolvedSortOptions}
+                placeholder="Sort by"
+                value={sortValue}
+                onChange={(value) => {
+                  if (value !== SELECT_DROPDOWN_EMPTY_VALUE) {
+                    onSortChange?.(value);
+                  }
+                }}
+                fullWidth
+                hasLeadingIcon
+                wrapperClassName="w-full min-w-0 md:w-auto"
+                triggerClassName="min-w-[8.75rem] rounded-lg md:min-w-[11rem] lg:min-w-[12rem]"
+                variant="outline"
+                size="md"
+                aria-label="Sort properties"
+              />
+            </div>
+          ) : null}
 
-        <ToggleButton
-          items={[
-            {
-              value: "grid",
-              label: "Grid",
-              iconStart: <LayoutGrid />,
-            },
-            {
-              value: "list",
-              label: "List",
-              iconStart: <List />,
-            },
-          ]}
-          value={layoutVariant}
-          onChange={(view) => onViewChange?.(view as CardLayoutVariant)}
-          color="primary"
-          variant="solid"
-          size="md"
-          fullWidth
-          className="w-full sm:w-40 md:min-w-[11rem] lg:min-w-[12rem]"
-          aria-label="Property view"
-        />
+          <ToggleButton
+            items={viewToggleItems}
+            value={layoutVariant}
+            onChange={(view) => onViewChange?.(view as CardLayoutVariant)}
+            color="primary"
+            variant="solid"
+            size="md"
+            className="shrink-0 sm:w-auto md:min-w-[11rem] lg:min-w-[12rem]"
+            aria-label="Property view"
+          />
+        </div>
 
         {showCount ? (
-          <span className="hidden text-sm text-muted sm:inline sm:text-start">
+          <span
+            className={cn("hidden sm:inline sm:text-start", textToolbarCountClasses)}
+          >
             {totalCount} {listingsLabel}
           </span>
         ) : null}

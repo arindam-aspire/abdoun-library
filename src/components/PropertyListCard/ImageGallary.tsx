@@ -1,22 +1,31 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Heart, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import type { MouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PROPERTY_FALLBACK_IMAGE } from "../../lib/propertyFallbackImage";
-import { resolveListingImageUrls } from "../../lib/resolveListingImageUrls";
+import {
+  hasListingMediaImages,
+  PROPERTY_FALLBACK_IMAGE,
+} from "../../lib/propertyFallbackImage";
+import {
+  resolveListingFullImageUrls,
+  resolveListingMediaImages,
+} from "../../lib/resolveListingImageUrls";
+import { preloadImage } from "../../lib/resolvePropertyMediaImages";
 import type { PropertyListing } from "../PropertyCardList/types";
 import { cn } from "../../lib/cn";
 import { Badge } from "../ui/Badge";
 import type { BadgeAppearance, BadgeVariant } from "../ui/Badge/types";
 import { IconButton } from "../ui/IconButton";
 import { ImageLightBox } from "../ui/ImageLightBox";
+import { stopCardClickPropagation } from "./cardClickHandlers";
 import type { ImageGallaryProps } from "./types";
+import { textBadgeClasses } from "../../lib/typography";
 
 const TRANSITION_MS = 260;
 
 const fallbackImageClasses =
-  "object-contain bg-page-ghost p-6 opacity-70 dark:invert dark:opacity-85";
+  "object-contain bg-black/15 p-6 opacity-70 dark:bg-white/40";
 
 type GalleryBadge = {
   label: string;
@@ -109,10 +118,28 @@ export function ImageGallary({
     [propertyDetails.title],
   );
 
-  const images = useMemo(
-    () => resolveListingImageUrls(propertyDetails.media),
+  const mediaImages = useMemo(
+    () => resolveListingMediaImages(propertyDetails.media),
     [propertyDetails.media],
   );
+
+  const hasMedia = hasListingMediaImages(mediaImages);
+
+  const gallery = useMemo(
+    () =>
+      hasMedia
+        ? mediaImages.map((item) => item.displayUrl)
+        : [PROPERTY_FALLBACK_IMAGE],
+    [hasMedia, mediaImages],
+  );
+
+  const lightboxImages = useMemo(
+    () =>
+      hasMedia ? resolveListingFullImageUrls(propertyDetails.media) : [],
+    [hasMedia, propertyDetails.media],
+  );
+  /** Bundled SVG only when the listing has no `images` or `thumbnail` URLs. */
+  const isFallbackGallery = !hasMedia;
 
   const badges = useMemo(
     () => resolveBadges(propertyDetails),
@@ -129,24 +156,17 @@ export function ImageGallary({
   const [activeIndex, setActiveIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [failedSrc, setFailedSrc] = useState<string | null>(null);
-
-  const gallery = useMemo(
-    () => (images.length > 0 ? images : [PROPERTY_FALLBACK_IMAGE]),
-    [images],
-  );
-  const isFallbackGallery = images.length === 0;
-
   const activeSrc = gallery[activeIndex] ?? PROPERTY_FALLBACK_IMAGE;
-  const displaySrc =
-    failedSrc === activeSrc && !isFallbackGallery
-      ? PROPERTY_FALLBACK_IMAGE
-      : activeSrc;
-  const showFallbackStyles = isFallbackGallery || displaySrc === PROPERTY_FALLBACK_IMAGE;
+  const showFallbackStyles = isFallbackGallery;
 
   useEffect(() => {
-    setFailedSrc(null);
-  }, [activeSrc, images]);
+    if (isFallbackGallery || gallery.length < 2) {
+      return;
+    }
+
+    const nextIndex = (activeIndex + 1) % gallery.length;
+    preloadImage(gallery[nextIndex]!);
+  }, [activeIndex, gallery, isFallbackGallery]);
 
   const carouselEnabled = gallery.length > 1;
   const visibleDots = getVisibleDotIndices(gallery.length, activeIndex);
@@ -194,10 +214,14 @@ export function ImageGallary({
   );
 
   return (
-    <div className={cn("relative overflow-hidden", className)}>
+    <div
+      className={cn("relative overflow-hidden", className)}
+      onClick={stopCardClickPropagation}
+    >
       <button
         type="button"
-        onClick={() => {
+        onClick={(event) => {
+          stopCardClickPropagation(event);
           if (!isFallbackGallery) {
             openLightbox(activeIndex);
           }
@@ -209,16 +233,12 @@ export function ImageGallary({
         aria-label={`View full-size image for ${title}`}
       >
         <img
-          src={displaySrc}
+          src={activeSrc}
           alt={title}
           sizes={imageSizes}
-          loading={activeIndex === 0 ? "eager" : "lazy"}
+          loading="lazy"
           decoding="async"
-          onError={() => {
-            if (!isFallbackGallery) {
-              setFailedSrc(activeSrc);
-            }
-          }}
+          fetchPriority="low"
           className={cn(imageClasses, showFallbackStyles && fallbackImageClasses)}
         />
       </button>
@@ -241,10 +261,26 @@ export function ImageGallary({
       ) : null}
 
       {isAuthenticated ? (
-        <button
+        <IconButton
           type="button"
+          color="inherit"
+          variant="outline"
+          isRounded
+          size="md"
+          isLoading={isFavouriteLoading}
+          icon={
+            <Heart
+              className={cn(
+                isFavourite ? "fill-danger text-danger" : "text-secondary",
+              )}
+              aria-hidden
+            />
+          }
           onClick={handleFavourite}
-          disabled={isFavouriteLoading}
+          className={cn(
+            "absolute top-3 right-3 z-40",
+            floatingControlClasses,
+          )}
           aria-label={
             isFavouriteLoading
               ? "Updating favourites"
@@ -253,24 +289,7 @@ export function ImageGallary({
                 : "Add to favourites"
           }
           aria-pressed={isFavourite}
-          className={cn(
-            "absolute top-3 right-3 z-30 inline-flex size-11 items-center justify-center rounded-full",
-            floatingControlClasses,
-            "focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/40 disabled:cursor-not-allowed disabled:opacity-50",
-          )}
-        >
-          {isFavouriteLoading ? (
-            <Loader2 className="size-4 animate-spin text-secondary" aria-hidden />
-          ) : (
-            <Heart
-              className={cn(
-                "size-4",
-                isFavourite ? "fill-danger text-danger" : "text-secondary",
-              )}
-              aria-hidden
-            />
-          )}
-        </button>
+        />
       ) : null}
 
       <div
@@ -280,7 +299,12 @@ export function ImageGallary({
         )}
       >
         {canViewAgents && brokerName ? (
-          <span className="max-w-[65%] truncate rounded-full bg-black/20 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+          <span
+            className={cn(
+              "max-w-[65%] truncate rounded-full bg-black/20 px-2.5 py-1 font-medium text-white backdrop-blur-sm sm:px-3",
+              textBadgeClasses,
+            )}
+          >
             {brokerName}
           </span>
         ) : null}
@@ -322,7 +346,7 @@ export function ImageGallary({
             color="inherit"
             variant="outline"
             isRounded
-            icon={<ChevronLeft className="size-4" />}
+            icon={<ChevronLeft />}
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();
@@ -339,7 +363,7 @@ export function ImageGallary({
             color="inherit"
             variant="outline"
             isRounded
-            icon={<ChevronRight className="size-4" />}
+            icon={<ChevronRight />}
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();
@@ -354,11 +378,11 @@ export function ImageGallary({
         </>
       ) : null}
 
-      {!isFallbackGallery ? (
+      {!isFallbackGallery && lightboxImages.length > 0 ? (
         <ImageLightBox
           isOpen={isLightboxOpen}
           onClose={closeLightbox}
-          images={gallery}
+          images={lightboxImages}
           activeIndex={activeIndex}
           onActiveIndexChange={setActiveIndex}
           alt={title}

@@ -1,7 +1,7 @@
 {
   "name": "@abdoun/abdoun-library",
-  "version": "0.1.12",
-  "description": "Shared React UI component library for Abdoun applications",
+  "version": "0.1.30",
+  "description": "Shared React UI for Abdoun: PropertyView (details), PropertyCardList (list), SimilarProperties (carousel), PropertyListCard (single card). See README for props.",
   "license": "ISC",
   "type": "module",
   "main": "./dist/index.cjs",

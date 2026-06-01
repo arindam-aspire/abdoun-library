@@ -3,6 +3,10 @@
 import { Button as HeadlessButton } from "@headlessui/react";
 import { Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
+import {
+  buttonIconSizeClasses,
+  buttonSizeClasses,
+} from "../controlSizes";
 import type {
   ButtonColor,
   ButtonProps,
@@ -11,7 +15,7 @@ import type {
 } from "./types";
 
 const baseClasses =
-  "inline-flex items-center justify-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/40 data-disabled:cursor-not-allowed data-disabled:opacity-50";
+  "inline-flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/40 data-disabled:cursor-not-allowed data-disabled:opacity-50";
 
 const colorVariantClasses: Record<
   ButtonColor,
@@ -67,18 +71,6 @@ const colorVariantClasses: Record<
   },
 };
 
-const sizeClasses: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-sm font-medium",
-  md: "px-5 py-2.5 text-[14px] font-medium",
-  lg: "px-6 py-3 text-base font-medium",
-};
-
-const iconSizeClasses: Record<ButtonSize, string> = {
-  sm: "size-4",
-  md: "size-[1.125rem]",
-  lg: "size-6",
-};
-
 function cn(...classes: (string | false | undefined)[]) {
   return classes.filter(Boolean).join(" ");
 }
@@ -94,7 +86,7 @@ function ButtonIcon({
     <span
       className={cn(
         "inline-flex shrink-0 [&>svg]:size-full",
-        iconSizeClasses[size],
+        buttonIconSizeClasses[size],
       )}
       aria-hidden
     >
@@ -143,7 +135,7 @@ export function Button({
         baseClasses,
         isRounded ? "rounded-full" : "rounded-lg",
         colorVariantClasses[color][variant],
-        sizeClasses[size],
+        buttonSizeClasses[size],
         fullWidth && "w-full",
         className,
       )}

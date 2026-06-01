@@ -4,6 +4,14 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "../../../lib/cn";
 import { SelectDropdown } from "../SelectDropdown";
 import { SELECT_DROPDOWN_EMPTY_VALUE } from "../SelectDropdown/types";
+import {
+  buttonIconSizeClasses,
+  iconButtonSizeClasses,
+} from "../controlSizes";
+import {
+  textPaginationLabelClasses,
+  textPaginationSummaryClasses,
+} from "../../../lib/typography";
 import type { ButtonSize } from "../Button/types";
 import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginationProps } from "./types";
 
@@ -13,6 +21,8 @@ function getTotalPages(totalItems: number, pageSize: number): number {
   }
   return Math.ceil(totalItems / pageSize);
 }
+
+type PaginationItem = number | "ellipsis";
 
 function getVisiblePages(
   currentPage: number,
@@ -37,9 +47,8 @@ function getVisiblePages(
   return Array.from({ length: end - start + 1 }, (_, index) => start + index);
 }
 
-type PaginationItem = number | "ellipsis-left" | "ellipsis-right";
-
-function getPaginationItems(
+/** `md+`: sliding window with first/last page and ellipses (previous behavior). */
+function getPaginationItemsDesktop(
   currentPage: number,
   totalPages: number,
   maxPageButtons: number,
@@ -62,7 +71,7 @@ function getPaginationItems(
     if (firstMiddlePage === 3) {
       items.push(2);
     } else {
-      items.push("ellipsis-left");
+      items.push("ellipsis");
     }
   }
 
@@ -72,11 +81,71 @@ function getPaginationItems(
     if (lastMiddlePage === totalPages - 2) {
       items.push(totalPages - 1);
     } else {
-      items.push("ellipsis-right");
+      items.push("ellipsis");
     }
   }
 
   items.push(totalPages);
+
+  return items;
+}
+
+/** `sm`: compact `1, …, prev, current, next, …, last` (e.g. page 4 → `1, …, 3, 4, 5, …, 147`). */
+function getPaginationItemsCompact(
+  currentPage: number,
+  totalPages: number,
+): PaginationItem[] {
+  if (totalPages <= 0) {
+    return [];
+  }
+
+  if (totalPages === 1) {
+    return [1];
+  }
+
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+
+  const pageSet = new Set<number>();
+  pageSet.add(1);
+  pageSet.add(totalPages);
+
+  for (let page = currentPage - 1; page <= currentPage + 1; page++) {
+    if (page >= 1 && page <= totalPages) {
+      pageSet.add(page);
+    }
+  }
+
+  if (currentPage <= 3) {
+    pageSet.add(2);
+    if (currentPage <= 2) {
+      pageSet.add(3);
+    }
+  }
+
+  if (currentPage >= totalPages - 2) {
+    pageSet.add(totalPages - 1);
+    if (currentPage >= totalPages - 1) {
+      pageSet.add(totalPages - 2);
+    }
+  }
+
+  const sorted = [...pageSet].sort((a, b) => a - b);
+  const items: PaginationItem[] = [];
+
+  for (let index = 0; index < sorted.length; index++) {
+    const page = sorted[index]!;
+
+    if (index > 0) {
+      const previous = sorted[index - 1]!;
+      if (page - previous > 1) {
+        items.push("ellipsis");
+      }
+    }
+
+    items.push(page);
+  }
 
   return items;
 }
@@ -98,28 +167,73 @@ function getResultsRange(
 const pageButtonBaseClasses =
   "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/40 disabled:cursor-not-allowed disabled:opacity-50";
 
-const pageButtonSizeClasses: Record<ButtonSize, string> = {
-  sm: "size-9 text-sm",
-  md: "size-11 text-sm",
-  lg: "size-12 text-base",
-};
+const pageButtonSizeClasses = iconButtonSizeClasses;
 
-const pageIconSizeClasses: Record<ButtonSize, string> = {
-  sm: "size-4",
-  md: "size-[1.125rem]",
-  lg: "size-5",
-};
-
-const pageSizeSelectTriggerSizeClasses: Record<ButtonSize, string> = {
-  sm: "h-9",
-  md: "h-11",
-  lg: "h-12",
-};
+const pageIconSizeClasses = buttonIconSizeClasses;
 
 const navButtonClasses = cn(
   pageButtonBaseClasses,
   "border border-secondary/15 bg-surface text-text hover:bg-page data-disabled:hover:bg-surface",
 );
+
+function PageNumberButtons({
+  items,
+  safeCurrentPage,
+  disabled,
+  buttonSize,
+  onPageChange,
+  keyPrefix,
+}: {
+  items: PaginationItem[];
+  safeCurrentPage: number;
+  disabled: boolean;
+  buttonSize: ButtonSize;
+  onPageChange: (page: number) => void;
+  keyPrefix: string;
+}) {
+  return (
+    <>
+      {items.map((item, index) => {
+        if (typeof item !== "number") {
+          return (
+            <span
+              key={`${keyPrefix}-ellipsis-${index}`}
+              aria-hidden
+              className={cn(
+                "inline-flex items-center justify-center text-muted",
+                pageButtonSizeClasses[buttonSize],
+              )}
+            >
+              ...
+            </span>
+          );
+        }
+
+        const isActive = item === safeCurrentPage;
+
+        return (
+          <button
+            key={`${keyPrefix}-page-${item}`}
+            type="button"
+            disabled={disabled}
+            onClick={() => onPageChange(item)}
+            aria-current={isActive ? "page" : undefined}
+            aria-label={`Page ${item}`}
+            className={cn(
+              pageButtonBaseClasses,
+              pageButtonSizeClasses[buttonSize],
+              isActive
+                ? "bg-primary text-white"
+                : "border border-secondary/15 bg-surface text-text hover:bg-page",
+            )}
+          >
+            {item}
+          </button>
+        );
+      })}
+    </>
+  );
+}
 
 export function Pagination({
   currentPage,
@@ -140,7 +254,8 @@ export function Pagination({
 }: PaginationProps) {
   const totalPages = getTotalPages(totalItems, pageSize);
   const safeCurrentPage = Math.min(Math.max(currentPage, 1), totalPages);
-  const paginationItems = getPaginationItems(
+  const compactItems = getPaginationItemsCompact(safeCurrentPage, totalPages);
+  const desktopItems = getPaginationItemsDesktop(
     safeCurrentPage,
     totalPages,
     maxPageButtons,
@@ -158,7 +273,12 @@ export function Pagination({
       )}
     >
       {showResultsSummary ? (
-        <p className="order-2 text-center text-sm text-muted sm:order-1 sm:text-start">
+        <p
+          className={cn(
+            "order-2 text-center sm:order-1 sm:text-start",
+            textPaginationSummaryClasses,
+          )}
+        >
           Showing <span className="font-semibold text-secondary">{from}</span> to{" "}
           <span className="font-semibold text-secondary">{to}</span> of{" "}
           <span className="font-semibold text-secondary">{totalItems}</span>{" "}
@@ -169,7 +289,7 @@ export function Pagination({
       <div className="order-1 flex flex-wrap items-center justify-center gap-4 sm:order-2 sm:justify-end">
         {showPageSizeSelector && onPageSizeChange ? (
           <div className="hidden items-center gap-2 sm:flex">
-            <span className="text-sm text-muted">{perPageLabel}</span>
+            <span className={textPaginationLabelClasses}>{perPageLabel}</span>
             <SelectDropdown
               options={pageSizeOptions.map((option) => ({
                 value: String(option),
@@ -185,10 +305,7 @@ export function Pagination({
               disabled={disabled}
               fullWidth={false}
               wrapperClassName="w-auto"
-              triggerClassName={cn(
-                pageSizeSelectTriggerSizeClasses[buttonSize],
-                "min-w-[4.5rem] rounded-lg px-3 text-sm font-semibold text-secondary",
-              )}
+              triggerClassName="min-w-[4.5rem] rounded-lg font-semibold text-secondary"
               variant="outline"
               size={pageSizeSelectSize}
               aria-label="Items per page"
@@ -210,44 +327,27 @@ export function Pagination({
             <ChevronLeft className={pageIconSizeClasses[buttonSize]} aria-hidden />
           </button>
 
-          {paginationItems.map((item) => {
-            if (typeof item !== "number") {
-              return (
-                <span
-                  key={item}
-                  aria-hidden
-                  className={cn(
-                    "inline-flex items-center justify-center text-muted",
-                    pageButtonSizeClasses[buttonSize],
-                  )}
-                >
-                  ...
-                </span>
-              );
-            }
+          <div className="flex items-center gap-1.5 md:hidden">
+            <PageNumberButtons
+              keyPrefix="compact"
+              items={compactItems}
+              safeCurrentPage={safeCurrentPage}
+              disabled={disabled}
+              buttonSize={buttonSize}
+              onPageChange={onPageChange}
+            />
+          </div>
 
-            const isActive = item === safeCurrentPage;
-
-            return (
-              <button
-                key={item}
-                type="button"
-                disabled={disabled}
-                onClick={() => onPageChange(item)}
-                aria-current={isActive ? "page" : undefined}
-                aria-label={`Page ${item}`}
-                className={cn(
-                  pageButtonBaseClasses,
-                  pageButtonSizeClasses[buttonSize],
-                  isActive
-                    ? "bg-primary text-white"
-                    : "border border-secondary/15 bg-surface text-text hover:bg-page",
-                )}
-              >
-                {item}
-              </button>
-            );
-          })}
+          <div className="hidden items-center gap-1.5 md:flex">
+            <PageNumberButtons
+              keyPrefix="desktop"
+              items={desktopItems}
+              safeCurrentPage={safeCurrentPage}
+              disabled={disabled}
+              buttonSize={buttonSize}
+              onPageChange={onPageChange}
+            />
+          </div>
 
           <button
             type="button"

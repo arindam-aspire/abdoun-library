@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Tab } from "../ui/Tab";
-import type { TabItem } from "../ui/Tab";
+import { mapPropertyViewTabOptions } from "./propertyTabDefaults";
 import { DocumentsTab } from "./DocumentsTab";
 import { DocumentsTabSkeleton } from "./DocumentsTabSkeleton";
 import { FeatureTab } from "./FeatureTab";
@@ -89,7 +89,10 @@ export function PropertyDetailsTabs({
   onOwnerPhone,
   onOwnerWhatsApp,
 }: PropertyDetailsTabsProps) {
-  const options = useMemo(() => tabOptions, [tabOptions]);
+  const options = useMemo(
+    () => mapPropertyViewTabOptions(tabOptions),
+    [tabOptions],
+  );
 
   const [uncontrolledTab, setUncontrolledTab] = useState(
     () => options[0]?.value ?? "",
@@ -136,7 +139,7 @@ export function PropertyDetailsTabs({
       ) : (
         <Tab
           className={className}
-          items={options as TabItem[]}
+          items={options}
           value={activeTab}
           onChange={handleTabChange}
           aria-label="Property details sections"

@@ -3,6 +3,11 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { cn } from "../../../lib/cn";
+import {
+  textOverlayButtonClasses,
+  textPaginationSummaryClasses,
+} from "../../../lib/typography";
 import { IconButton } from "../IconButton";
 import type { ImageLightBoxProps } from "./types";
 
@@ -65,7 +70,10 @@ export function ImageLightBox({
       <button
         type="button"
         onClick={onClose}
-        className="absolute top-5 left-5 z-20 inline-flex items-center gap-1.5 text-sm font-medium text-page transition-opacity hover:opacity-80 sm:top-6 sm:left-6"
+        className={cn(
+          "absolute top-5 left-5 z-20 inline-flex items-center gap-1.5 text-page transition-opacity hover:opacity-80 sm:top-6 sm:left-6",
+          textOverlayButtonClasses,
+        )}
       >
         <ChevronLeft className="h-5 w-5 shrink-0" aria-hidden />
         Back
@@ -80,6 +88,8 @@ export function ImageLightBox({
         <img
           src={imageSrc}
           alt={alt}
+          loading="lazy"
+          decoding="async"
           onClick={(event) => event.stopPropagation()}
           className="max-h-[85vh] max-w-[min(92vw,56rem)] object-contain"
         />
@@ -92,7 +102,7 @@ export function ImageLightBox({
             color="inherit"
             variant="outline"
             isRounded
-            icon={<ChevronLeft className="h-5 w-5" />}
+            icon={<ChevronLeft />}
             onClick={(event) => {
               event.stopPropagation();
               goPrev();
@@ -105,7 +115,7 @@ export function ImageLightBox({
             color="inherit"
             variant="outline"
             isRounded
-            icon={<ChevronRight className="h-5 w-5" />}
+            icon={<ChevronRight />}
             onClick={(event) => {
               event.stopPropagation();
               goNext();
@@ -113,7 +123,12 @@ export function ImageLightBox({
             className="absolute top-1/2 right-4 z-20 -translate-y-1/2 bg-page/90 sm:right-6"
             aria-label="Next image"
           />
-          <p className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2 text-sm font-medium text-page tabular-nums">
+          <p
+            className={cn(
+              "absolute bottom-6 left-1/2 z-20 -translate-x-1/2 font-medium text-page tabular-nums",
+              textPaginationSummaryClasses,
+            )}
+          >
             {activeIndex + 1} / {total}
           </p>
         </>

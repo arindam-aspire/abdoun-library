@@ -46,15 +46,10 @@ export function GridCardSkeleton({
           </div>
         ) : null}
 
-        <div className="mt-4 flex w-full justify-end gap-2 md:gap-4 lg:hidden">
-          <Skeleton className="h-11 w-11 rounded-[10px]" />
-          <Skeleton className="h-11 w-11 rounded-[10px]" />
-          <Skeleton className="h-11 w-11 rounded-[10px]" />
-        </div>
-        <div className="mt-4 hidden w-full flex-col gap-2 lg:flex lg:flex-row lg:gap-4">
-          <Skeleton className="h-11 w-full flex-1 rounded-[10px]" />
-          <Skeleton className="h-11 w-full flex-1 rounded-[10px]" />
-          <Skeleton className="h-11 w-11 rounded-[10px]" />
+        <div className="mt-4 flex w-full flex-row justify-end gap-2 md:gap-4">
+          <Skeleton className="h-8 min-w-0 flex-1 rounded-[10px] sm:h-11" />
+          <Skeleton className="h-8 min-w-0 flex-1 rounded-[10px] sm:h-11" />
+          <Skeleton className="size-8 shrink-0 rounded-[10px] sm:size-11" />
         </div>
       </div>
     </Card>

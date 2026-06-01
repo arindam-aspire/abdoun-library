@@ -1,4 +1,9 @@
 import type { PropertyDetails, PropertyMediaItem } from "./types";
+import {
+  pickDisplayUrls,
+  pickFullUrls,
+  resolveMediaImages,
+} from "../../lib/resolvePropertyMediaImages";
 
 type LocalizedText = PropertyDetails["title"];
 type LocalizedNullableText = PropertyDetails["description"];
@@ -180,14 +185,30 @@ export function sortMediaItems(items: PropertyMediaItem[]): PropertyMediaItem[] 
   return [...items].sort((a, b) => a.order - b.order);
 }
 
+export function resolvePropertyMediaImages(
+  media: PropertyDetails["media"],
+): ReturnType<typeof resolveMediaImages> {
+  return resolveMediaImages(media.images, media.thumbnail);
+}
+
+/** Display URLs for hero, cards, and thumbnails (prefers `thumb_url`). */
+export function resolvePropertyDisplayImageUrls(
+  media: PropertyDetails["media"],
+): string[] {
+  return pickDisplayUrls(resolvePropertyMediaImages(media));
+}
+
+/** Full-resolution URLs for property detail lightbox. */
+export function resolvePropertyFullImageUrls(
+  media: PropertyDetails["media"],
+): string[] {
+  return pickFullUrls(resolvePropertyMediaImages(media));
+}
+
 export function resolvePropertyImageUrls(
   media: PropertyDetails["media"],
 ): string[] {
-  if (media.images.length > 0) {
-    return sortMediaItems(media.images).map((image) => image.url);
-  }
-
-  return media.thumbnail ? [media.thumbnail] : [];
+  return resolvePropertyDisplayImageUrls(media);
 }
 
 export function hasPropertyDocuments(media: PropertyDetails["media"]): boolean {

@@ -5,6 +5,13 @@ import { cn } from "../../lib/cn";
 import { Card } from "../ui/Card";
 import type { LocationTabProps } from "./types";
 import {
+  textActionClasses,
+  textBodySmClasses,
+  textEmptyHeadingClasses,
+  textEyebrowClasses,
+  textSectionTitleClasses,
+} from "../../lib/typography";
+import {
   formatPropertyLocation,
   getPropertyMapEmbedUrl,
   getPropertyMapsOpenUrl,
@@ -24,7 +31,7 @@ const EMPTY_NEIGHBORHOOD_DESCRIPTION =
 
 function SectionHeading({ children }: { children: string }) {
   return (
-    <h4 className="text-[11px] font-semibold tracking-[0.12em] text-text uppercase">
+    <h4 className={cn(textEyebrowClasses, "text-text")}>
       {children}
     </h4>
   );
@@ -76,10 +83,10 @@ function MapUnavailableEmptyState() {
         </span>
       </div>
 
-      <h4 className="text-base font-semibold text-text sm:text-lg">
+      <h4 className={cn(textEmptyHeadingClasses, "text-text")}>
         {EMPTY_MAP_TITLE}
       </h4>
-      <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted">
+      <p className={cn("mt-2 max-w-xs text-muted", textBodySmClasses)}>
         {EMPTY_MAP_DESCRIPTION}
       </p>
     </div>
@@ -117,10 +124,10 @@ function NeighborhoodEmptyState() {
         </span>
       </div>
 
-      <h4 className="text-base font-semibold text-text sm:text-lg">
+      <h4 className={cn(textEmptyHeadingClasses, "text-text")}>
         {EMPTY_NEIGHBORHOOD_TITLE}
       </h4>
-      <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted">
+      <p className={cn("mx-auto mt-2 max-w-sm text-muted", textBodySmClasses)}>
         {EMPTY_NEIGHBORHOOD_DESCRIPTION}
       </p>
     </div>
@@ -142,7 +149,7 @@ export function LocationTab({
   return (
     <section className={cn("flex flex-col", className)} aria-label="Location">
       <Card className="border border-secondary/10 p-5 shadow-none sm:p-6">
-        <h3 className="text-sm font-bold tracking-[0.08em] text-secondary uppercase">
+        <h3 className={cn(textSectionTitleClasses, "text-secondary")}>
           Neighborhood
         </h3>
         <div className="mt-5 grid grid-cols-1 items-start gap-2 md:gap-4 lg:grid-cols-[3fr_2fr] lg:items-stretch lg:gap-6">
@@ -159,7 +166,10 @@ export function LocationTab({
                     href={mapsOpenUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="absolute left-3 top-3 z-10 inline-flex items-center gap-2 rounded-lg border border-secondary/20 bg-surface px-3 py-1.5 text-sm font-medium text-secondary shadow-sm transition-colors hover:bg-page"
+                    className={cn(
+                      "absolute left-3 top-3 z-10 inline-flex items-center gap-2 rounded-lg border border-secondary/20 bg-surface px-3 py-1.5 text-secondary shadow-sm transition-colors hover:bg-page",
+                      textActionClasses,
+                    )}
                   >
                     <ExternalLink className="size-4 shrink-0" aria-hidden />
                     Open in Maps
@@ -187,7 +197,10 @@ export function LocationTab({
                   {highlights.map((highlight) => (
                     <li
                       key={highlight}
-                      className="flex items-start gap-3 text-sm leading-relaxed text-text/80"
+                      className={cn(
+                        "flex items-start gap-3 text-text/80",
+                        textBodySmClasses,
+                      )}
                     >
                       <span
                         className="mt-2 size-1.5 shrink-0 rounded-full bg-primary"
@@ -203,7 +216,7 @@ export function LocationTab({
             {lifestyleDescription ? (
               <div>
                 <SectionHeading>Lifestyle</SectionHeading>
-                <p className="mt-3 text-sm leading-relaxed text-text/80">
+                <p className={cn("mt-3 text-text/80", textBodySmClasses)}>
                   {lifestyleDescription}
                 </p>
               </div>

@@ -2,14 +2,11 @@
 
 import { cn } from "../../../lib/cn";
 import { Button } from "../Button";
-import type { ButtonSize } from "../Button/types";
+import {
+  buttonIconSizeClasses,
+  iconButtonSizeClasses,
+} from "../controlSizes";
 import type { IconButtonProps } from "./types";
-
-const iconButtonSizeClasses: Record<ButtonSize, string> = {
-  sm: "size-9 shrink-0 !px-0",
-  md: "size-11 shrink-0 !px-0",
-  lg: "size-12 shrink-0 !px-0",
-};
 
 export function IconButton({
   icon,
@@ -17,15 +14,34 @@ export function IconButton({
   className,
   isRounded = false,
   fullWidth = false,
+  isLoading = false,
+  loadingLabel: _loadingLabel,
   ...rest
 }: IconButtonProps) {
+  const iconNode = (
+    <span
+      className={cn(
+        "inline-flex shrink-0 [&>svg]:size-full",
+        buttonIconSizeClasses[size],
+      )}
+      aria-hidden
+    >
+      {icon}
+    </span>
+  );
+
   return (
     <Button
       size={size}
       isRounded={isRounded}
       fullWidth={fullWidth}
-      iconStart={icon}
-      className={cn(iconButtonSizeClasses[size], className)}
+      isLoading={isLoading}
+      iconStart={iconNode}
+      className={cn(
+        iconButtonSizeClasses[size],
+        "pointer-events-auto shrink-0",
+        className,
+      )}
       {...rest}
     />
   );

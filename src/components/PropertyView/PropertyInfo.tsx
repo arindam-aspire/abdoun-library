@@ -8,6 +8,17 @@ import { IconButton } from "../ui/IconButton";
 import { WhatsAppIcon } from "../ui/WhatsAppIcon";
 import type { PropertyDetails, PropertyInfoProps } from "./types";
 import { hasPropertyDocuments } from "./utils";
+import {
+  textAvatarInitialClasses,
+  textBodySmClasses,
+  textDisplayPriceClasses,
+  textEyebrowClasses,
+  textMetaMediumClasses,
+  textOwnerChipClasses,
+  textPersonDetailClasses,
+  textPersonNameClasses,
+  textStatValueClasses,
+} from "../../lib/typography";
 
 const SERVICE_CHARGE_NOTE =
   "Service charge on request. Flexible viewing times.";
@@ -71,19 +82,36 @@ function formatPriceDisplay(
   return `${amount.toLocaleString()} ${code}`;
 }
 
-function getAveragePricePerUnit(propertyDetails: PropertyDetails): string | null {
-  const { amount } = getListingPrice(propertyDetails);
+function getAveragePricePerUnit(propertyDetails: PropertyDetails): {
+  value: string | null;
+  unitLabel: string;
+} {
+  const { amount, currency } = getListingPrice(propertyDetails);
   const area =
     propertyDetails.details.built_up_area ?? propertyDetails.built_up_area;
+  const unitLabel = formatAreaUnitLabel(propertyDetails.details.area_unit);
 
   if (amount == null || area == null || area <= 0) {
-    return null;
+    return { value: null, unitLabel };
   }
 
-  const currency =
-    getListingPrice(propertyDetails).currency?.toUpperCase() ?? "JOD";
+  const code = currency?.toUpperCase() ?? "JOD";
   const average = Math.round(amount / area);
-  return `${average.toLocaleString()} ${currency}`;
+  return {
+    value: `${average.toLocaleString()} ${code}`,
+    unitLabel,
+  };
+}
+
+function formatAreaUnitLabel(areaUnit: string | null | undefined): string {
+  const normalized = areaUnit?.trim().toLowerCase();
+  if (normalized === "sqm" || normalized === "m2" || normalized === "m²") {
+    return "m²";
+  }
+  if (normalized === "sqft" || normalized === "ft2" || normalized === "ft²") {
+    return "ft²";
+  }
+  return areaUnit?.trim() || "m²";
 }
 
 function getDocumentVerificationStatus(propertyDetails: PropertyDetails): {
@@ -99,9 +127,11 @@ function getDocumentVerificationStatus(propertyDetails: PropertyDetails): {
 
 function PropertyMetrics({
   averagePerUnit,
+  areaUnitLabel,
   documentStatus,
 }: {
   averagePerUnit: string | null;
+  areaUnitLabel: string;
   documentStatus: { label: string; isReady: boolean };
 }) {
   return (
@@ -110,13 +140,14 @@ function PropertyMetrics({
       aria-label="Property metrics"
     >
       <div className="min-w-0 pr-3 sm:pr-4">
-        <p className="flex items-center gap-1.5 text-xs font-medium text-muted">
+        <p className={cn("flex items-center gap-1.5", textMetaMediumClasses)}>
           <Maximize2 className="size-3.5 shrink-0 text-secondary" aria-hidden />
-          <span className="truncate">Avg. per m²</span>
+          <span className="truncate">Avg. per {areaUnitLabel}</span>
         </p>
         <p
           className={cn(
-            "mt-1.5 truncate text-base font-bold leading-tight",
+            "mt-1.5 truncate leading-tight",
+            textStatValueClasses,
             averagePerUnit ? "text-secondary" : "text-muted",
           )}
           title={averagePerUnit ?? undefined}
@@ -126,13 +157,14 @@ function PropertyMetrics({
       </div>
 
       <div className="min-w-0 pl-3 sm:pl-4">
-        <p className="flex items-center gap-1.5 text-xs font-medium text-muted">
+        <p className={cn("flex items-center gap-1.5", textMetaMediumClasses)}>
           <FileCheck className="size-3.5 shrink-0 text-secondary" aria-hidden />
           <span className="truncate">Documents</span>
         </p>
         <p
           className={cn(
-            "mt-1.5 flex min-w-0 items-center gap-1.5 text-base font-bold leading-tight",
+            "mt-1.5 flex min-w-0 items-center gap-1.5 leading-tight",
+            textStatValueClasses,
             documentStatus.isReady ? "text-success" : "text-tertiary-dark",
           )}
           title={documentStatus.label}
@@ -153,59 +185,64 @@ function PropertyMetrics({
 
 function OwnerDetailsRow({
   name,
+  phone,
   email,
   className,
 }: {
   name: string;
-  email?: string;
+  phone: string;
+  email: string;
   className?: string;
 }) {
+  const contactLine = phone || email || "No contact info";
+
   return (
     <div
       className={cn(
-        "flex flex-col rounded-md bg-page p-2 text-sm leading-tight text-text/85",
+        "flex flex-col rounded-md bg-page p-2 text-text/85",
+        textOwnerChipClasses,
         className,
       )}
     >
       <span className="font-medium text-secondary/90">{name}</span>
-      <span className="text-text/65">{email || "No email"}</span>
+      <span className="text-text/65">{contactLine}</span>
     </div>
   );
 }
 
 function AgentDetailsRow({
-  name,
-  photo,
-  phone,
-  email,
+  agent,
 }: {
-  name: string;
-  photo?: string | null;
-  phone?: string;
-  email?: string;
+  agent: NonNullable<PropertyDetails["agent"]>;
 }) {
-  const contactLine = phone || email || "No contact info";
+  const contactLine =
+    agent.phone || agent.whatsapp || agent.email || "No contact info";
 
   return (
     <div className="flex items-center gap-3 rounded-md bg-page p-2">
-      {photo ? (
+      {agent.photo ? (
         <img
-          src={photo}
-          alt={name}
+          src={agent.photo}
+          alt={agent.name}
           className="size-10 shrink-0 rounded-full object-cover"
           loading="lazy"
           decoding="async"
         />
       ) : (
-        <div className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary/15 text-sm font-semibold text-secondary">
-          {getAgentInitials(name)}
+        <div
+          className={cn(
+            "inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary/15 text-secondary",
+            textAvatarInitialClasses,
+          )}
+        >
+          {getAgentInitials(agent.name)}
         </div>
       )}
       <div className="min-w-0">
-        <p className="truncate text-sm font-semibold leading-tight text-secondary">
-          {name}
+        <p className={cn("truncate text-secondary", textPersonNameClasses)}>
+          {agent.name}
         </p>
-        <p className="truncate text-sm leading-tight text-text/65">
+        <p className={cn("truncate", textPersonDetailClasses)}>
           {contactLine}
         </p>
       </div>
@@ -222,78 +259,41 @@ function ContactActions({
   onPhone?: () => void;
   onWhatsApp?: () => void;
 }) {
-  const iconButtonClassName = "size-[42px] shrink-0";
-
   return (
-    <>
-      <div className="flex justify-end gap-2 lg:hidden">
-        <IconButton
-          type="button"
-          color="primary"
-          variant="solid"
-          size="md"
-          onClick={onEmail}
-          className={iconButtonClassName}
-          icon={<Mail className="size-4 shrink-0" aria-hidden />}
-          aria-label="Email"
-        />
-        <IconButton
-          type="button"
-          color="inherit"
-          variant="outline"
-          size="md"
-          onClick={onPhone}
-          className={iconButtonClassName}
-          icon={<Phone className="size-4 shrink-0" aria-hidden />}
-          aria-label="Call"
-        />
-        <IconButton
-          type="button"
-          color="inherit"
-          variant="outline"
-          size="md"
-          onClick={onWhatsApp}
-          className={iconButtonClassName}
-          icon={<WhatsAppIcon className="size-5" />}
-          aria-label="WhatsApp"
-        />
-      </div>
-
-      <div className="hidden gap-2 lg:flex">
-        <Button
-          type="button"
-          color="primary"
-          variant="solid"
-          size="md"
-          onClick={onEmail}
-          className="min-h-[42px] min-w-0 flex-1 gap-2 px-4"
-          iconStart={<Mail className="size-4 shrink-0" aria-hidden />}
-        >
-          <span className="truncate">Email</span>
-        </Button>
-        <Button
-          type="button"
-          color="inherit"
-          variant="outline"
-          size="md"
-          onClick={onPhone}
-          className="min-h-[42px] min-w-0 flex-1 gap-2 px-4"
-          iconStart={<Phone className="size-4 shrink-0" aria-hidden />}
-        >
-          <span className="truncate">Call</span>
-        </Button>
-        <IconButton
-          type="button"
-          color="inherit"
-          variant="outline"
-          size="md"
-          onClick={onWhatsApp}
-          className={iconButtonClassName}
-          icon={<WhatsAppIcon className="size-5" />}
-          aria-label="WhatsApp"
-        />
-      </div>
-    </>
+    <div className="flex w-full flex-row justify-end gap-2 md:gap-4">
+      <Button
+        type="button"
+        color="primary"
+        variant="solid"
+        size="md"
+        onClick={onEmail}
+        className="min-w-0 flex-1"
+        iconStart={<Mail aria-hidden />}
+      >
+        <span className="truncate">Email</span>
+      </Button>
+      <Button
+        type="button"
+        color="inherit"
+        variant="outline"
+        size="md"
+        onClick={onPhone}
+        className="min-w-0 flex-1"
+        iconStart={<Phone aria-hidden />}
+      >
+        <span className="truncate">Call</span>
+      </Button>
+      <IconButton
+        type="button"
+        color="inherit"
+        variant="outline"
+        size="md"
+        onClick={onWhatsApp}
+        className="shrink-0"
+        icon={<WhatsAppIcon />}
+        aria-label="WhatsApp"
+      />
+    </div>
   );
 }
 
@@ -303,23 +303,18 @@ function ListingAgentSection({
   onPhone,
   onWhatsApp,
 }: {
-  agent: PropertyDetails["agent"];
+  agent: NonNullable<PropertyDetails["agent"]>;
   onEmail?: () => void;
   onPhone?: () => void;
   onWhatsApp?: () => void;
 }) {
   return (
     <section className="flex flex-col gap-4">
-      <h3 className="text-xs font-semibold tracking-[0.12em] text-muted uppercase">
+      <h3 className={cn("text-muted", textEyebrowClasses)}>
         Listing agent
       </h3>
 
-      <AgentDetailsRow
-        name={agent.name}
-        photo={agent.photo}
-        phone={agent.phone}
-        email={agent.email}
-      />
+      <AgentDetailsRow agent={agent} />
 
       <ContactActions
         onEmail={onEmail}
@@ -327,21 +322,19 @@ function ListingAgentSection({
         onWhatsApp={onWhatsApp}
       />
 
-      <p className="text-sm leading-relaxed text-muted">{CONCIERGE_NOTE}</p>
+      <p className={cn(textBodySmClasses, "text-muted")}>{CONCIERGE_NOTE}</p>
     </section>
   );
 }
 
 function OwnerSection({
-  name,
-  email,
+  owner,
   showAgentAbove,
   onEmail,
   onPhone,
   onWhatsApp,
 }: {
-  name: string;
-  email?: string;
+  owner: NonNullable<PropertyDetails["owner"]>;
   showAgentAbove?: boolean;
   onEmail?: () => void;
   onPhone?: () => void;
@@ -349,13 +342,14 @@ function OwnerSection({
 }) {
   return (
     <section className="flex flex-col gap-4">
-      <h3 className="text-xs font-semibold tracking-[0.12em] text-muted uppercase">
+      <h3 className={cn("text-muted", textEyebrowClasses)}>
         Owner details
       </h3>
 
       <OwnerDetailsRow
-        name={name}
-        email={email}
+        name={owner.name}
+        phone={owner.phone}
+        email={owner.email}
         className={showAgentAbove ? "sm:pt-4 md:pt-2" : undefined}
       />
 
@@ -370,7 +364,6 @@ function OwnerSection({
 
 export function PropertyInfo({
   propertyDetails,
-  applicationKey,
   className,
   showAgent = true,
   showOwner = true,
@@ -387,11 +380,13 @@ export function PropertyInfo({
     currency,
     propertyDetails.pricing.price_on_request,
   );
-  const averagePerUnit = getAveragePricePerUnit(propertyDetails);
+  const { value: averagePerUnit, unitLabel: areaUnitLabel } =
+    getAveragePricePerUnit(propertyDetails);
   const documentStatus = getDocumentVerificationStatus(propertyDetails);
   const { agent, owner } = propertyDetails;
-  const displayAgentSection = showAgent;
-  const displayOwnerSection = showOwner && !owner.is_private;
+  const displayAgentSection = showAgent && agent != null;
+  const displayOwnerSection =
+    showOwner && owner != null && !owner.is_private;
   const hasContactColumn = displayAgentSection || displayOwnerSection;
 
   return (
@@ -411,16 +406,21 @@ export function PropertyInfo({
       >
         <div className="flex min-w-0 flex-col gap-2 md:gap-4">
           <section className="flex flex-col gap-2">
-            <p className="text-xs font-semibold tracking-[0.12em] text-muted uppercase">
+            <p className={cn("text-muted", textEyebrowClasses)}>
               {formatPriceLabel(currency)}
             </p>
-            <p className="text-xl font-bold text-secondary md:text-2xl lg:text-3xl">
+            <p className={cn(textDisplayPriceClasses, "text-secondary")}>
               {priceDisplay}
             </p>
-            <p className="text-sm leading-relaxed text-text/80">
+            <p className={cn(textBodySmClasses, "text-text/80")}>
               {SERVICE_CHARGE_NOTE}
             </p>
-            <p className="flex items-center gap-2 text-sm font-medium text-secondary">
+            <p
+              className={cn(
+                "flex items-center gap-2 text-secondary",
+                textMetaMediumClasses,
+              )}
+            >
               <span
                 className="size-2 shrink-0 rounded-full bg-secondary"
                 aria-hidden
@@ -431,13 +431,14 @@ export function PropertyInfo({
 
           <PropertyMetrics
             averagePerUnit={averagePerUnit}
+            areaUnitLabel={areaUnitLabel}
             documentStatus={documentStatus}
           />
         </div>
 
         {hasContactColumn ? (
           <div className="flex min-w-0 flex-col gap-2 md:gap-4">
-            {displayAgentSection ? (
+            {displayAgentSection && agent ? (
               <ListingAgentSection
                 agent={agent}
                 onEmail={onEmail}
@@ -446,11 +447,10 @@ export function PropertyInfo({
               />
             ) : null}
 
-            {displayOwnerSection ? (
+            {displayOwnerSection && owner ? (
               <OwnerSection
-                name={owner.name}
-                email={owner.email}
-                showAgentAbove={displayAgentSection}
+                owner={owner}
+                showAgentAbove={Boolean(displayAgentSection && agent)}
                 onEmail={onOwnerEmail}
                 onPhone={onOwnerPhone}
                 onWhatsApp={onOwnerWhatsApp}

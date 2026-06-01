@@ -80,7 +80,26 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
-    layout: "centered",
+    layout: "padded",
+    viewport: {
+      viewports: {
+        mobile: {
+          name: "Mobile",
+          styles: { width: "390px", height: "844px" },
+          type: "mobile",
+        },
+        tablet: {
+          name: "Tablet (sm)",
+          styles: { width: "640px", height: "900px" },
+          type: "tablet",
+        },
+        desktop: {
+          name: "Desktop",
+          styles: { width: "1280px", height: "900px" },
+          type: "desktop",
+        },
+      },
+    },
     a11y: {
       test: "todo",
     },

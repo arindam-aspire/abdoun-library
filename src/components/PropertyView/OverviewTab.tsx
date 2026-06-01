@@ -20,6 +20,18 @@ import {
   parsePropertyMoreFeatures,
   resolvePropertyImageUrls,
 } from "./utils";
+import {
+  textBodySmClasses,
+  textCaptionClasses,
+  textEyebrowClasses,
+  textHeroOnImageClasses,
+  textHeroOverlayTitleClasses,
+  textLinkEmphasisClasses,
+  textSectionTitleClasses,
+  textStatLabelClasses,
+  textStatValueClasses,
+  textStatValueLgClasses,
+} from "../../lib/typography";
 
 type HighlightItem = {
   label: string;
@@ -40,8 +52,10 @@ function HighlightStat({ label, value, icon }: HighlightItem) {
         {icon}
       </span>
       <div className="min-w-0">
-        <p className="text-xs text-muted">{label}</p>
-        <p className="truncate text-lg font-bold text-secondary">{value}</p>
+        <p className={textStatLabelClasses}>{label}</p>
+        <p className={cn("truncate text-secondary", textStatValueClasses)}>
+          {value}
+        </p>
       </div>
     </div>
   );
@@ -50,11 +64,9 @@ function HighlightStat({ label, value, icon }: HighlightItem) {
 function InfoCard({ label, value, description }: InfoCardItem) {
   return (
     <Card className="flex flex-col gap-2 border border-secondary/10 p-5 shadow-none">
-      <p className="text-[11px] font-semibold tracking-[0.12em] text-muted uppercase">
-        {label}
-      </p>
-      <p className="text-lg font-bold text-secondary">{value}</p>
-      <p className="text-sm leading-relaxed text-muted">{description}</p>
+      <p className={cn("text-muted", textEyebrowClasses)}>{label}</p>
+      <p className={cn("text-secondary", textStatValueLgClasses)}>{value}</p>
+      <p className={cn("text-muted", textBodySmClasses)}>{description}</p>
     </Card>
   );
 }
@@ -188,7 +200,8 @@ function MatterportWordmark({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 text-sm font-bold tracking-tight text-hero-on-image",
+        "inline-flex items-center gap-2 tracking-tight text-hero-on-image",
+        textHeroOnImageClasses,
         className,
       )}
     >
@@ -214,7 +227,7 @@ function VirtualTourSection({
 }) {
   return (
     <div>
-      <h3 className="text-sm font-bold tracking-[0.08em] text-secondary uppercase">
+      <h3 className={cn(textSectionTitleClasses, "text-secondary")}>
         Virtual tour
       </h3>
       <Card className="mt-3 border border-secondary/10 p-5 shadow-none sm:p-6">
@@ -237,14 +250,24 @@ function VirtualTourSection({
               className="absolute inset-0 bg-black/45 transition-colors group-hover:bg-black/50"
               aria-hidden
             />
-            <p className="absolute inset-x-4 top-5 text-center text-base font-semibold text-hero-on-image sm:top-6 sm:text-lg">
+            <p
+              className={cn(
+                "absolute inset-x-4 top-5 text-center font-semibold text-hero-on-image sm:top-6",
+                textHeroOverlayTitleClasses,
+              )}
+            >
               {title}
             </p>
             <span className="absolute left-1/2 top-1/2 inline-flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-hero-on-image text-text shadow-md transition-transform group-hover:scale-105 sm:size-16">
               <Play className="size-6 fill-current sm:size-7" aria-hidden />
             </span>
             <div className="absolute inset-x-0 bottom-4 flex flex-col items-center gap-1 sm:bottom-5">
-              <span className="text-[10px] font-medium tracking-[0.14em] text-hero-on-image/90 uppercase">
+              <span
+                className={cn(
+                  "font-medium text-hero-on-image/90 uppercase",
+                  textCaptionClasses,
+                )}
+              >
                 Powered by
               </span>
               <MatterportWordmark />
@@ -252,7 +275,7 @@ function VirtualTourSection({
           </div>
         </a>
 
-        <p className="mt-4 text-sm text-muted">
+        <p className={cn("mt-4 text-muted", textBodySmClasses)}>
           If the virtual tour does not load,{" "}
           <a
             href={virtualTourUrl}
@@ -311,15 +334,15 @@ export function OverviewTab({
     >
       <Card className="border border-secondary/10 p-5 shadow-none sm:p-6">
         <div className="flex flex-col gap-1">
-          <h3 className="text-sm font-bold tracking-[0.08em] text-secondary uppercase">
+          <h3 className={cn(textSectionTitleClasses, "text-secondary")}>
             Key highlights
           </h3>
-          <p className="text-sm text-muted">
+          <p className={cn(textBodySmClasses, "text-muted")}>
             A quick snapshot of what makes this home special.
           </p>
         </div>
 
-        <div className="mt-5 grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-4 lg:grid-cols-4 lg:gap-6">
+        <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-6">
           {highlights.map((item) => (
             <HighlightStat key={item.label} {...item} />
           ))}
@@ -333,7 +356,7 @@ export function OverviewTab({
       </div>
 
       <div>
-        <h3 className="text-sm font-bold tracking-[0.08em] text-secondary uppercase">
+        <h3 className={cn(textSectionTitleClasses, "text-secondary")}>
           Overview
         </h3>
         <Card className="mt-3 border border-secondary/10 p-5 shadow-none sm:p-6">
@@ -350,13 +373,13 @@ export function OverviewTab({
                 paragraphs.map((paragraph, index) => (
                   <p
                     key={`overview-paragraph-${index}`}
-                    className="text-sm leading-relaxed text-text/80"
+                    className={cn(textBodySmClasses, "text-text/80")}
                   >
                     {paragraph}
                   </p>
                 ))
               ) : (
-                <p className="text-sm leading-relaxed text-muted">
+                <p className={cn(textBodySmClasses, "text-muted")}>
                   {emptyDescriptionCopy}
                 </p>
               )}
@@ -366,7 +389,10 @@ export function OverviewTab({
                   href={videoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-text transition-colors hover:text-secondary"
+                  className={cn(
+                    "inline-flex items-center gap-2 text-text transition-colors hover:text-secondary",
+                    textLinkEmphasisClasses,
+                  )}
                 >
                   <Play className="size-4 fill-current" aria-hidden />
                   Watch property video on YouTube

@@ -109,3 +109,4 @@ export const NarrowViewport: Story = {
     </div>
   ),
 };
+

@@ -38,6 +38,8 @@ export interface SelectDropdownProps {
   onBlur?: (event: FocusEvent<HTMLButtonElement>) => void;
   fullWidth?: boolean;
   wrapperClassName?: string;
+  /** Reserves start padding for an icon placed before the trigger (see `selectLeadingIconPositionClasses`). */
+  hasLeadingIcon?: boolean;
   triggerClassName?: string;
   panelClassName?: string;
   optionClassName?: string;

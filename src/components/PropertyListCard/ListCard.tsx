@@ -1,5 +1,9 @@
 import { useState } from "react";
 import { Bath, Bed, Mail, MapPin, Maximize2, Phone } from "lucide-react";
+import {
+  runCardControlAction,
+  runCardListingAction,
+} from "./cardClickHandlers";
 import { Card } from "../ui";
 import { Button } from "../ui/Button";
 import { IconButton } from "../ui/IconButton";
@@ -7,6 +11,18 @@ import { WhatsAppIcon } from "../ui/WhatsAppIcon";
 import { LocationLightBox } from "../ui/LocationLightBox";
 import type { PropertyListCardProps } from "./types";
 import { ImageGallary } from "./ImageGallary";
+import { cn } from "../../lib/cn";
+import {
+  textAvatarInitialClasses,
+  textBodySmClasses,
+  textBodyTightClasses,
+  textCardPriceClasses,
+  textCardTitleSnugClasses,
+  textEyebrowClasses,
+  textOwnerChipClasses,
+  textPersonDetailClasses,
+  textPersonNameClasses,
+} from "../../lib/typography";
 
 function resolveTitle(title: PropertyListCardProps["propertyDetails"]["title"]): string {
   return title.en || title.ar || title.esp || title.fr || "";
@@ -86,19 +102,24 @@ export function ListCard({
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col p-4 sm:p-5 lg:p-6">
-        <h3 className="text-lg font-bold leading-snug text-secondary md:text-xl">
+        <h3 className={cn(textCardTitleSnugClasses, "text-secondary")}>
           {title}
         </h3>
         <div className="mt-1 md:hidden lg:block">
           <div className="min-w-0">
             {highlights ? (
-              <p className="text-sm leading-relaxed text-text/70">{highlights}</p>
+              <p className={cn(textBodySmClasses, "text-text/70")}>{highlights}</p>
             ) : null}
             {hasLocationMapData ? (
               <button
                 type="button"
-                onClick={() => setIsLocationLightBoxOpen(true)}
-                className="mt-1.5 inline-flex items-center gap-1.5 text-left text-sm leading-tight text-inherit transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/30"
+                onClick={(event) =>
+                  runCardControlAction(event, () => setIsLocationLightBoxOpen(true))
+                }
+                className={cn(
+                  "mt-1.5 inline-flex items-center gap-1.5 text-left text-inherit transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/30",
+                  textBodyTightClasses,
+                )}
                 aria-label={`Open map for ${locationLabel}`}
               >
                 <MapPin className="size-4 shrink-0" aria-hidden />
@@ -107,7 +128,12 @@ export function ListCard({
                 </span>
               </button>
             ) : (
-              <div className="mt-1.5 flex items-center gap-1.5 text-sm leading-tight text-text/60">
+              <div
+                className={cn(
+                  "mt-1.5 flex items-center gap-1.5 text-text/60",
+                  textBodyTightClasses,
+                )}
+              >
                 <MapPin className="size-4 shrink-0" aria-hidden />
                 <span className="truncate">{locationLabel}</span>
               </div>
@@ -118,13 +144,18 @@ export function ListCard({
         <div className="mt-1 hidden min-w-0 md:flex md:items-end md:justify-between md:gap-6 lg:hidden">
           <div className="min-w-0">
             {highlights ? (
-              <p className="text-sm leading-relaxed text-text/70">{highlights}</p>
+              <p className={cn(textBodySmClasses, "text-text/70")}>{highlights}</p>
             ) : null}
             {hasLocationMapData ? (
               <button
                 type="button"
-                onClick={() => setIsLocationLightBoxOpen(true)}
-                className="mt-1.5 inline-flex items-center gap-1.5 text-left text-sm leading-tight text-inherit transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/30"
+                onClick={(event) =>
+                  runCardControlAction(event, () => setIsLocationLightBoxOpen(true))
+                }
+                className={cn(
+                  "mt-1.5 inline-flex items-center gap-1.5 text-left text-inherit transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/30",
+                  textBodyTightClasses,
+                )}
                 aria-label={`Open map for ${locationLabel}`}
               >
                 <MapPin className="size-4 shrink-0" aria-hidden />
@@ -133,13 +164,18 @@ export function ListCard({
                 </span>
               </button>
             ) : (
-              <div className="mt-1.5 flex items-center gap-1.5 text-sm leading-tight text-text/60">
+              <div
+                className={cn(
+                  "mt-1.5 flex items-center gap-1.5 text-text/60",
+                  textBodyTightClasses,
+                )}
+              >
                 <MapPin className="size-4 shrink-0" aria-hidden />
                 <span className="truncate">{locationLabel}</span>
               </div>
             )}
           </div>
-          <p className="text-lg font-bold text-secondary md:shrink-0 md:text-xl">
+          <p className={cn(textCardPriceClasses, "text-secondary md:shrink-0")}>
             {formattedPrice}
           </p>
         </div>
@@ -147,7 +183,12 @@ export function ListCard({
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-3 sm:gap-x-6">
           <ul className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-x-6">
             {propertyDetails.beds != null ? (
-              <li className="flex items-center gap-2 text-sm text-text/60">
+              <li
+                className={cn(
+                  "flex items-center gap-2 text-text/60",
+                  textBodySmClasses,
+                )}
+              >
                 <Bed className="size-4 shrink-0" aria-hidden />
                 <span>
                   {propertyDetails.beds} {propertyDetails.beds === 1 ? "Bed" : "Beds"}
@@ -155,7 +196,12 @@ export function ListCard({
               </li>
             ) : null}
             {propertyDetails.baths != null ? (
-              <li className="flex items-center gap-2 text-sm text-text/60">
+              <li
+                className={cn(
+                  "flex items-center gap-2 text-text/60",
+                  textBodySmClasses,
+                )}
+              >
                 <Bath className="size-4 shrink-0" aria-hidden />
                 <span>
                   {propertyDetails.baths}{" "}
@@ -164,13 +210,23 @@ export function ListCard({
               </li>
             ) : null}
             {formattedArea ? (
-              <li className="flex items-center gap-2 text-sm text-text/60">
+              <li
+                className={cn(
+                  "flex items-center gap-2 text-text/60",
+                  textBodySmClasses,
+                )}
+              >
                 <Maximize2 className="size-4 shrink-0" aria-hidden />
                 <span>{formattedArea}</span>
               </li>
             ) : null}
           </ul>
-          <p className="w-full text-lg font-bold text-secondary sm:ms-auto sm:w-auto md:hidden lg:block md:text-xl">
+          <p
+            className={cn(
+              "w-full text-secondary sm:ms-auto sm:w-auto md:hidden lg:block",
+              textCardPriceClasses,
+            )}
+          >
             {formattedPrice}
           </p>
         </div>
@@ -178,14 +234,17 @@ export function ListCard({
         <div className="mt-auto pt-4">
           {canViewOwners && owners.length > 0 ? (
             <div className="mb-4">
-              <h4 className="mb-1.5 text-xs font-semibold tracking-[0.12em] text-muted uppercase">
+              <h4 className={cn("mb-1.5 text-muted", textEyebrowClasses)}>
                 Owners
               </h4>
               <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
               {owners.map((owner) => (
                 <div
                   key={owner.owner_id}
-                  className="flex flex-col rounded-md bg-page p-2 text-sm leading-tight text-text/85"
+                  className={cn(
+                    "flex flex-col rounded-md bg-page p-2 text-text/85",
+                    textOwnerChipClasses,
+                  )}
                 >
                   <span className="font-medium text-secondary/90">
                     {owner.full_name || "Owner"}
@@ -209,78 +268,62 @@ export function ListCard({
                     decoding="async"
                   />
                 ) : (
-                  <div className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary/15 text-sm font-semibold text-secondary">
+                  <div
+                    className={cn(
+                      "inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary/15 text-secondary",
+                      textAvatarInitialClasses,
+                    )}
+                  >
                     {getAgentInitials(agent?.name)}
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold leading-tight text-secondary">
+                  <p
+                    className={cn("truncate text-secondary", textPersonNameClasses)}
+                  >
                     {agent?.name}
                   </p>
-                  <p className="truncate text-sm leading-tight text-text/65">
+                  <p className={cn("truncate", textPersonDetailClasses)}>
                     {agent?.phone || agent?.email || "No contact info"}
                   </p>
                 </div>
               </div>
             ) : null}
 
-            <div className="flex w-full shrink-0 justify-end gap-2 sm:ms-auto sm:w-auto md:gap-4 lg:hidden">
-              <IconButton
-                color="primary"
-                variant="solid"
-                size="md"
-                onClick={() => onClickEmail?.(propertyDetails)}
-                className="w-11"
-                icon={<Mail className="size-4 shrink-0" aria-hidden />}
-                aria-label="Email"
-              />
-              <IconButton
-                color="inherit"
-                variant="outline"
-                size="md"
-                onClick={() => onClickCall?.(propertyDetails)}
-                className="w-11"
-                icon={<Phone className="size-4 shrink-0" aria-hidden />}
-                aria-label="Call"
-              />
-              <IconButton
-                color="inherit"
-                variant="outline"
-                size="md"
-                onClick={() => onClickWhatsApp?.(propertyDetails)}
-                className="w-11"
-                icon={<WhatsAppIcon className="size-5" />}
-                aria-label="WhatsApp"
-              />
-            </div>
-            <div className="hidden w-full shrink-0 flex-col justify-end gap-2 sm:ms-auto lg:flex lg:w-auto lg:flex-row lg:gap-4">
+            <div className="flex w-full shrink-0 flex-row justify-end gap-2 sm:ms-auto sm:w-auto md:gap-4">
               <Button
                 color="primary"
                 variant="solid"
                 size="md"
-                onClick={() => onClickEmail?.(propertyDetails)}
-                className="w-full min-w-[7.5rem] gap-2 px-4 py-2 text-sm sm:w-auto"
-                iconStart={<Mail className="size-4 shrink-0" aria-hidden />}
+                onClick={(event) =>
+                  runCardListingAction(event, onClickEmail, propertyDetails)
+                }
+                className="min-w-0 flex-1 sm:min-w-[7.5rem] sm:flex-none"
+                iconStart={<Mail aria-hidden />}
               >
-                <span>Email</span>
+                <span className="truncate">Email</span>
               </Button>
               <Button
                 color="inherit"
                 variant="outline"
                 size="md"
-                onClick={() => onClickCall?.(propertyDetails)}
-                className="w-full min-w-[7.5rem] gap-2 px-4 py-2 text-sm sm:w-auto"
-                iconStart={<Phone className="size-4 shrink-0" aria-hidden />}
+                onClick={(event) =>
+                  runCardListingAction(event, onClickCall, propertyDetails)
+                }
+                className="min-w-0 flex-1 sm:min-w-[7.5rem] sm:flex-none"
+                iconStart={<Phone aria-hidden />}
               >
-                <span>Call</span>
+                <span className="truncate">Call</span>
               </Button>
               <IconButton
                 color="inherit"
                 variant="outline"
                 size="md"
-                onClick={() => onClickWhatsApp?.(propertyDetails)}
-                className="w-11"
-                icon={<WhatsAppIcon className="size-5" />}
+                onClick={(event) =>
+                  runCardListingAction(event, onClickWhatsApp, propertyDetails)
+                }
+                className="shrink-0"
+                icon={<WhatsAppIcon />}
                 aria-label="WhatsApp"
               />
             </div>

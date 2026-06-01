@@ -4,16 +4,16 @@ import { Field, Label } from "@headlessui/react";
 import { forwardRef, useId } from "react";
 import { cn } from "../../../lib/cn";
 import {
+  fieldErrorSizeClasses,
+  fieldHintSizeClasses,
+  fieldLabelSizeClasses,
+  textareaSizeClasses,
+} from "../controlSizes";
+import {
   inheritOutlineFocusVisibleClasses,
   inheritOutlineVariantClasses,
 } from "../fieldVariants";
-import type { TextareaProps, TextareaSize, TextareaVariant } from "./types";
-
-const sizeClasses: Record<TextareaSize, string> = {
-  sm: "min-h-[4.5rem] px-3 py-2 text-sm",
-  md: "min-h-[5.5rem] px-4 py-2.5 text-sm",
-  lg: "min-h-[6.5rem] px-5 py-3 text-base",
-};
+import type { TextareaProps, TextareaVariant } from "./types";
 
 const variantClasses: Record<TextareaVariant, string> = {
   outline: cn(
@@ -78,10 +78,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label != null && (
           <Label
             htmlFor={textareaId}
-            className={cn(
-              "mb-1.5 block text-sm font-medium text-text",
-              labelClassName,
-            )}
+            className={cn(fieldLabelSizeClasses, labelClassName)}
           >
             {label}
             {isRequired && (
@@ -103,7 +100,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           aria-describedby={describedBy}
           className={cn(
             controlBaseClasses,
-            sizeClasses[size],
+            textareaSizeClasses[size],
             variantClasses[variant],
             hasError &&
               (variant === "ghost" || variant === "clear"
@@ -115,13 +112,13 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         />
 
         {hasError && (
-          <p id={errorId} role="alert" className="mt-1.5 text-sm text-danger">
+          <p id={errorId} role="alert" className={fieldErrorSizeClasses}>
             {error}
           </p>
         )}
 
         {!hasError && hint != null && (
-          <p id={hintId} className="mt-1.5 text-sm text-muted">
+          <p id={hintId} className={fieldHintSizeClasses}>
             {hint}
           </p>
         )}

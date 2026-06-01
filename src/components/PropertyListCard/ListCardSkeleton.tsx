@@ -75,15 +75,10 @@ export function ListCardSkeleton({
               </div>
             ) : null}
 
-            <div className="flex w-full justify-end gap-2 sm:w-auto md:gap-4 lg:hidden">
-              <Skeleton className="h-11 w-11 rounded-[10px]" />
-              <Skeleton className="h-11 w-11 rounded-[10px]" />
-              <Skeleton className="h-11 w-11 rounded-[10px]" />
-            </div>
-            <div className="hidden w-full flex-col justify-end gap-2 lg:flex lg:w-auto lg:flex-row lg:gap-4">
-              <Skeleton className="h-11 w-full rounded-[10px] sm:w-28" />
-              <Skeleton className="h-11 w-full rounded-[10px] sm:w-28" />
-              <Skeleton className="h-11 w-11 rounded-[10px]" />
+            <div className="flex w-full shrink-0 flex-row justify-end gap-2 sm:ms-auto sm:w-auto md:gap-4">
+              <Skeleton className="h-8 min-w-0 flex-1 rounded-[10px] sm:h-11 sm:min-w-28 sm:flex-none" />
+              <Skeleton className="h-8 min-w-0 flex-1 rounded-[10px] sm:h-11 sm:min-w-28 sm:flex-none" />
+              <Skeleton className="size-8 shrink-0 rounded-[10px] sm:size-11" />
             </div>
           </div>
         </div>
