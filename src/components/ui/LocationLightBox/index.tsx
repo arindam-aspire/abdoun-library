@@ -59,6 +59,7 @@ export function LocationLightBox({
       aria-label={ariaLabel}
     >
       <button
+        suppressHydrationWarning
         type="button"
         onClick={onClose}
         className={cn(

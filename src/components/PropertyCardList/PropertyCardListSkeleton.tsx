@@ -10,6 +10,7 @@ export type PropertyCardListSkeletonProps = {
   loadingCount?: number;
   canViewOwners?: boolean;
   canViewAgents?: boolean;
+  showToolbar?: boolean;
   showPagination?: boolean;
   className?: string;
 };
@@ -19,6 +20,7 @@ export function PropertyCardListSkeleton({
   loadingCount,
   canViewOwners = true,
   canViewAgents = true,
+  showToolbar = true,
   showPagination = true,
   className,
 }: PropertyCardListSkeletonProps) {
@@ -30,7 +32,7 @@ export function PropertyCardListSkeleton({
       aria-busy="true"
       aria-label="Loading property listings"
     >
-      <ListToolbarSkleton />
+      {showToolbar ? <ListToolbarSkleton /> : null}
 
       {layoutVariant === "list" ? (
         <div className="flex flex-col gap-2 md:gap-4 lg:gap-6">

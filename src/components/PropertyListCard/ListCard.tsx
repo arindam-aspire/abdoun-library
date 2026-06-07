@@ -112,6 +112,7 @@ export function ListCard({
             ) : null}
             {hasLocationMapData ? (
               <button
+                suppressHydrationWarning
                 type="button"
                 onClick={(event) =>
                   runCardControlAction(event, () => setIsLocationLightBoxOpen(true))
@@ -148,6 +149,7 @@ export function ListCard({
             ) : null}
             {hasLocationMapData ? (
               <button
+                suppressHydrationWarning
                 type="button"
                 onClick={(event) =>
                   runCardControlAction(event, () => setIsLocationLightBoxOpen(true))

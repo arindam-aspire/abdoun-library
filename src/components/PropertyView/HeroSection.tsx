@@ -199,6 +199,7 @@ export function HeroSection({
 
     return (
       <button
+        suppressHydrationWarning
         type="button"
         onClick={openLightbox}
         className={cn(
@@ -383,6 +384,7 @@ export function HeroSection({
 
                 return (
                   <button
+                    suppressHydrationWarning
                     key={`${item.type}-${thumbSrc}-${index}`}
                     type="button"
                     data-thumb-index={index}

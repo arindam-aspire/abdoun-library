@@ -20,7 +20,7 @@ export const Default: Story = {
       <>
         <h3 className="text-lg font-semibold">Card title</h3>
         <p className="text-muted mt-2 text-sm">
-          Card content with themed background and shadow.
+          Card content with themed background and soft shadow (no border).
         </p>
       </>
     ),

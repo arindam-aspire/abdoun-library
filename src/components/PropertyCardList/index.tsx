@@ -27,6 +27,8 @@ export function PropertyCardList({
 }: PropertyCardListProps) {
   const loadingCount = pagination?.pageSize ?? (layoutVariant === "list" ? 4 : 6);
 
+  const showToolbar = toolbar != null;
+
   if (isLoading) {
     return (
       <PropertyCardListSkeleton
@@ -34,6 +36,7 @@ export function PropertyCardList({
         loadingCount={loadingCount}
         canViewOwners={canViewOwners}
         canViewAgents={canViewAgents}
+        showToolbar={showToolbar}
         showPagination={Boolean(pagination)}
         className={className}
       />
@@ -47,12 +50,14 @@ export function PropertyCardList({
     <section
       className={cn("space-y-2 md:space-y-4 lg:space-y-6", className)}
     >
-      <ListToolbar
-        layoutVariant={layoutVariant}
-        title={listTitle}
-        totalCount={totalCount}
-        {...toolbar}
-      />
+      {showToolbar ? (
+        <ListToolbar
+          layoutVariant={layoutVariant}
+          title={listTitle}
+          totalCount={totalCount}
+          {...toolbar}
+        />
+      ) : null}
       {showNoData ? (
         <NoDataFound {...noDataFound} />
       ) : layoutVariant === "list" ? (

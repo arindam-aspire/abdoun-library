@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import {
   buttonIconSizeClasses,
   buttonSizeClasses,
-} from "../controlSizes";
+} from "../responsiveSizes";
 import type {
   ButtonColor,
   ButtonProps,
@@ -121,6 +121,7 @@ export function Button({
 
   return (
     <HeadlessButton
+      suppressHydrationWarning
       id={id}
       type={type}
       disabled={isDisabled}
@@ -143,7 +144,7 @@ export function Button({
       {isLoading ? (
         <>
           <Loader2
-            className={cn("shrink-0 animate-spin", iconSizeClasses[size])}
+            className={cn("shrink-0 animate-spin", buttonIconSizeClasses[size])}
             aria-hidden
           />
           {label != null && label !== false && (

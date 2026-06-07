@@ -219,6 +219,7 @@ export function ImageGallary({
       onClick={stopCardClickPropagation}
     >
       <button
+        suppressHydrationWarning
         type="button"
         onClick={(event) => {
           stopCardClickPropagation(event);
@@ -227,7 +228,8 @@ export function ImageGallary({
           }
         }}
         className={cn(
-          "absolute inset-0 z-10 border-0 bg-transparent p-0",
+          // Keep the "click anywhere to zoom" layer below floating UI so it doesn't block them.
+          "absolute inset-0 z-[5] border-0 bg-transparent p-0",
           isFallbackGallery ? "cursor-default" : "cursor-zoom-in",
         )}
         aria-label={`View full-size image for ${title}`}
@@ -278,7 +280,7 @@ export function ImageGallary({
           }
           onClick={handleFavourite}
           className={cn(
-            "absolute top-3 right-3 z-40",
+            "absolute top-3 right-3 z-[6]",
             floatingControlClasses,
           )}
           aria-label={
@@ -317,6 +319,7 @@ export function ImageGallary({
           >
             {visibleDots.map((dotIndex) => (
               <button
+                suppressHydrationWarning
                 key={dotIndex}
                 type="button"
                 role="tab"
@@ -353,7 +356,7 @@ export function ImageGallary({
               goPrev();
             }}
             className={cn(
-              "absolute top-1/2 left-3 z-30 -translate-y-1/2",
+              "absolute top-1/2 left-3 z-[6] -translate-y-1/2",
               floatingControlClasses,
             )}
             aria-label="Previous image"
@@ -370,7 +373,7 @@ export function ImageGallary({
               goNext();
             }}
             className={cn(
-              "absolute top-1/2 right-3 z-30 -translate-y-1/2",
+              "absolute top-1/2 right-3 z-[6] -translate-y-1/2",
               floatingControlClasses,
             )}
             aria-label="Next image"

@@ -5,7 +5,7 @@ import { Button } from "../Button";
 import {
   buttonIconSizeClasses,
   iconButtonSizeClasses,
-} from "../controlSizes";
+} from "../responsiveSizes";
 import type { IconButtonProps } from "./types";
 
 export function IconButton({

@@ -72,6 +72,7 @@ export function HeroSectionLightBox({
       aria-label={ariaLabel}
     >
       <button
+        suppressHydrationWarning
         type="button"
         onClick={onClose}
         className={cn(

@@ -109,6 +109,7 @@ export function GridCard({
         </div>
         {hasLocationMapData ? (
           <button
+            suppressHydrationWarning
             type="button"
             onClick={(event) =>
               runCardControlAction(event, () => setIsLocationLightBoxOpen(true))

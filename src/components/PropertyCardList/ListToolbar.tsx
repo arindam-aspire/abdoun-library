@@ -1,6 +1,6 @@
 import { LayoutGrid, List, ListFilter } from "lucide-react";
 import { cn } from "../../lib/cn";
-import { selectLeadingIconPositionClasses } from "../ui/controlSizes";
+import { selectLeadingIconPositionClasses } from "../ui/responsiveSizes";
 import {
   textPageTitleClasses,
   textPageTitleMetaClasses,

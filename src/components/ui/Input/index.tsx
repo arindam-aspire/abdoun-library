@@ -9,7 +9,7 @@ import {
   fieldHintSizeClasses,
   fieldIconSizeClasses,
   fieldLabelSizeClasses,
-} from "../controlSizes";
+} from "../responsiveSizes";
 import {
   inheritOutlineFocusWithinClasses,
   inheritOutlineVariantClasses,

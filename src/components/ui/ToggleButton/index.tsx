@@ -11,10 +11,12 @@ import {
 } from "react";
 import { cn } from "../../../lib/cn";
 import {
-  toggleContainerSizeClasses,
+  toggleBorderedTrackInsetClasses,
   toggleIconSizeClasses,
   toggleSegmentSizeClasses,
-} from "../controlSizes";
+  toggleShellSizeClasses,
+  toggleTrackInsetClasses,
+} from "../responsiveSizes";
 import type {
   ToggleButtonColor,
   ToggleButtonProps,
@@ -277,7 +279,10 @@ export function ToggleButton<T extends string = string>({
       className={cn(
         "relative inline-flex",
         roundedContainer,
-        toggleContainerSizeClasses[size],
+        toggleShellSizeClasses[size],
+        variant === "ghost"
+          ? toggleTrackInsetClasses[size]
+          : toggleBorderedTrackInsetClasses[size],
         containerVariantClasses[color][variant],
         fullWidth && "flex w-full",
         className,
@@ -304,6 +309,7 @@ export function ToggleButton<T extends string = string>({
 
         return (
           <HeadlessButton
+            suppressHydrationWarning
             key={String(item.value)}
             ref={(node) => {
               segmentRefs.current[index] = node;

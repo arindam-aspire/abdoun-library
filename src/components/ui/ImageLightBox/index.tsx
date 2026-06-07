@@ -68,6 +68,7 @@ export function ImageLightBox({
       aria-label={ariaLabel}
     >
       <button
+        suppressHydrationWarning
         type="button"
         onClick={onClose}
         className={cn(
@@ -80,6 +81,7 @@ export function ImageLightBox({
       </button>
 
       <button
+        suppressHydrationWarning
         type="button"
         className="flex min-h-0 flex-1 cursor-default items-center justify-center p-6 pt-14 sm:p-10 sm:pt-16"
         onClick={onClose}

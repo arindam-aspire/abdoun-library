@@ -19,8 +19,9 @@ import {
   dropdownPanelSizeClasses,
   selectOptionSizeClasses,
   selectTriggerSizeClasses,
-} from "../controlSizes";
+} from "../responsiveSizes";
 import {
+  anchoredListboxPanelWidthClasses,
   inheritOutlineDataHoverClasses,
   inheritOutlineFocusVisibleClasses,
   inheritOutlineVariantClasses,
@@ -43,7 +44,7 @@ const triggerBaseClasses =
   "relative inline-flex w-full items-center rounded-lg bg-surface text-start text-text transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/40 data-disabled:cursor-not-allowed data-disabled:opacity-50";
 
 const optionClasses = cn(
-  "cursor-pointer text-text transition-colors data-focus:bg-primary data-focus:text-white data-selected:bg-primary data-selected:text-white data-disabled:cursor-not-allowed data-disabled:opacity-50",
+  "cursor-pointer truncate text-text transition-colors data-focus:bg-primary data-focus:text-white data-selected:bg-primary data-selected:text-white data-disabled:cursor-not-allowed data-disabled:opacity-50",
   selectOptionSizeClasses,
 );
 
@@ -154,7 +155,8 @@ export function Select({
             anchor="bottom start"
             transition
             className={cn(
-              "z-50 mt-1 max-h-60 w-(--button-width) overflow-auto rounded-xl border border-secondary/20 bg-surface shadow-lg [--anchor-gap:0.25rem] focus:outline-none",
+              "z-50 mt-1 max-h-60 overflow-auto rounded-xl border border-secondary/20 bg-surface shadow-lg [--anchor-gap:0.25rem] focus:outline-none",
+              anchoredListboxPanelWidthClasses,
               dropdownPanelSizeClasses,
             )}
           >

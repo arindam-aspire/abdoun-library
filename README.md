@@ -271,7 +271,7 @@ import { PropertyView } from "@abdoun/abdoun-library";
 | Prop | Type | Default | Required | Description |
 |------|------|---------|----------|-------------|
 | `data` | `array` (see `data[]` below) | — | **Yes** | Listings to render as cards. |
-| `toolbar` | `object` (see `toolbar` below) | — | **Yes** | Sort, count label, and grid/list toggle config. |
+| `toolbar` | `object` (see `toolbar` below) | — | No | Sort, count label, and grid/list toggle config; omit to hide the toolbar. |
 | `isLoading` | `boolean` | `false` | No | When `true`, shows built-in skeleton UI only. |
 | `layoutVariant` | `"grid"` \| `"list"` | `"grid"` | No | Card layout for the list. |
 | `listTitle` | `string` | — | No | Optional heading above the cards. |

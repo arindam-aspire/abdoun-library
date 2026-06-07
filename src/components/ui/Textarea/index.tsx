@@ -8,7 +8,7 @@ import {
   fieldHintSizeClasses,
   fieldLabelSizeClasses,
   textareaSizeClasses,
-} from "../controlSizes";
+} from "../responsiveSizes";
 import {
   inheritOutlineFocusVisibleClasses,
   inheritOutlineVariantClasses,

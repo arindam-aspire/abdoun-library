@@ -20,8 +20,9 @@ import {
   fieldLabelSizeClasses,
   selectTriggerLeadingIconPaddingClasses,
   selectTriggerSizeClasses,
-} from "../controlSizes";
+} from "../responsiveSizes";
 import {
+  anchoredListboxPanelWidthClasses,
   inheritOutlineFocusVisibleClasses,
   inheritOutlineVariantClasses,
 } from "../fieldVariants";
@@ -54,13 +55,14 @@ const triggerVariantClasses: Record<SelectDropdownVariant, string> = {
 };
 
 const panelClasses = cn(
-  "z-50 max-h-64 min-w-64 w-(--button-width) overflow-auto rounded-2xl border border-secondary-light/80 bg-surface shadow-xl ring-1 ring-black/5",
+  "z-50 max-h-64 overflow-auto rounded-2xl border border-secondary-light/80 bg-surface shadow-xl ring-1 ring-black/5",
   "[scrollbar-width:thin] focus:outline-none",
+  anchoredListboxPanelWidthClasses,
   dropdownPanelSizeClasses,
 );
 
 const optionBaseClasses = cn(
-  "cursor-pointer rounded-xl text-text transition-colors",
+  "cursor-pointer truncate rounded-xl text-text transition-colors",
   dropdownOptionSizeClasses,
   "data-focus:bg-page data-hover:bg-page",
   "data-selected:bg-page data-selected:font-medium data-selected:text-secondary-dark",

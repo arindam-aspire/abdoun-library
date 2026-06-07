@@ -75,6 +75,7 @@ function TabTrigger<T extends string>({
 
   return (
     <button
+      suppressHydrationWarning
       type="button"
       role="tab"
       aria-selected={isSelected}

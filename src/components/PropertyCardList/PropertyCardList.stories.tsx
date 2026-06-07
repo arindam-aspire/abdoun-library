@@ -453,6 +453,17 @@ export const WithData: Story = {
   },
 };
 
+/** Cards only — no toolbar or pagination. */
+export const CardsOnly: Story = {
+  args: {
+    isLoading: false,
+    layoutVariant: "grid",
+    data: sampleListings.slice(0, 4),
+    ...sharedVisibility,
+    ...sharedHandlers,
+  },
+};
+
 /** Empty results with no-data UI. */
 export const NoData: Story = {
   args: {

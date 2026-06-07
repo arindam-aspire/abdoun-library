@@ -1,5 +1,9 @@
 import { cn } from "../../lib/cn";
 
+/** Anchored listbox panel — same width as `ListboxButton` (Headless UI `--button-width`). */
+export const anchoredListboxPanelWidthClasses =
+  "w-(--button-width) min-w-(--button-width) max-w-(--button-width)";
+
 /** Matches Button `color="inherit"` + `variant="outline"` for form controls. */
 export const inheritOutlineVariantClasses = cn(
   "border border-secondary/15 bg-surface text-text shadow-none",

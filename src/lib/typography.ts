@@ -3,7 +3,7 @@
  * Compact below `sm`; scales up from `sm` / `md` breakpoints.
  */
 
-/** Control-tier text (buttons, inputs, selects) — re-exported for controlSizes. */
+/** Control-tier text (buttons, inputs, selects) — re-exported for responsiveSizes. */
 export const controlTextClasses = {
   sm: "text-[11px] leading-none sm:text-sm sm:leading-normal",
   md: "text-xs leading-none sm:text-sm sm:leading-normal",

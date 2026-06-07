@@ -153,6 +153,7 @@ export function SimilarProperties({
         {showViewMore ? (
           <>
             <button
+              suppressHydrationWarning
               type="button"
               onClick={onViewMore}
               className={cn(

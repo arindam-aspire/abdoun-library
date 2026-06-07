@@ -7,7 +7,7 @@ import { SELECT_DROPDOWN_EMPTY_VALUE } from "../SelectDropdown/types";
 import {
   buttonIconSizeClasses,
   iconButtonSizeClasses,
-} from "../controlSizes";
+} from "../responsiveSizes";
 import {
   textPaginationLabelClasses,
   textPaginationSummaryClasses,
@@ -213,6 +213,7 @@ function PageNumberButtons({
 
         return (
           <button
+            suppressHydrationWarning
             key={`${keyPrefix}-page-${item}`}
             type="button"
             disabled={disabled}
@@ -318,6 +319,7 @@ export function Pagination({
           aria-label="Pagination navigation"
         >
           <button
+            suppressHydrationWarning
             type="button"
             disabled={isPrevDisabled}
             onClick={() => onPageChange(safeCurrentPage - 1)}
@@ -350,6 +352,7 @@ export function Pagination({
           </div>
 
           <button
+            suppressHydrationWarning
             type="button"
             disabled={isNextDisabled}
             onClick={() => onPageChange(safeCurrentPage + 1)}

@@ -7,7 +7,7 @@ export function Card({ className, children, role, onClick }: CardProps) {
       data-slot="card"
       role={role}
       className={cn(
-        "bg-card-background rounded-lg shadow-sm",
+        "rounded-lg border-none bg-card-background shadow-[0_0.25rem_1.875rem_rgba(46,45,116,0.05)]",
         onClick && "cursor-pointer",
         className,
       )}

@@ -8,7 +8,7 @@ import {
   heroCarouselControlButtonSizeClasses,
   heroCarouselControlIconSizeClasses,
   heroCarouselShellSizeClasses,
-} from "../ui/controlSizes";
+} from "../ui/responsiveSizes";
 import { textCarouselCounterClasses } from "../../lib/typography";
 import type { HeroCarouselControlsProps } from "./types";
 
@@ -100,6 +100,7 @@ export function HeroCarouselControls({
           >
             {visibleDotIndices.map((index) => (
               <button
+                suppressHydrationWarning
                 key={index}
                 type="button"
                 role="tab"
@@ -134,6 +135,7 @@ export function HeroCarouselControls({
         <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
           {onPauseToggle ? (
             <button
+              suppressHydrationWarning
               type="button"
               onClick={(event) => {
                 event.stopPropagation();
@@ -153,6 +155,7 @@ export function HeroCarouselControls({
           ) : null}
 
           <button
+            suppressHydrationWarning
             type="button"
             onClick={(event) => {
               event.stopPropagation();
@@ -167,6 +170,7 @@ export function HeroCarouselControls({
           </button>
 
           <button
+            suppressHydrationWarning
             type="button"
             onClick={(event) => {
               event.stopPropagation();

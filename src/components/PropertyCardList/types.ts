@@ -196,7 +196,7 @@ export interface PropertyCardListProps extends CardListProps {
   isLoading?: boolean;
   layoutVariant?: CardLayoutVariant;
   listTitle?: string;
-  toolbar: PropertyCardListToolbar;
+  toolbar?: PropertyCardListToolbar;
   noDataFound?: NoDataFoundContent;
   pagination?: PaginitionContent;
   className?: string;
