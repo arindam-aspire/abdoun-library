@@ -542,6 +542,37 @@ export function cardListPaginationIconSizeClasses(fromSm: UiSizeTier = "md"): st
   return cnTier("size-3.5", heroCarouselControlIconFromSm[fromSm]);
 }
 
+const tablePaginationButtonFromSm: Record<UiSizeTier, string> = {
+  sm: "size-7 sm:size-8",
+  md: "size-7 sm:size-8 lg:size-9",
+  lg: "size-8 sm:size-9 lg:size-10",
+};
+
+const tablePaginationIconFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:[&_svg]:size-3.5",
+  md: "sm:[&_svg]:size-3.5 lg:[&_svg]:size-4",
+  lg: "sm:[&_svg]:size-4 lg:[&_svg]:size-4",
+};
+
+const tablePaginationSelectTriggerFromSm: Record<UiSizeTier, string> = {
+  sm: "h-7 min-h-7 px-2 pe-7 text-xs sm:h-8 sm:min-h-8 sm:px-2.5 sm:pe-8",
+  md: "h-7 min-h-7 px-2 pe-7 text-xs sm:h-8 sm:min-h-8 sm:px-2.5 sm:pe-8 lg:h-9 lg:min-h-9 lg:px-3 lg:pe-9",
+  lg: "h-8 min-h-8 px-2.5 pe-8 text-xs sm:h-9 sm:min-h-9 sm:px-3 sm:pe-9 lg:h-10 lg:min-h-10",
+};
+
+/** Compact pagination controls for table footers. */
+export function tablePaginationButtonSizeClasses(fromSm: UiSizeTier = "md"): string {
+  return tablePaginationButtonFromSm[fromSm];
+}
+
+export function tablePaginationIconSizeClasses(fromSm: UiSizeTier = "md"): string {
+  return cnTier("[&_svg]:size-4", tablePaginationIconFromSm[fromSm]);
+}
+
+export function tablePaginationSelectTriggerSizeClasses(fromSm: UiSizeTier = "md"): string {
+  return tablePaginationSelectTriggerFromSm[fromSm];
+}
+
 function cnTier(...classes: string[]) {
   return classes.join(" ");
 }

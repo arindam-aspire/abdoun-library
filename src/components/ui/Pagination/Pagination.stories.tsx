@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 import { useState } from "react";
-import { Pagination } from "./index";
+import { Pagination, TablePagination } from "./index";
 
 function PaginationDemo({
   initialPage = 1,
@@ -69,6 +69,45 @@ export const MiddlePage: Story = {
 
 export const LastPage: Story = {
   render: () => <PaginationDemo initialPage={5} />,
+};
+
+function TablePaginationDemo({
+  initialPage = 1,
+  initialPageSize = 5,
+  totalItems = 13,
+}: {
+  initialPage?: number;
+  initialPageSize?: number;
+  totalItems?: number;
+}) {
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [pageSize, setPageSize] = useState(initialPageSize);
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-secondary/15 bg-surface">
+      <div className="px-4 py-6 text-sm text-muted">Table body…</div>
+      <TablePagination
+        currentPage={currentPage}
+        totalItems={totalItems}
+        pageSize={pageSize}
+        pageSizeOptions={[5, 10, 25]}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setCurrentPage(1);
+        }}
+        className="border-t border-secondary/15"
+      />
+    </div>
+  );
+}
+
+export const TableVariant: Story = {
+  render: () => <TablePaginationDemo />,
+};
+
+export const TableVariantMiddlePage: Story = {
+  render: () => <TablePaginationDemo initialPage={2} />,
 };
 
 export const WithoutPageSizeSelector: Story = {

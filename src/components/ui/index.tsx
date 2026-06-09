@@ -10,6 +10,23 @@ export { SelectDropdown } from "./SelectDropdown";
 export { Skeleton } from "./Skeleton";
 export { Tab } from "./Tab";
 export { Textarea } from "./Textarea";
-export { Pagination } from "./Pagination";
+export { Pagination, TablePagination } from "./Pagination";
+export {
+  Table,
+  TableBodySkeleton,
+  TableTransposedView,
+  TableTransposedViewSkeleton,
+  getNextSortConfig,
+  sortRowsByConfig,
+} from "./Table";
+export type {
+  SortConfig,
+  SortDirection,
+  SortRule,
+  TableColumn,
+  TablePaginationConfig,
+  TableProps,
+  PinnedColumns,
+} from "./Table";
 export { ToggleButton } from "./ToggleButton";
 export { WhatsAppIcon } from "./WhatsAppIcon";

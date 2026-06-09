@@ -1,3 +1,4 @@
+import { createListingStatus } from "../PropertyCardList/listingStatus";
 import type { PropertyListing } from "../PropertyCardList/types";
 
 const sampleImages = [
@@ -37,7 +38,7 @@ function buildListing(
     title: localized("Apartment"),
     description: { en: null, ar: null, esp: null, fr: null },
     price: "JOD 200,000",
-    status: "Available",
+    status: createListingStatus("verified"),
     category: "Residential",
     searchPropertyType: "apartment",
     city: "Amman",

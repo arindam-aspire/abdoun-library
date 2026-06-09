@@ -4,6 +4,7 @@ export const BADGE_VARIANTS = [
   "default",
   "secondary",
   "outline",
+  "info",
   "success",
   "warning",
   "destructive",

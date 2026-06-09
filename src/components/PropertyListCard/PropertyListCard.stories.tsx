@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { ReactNode } from "react";
+import { createListingStatus } from "../PropertyCardList/listingStatus";
 import type { PropertyListing } from "../PropertyCardList/types";
 
 type LocalizedText = PropertyListing["title"];
@@ -59,7 +60,7 @@ function buildPropertyListing(
       "Spacious villa with modern finishes in Abdoun.",
     ),
     price: "JOD 450,000",
-    status: "Available",
+    status: createListingStatus("verified"),
     category: "Residential",
     searchPropertyType: "villa",
     city: "Amman",

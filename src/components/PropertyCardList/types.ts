@@ -1,5 +1,19 @@
 import type { ReactNode } from "react";
 import type { UiControlSize } from "../ui/commonTypes";
+import type { PropertyListingStatus } from "./listingStatus";
+
+export type {
+  PropertyListingStatus,
+  PropertyListingStatusKey,
+  StatusColorScheme,
+} from "./listingStatus";
+export {
+  STATUS_COLOR_MAP,
+  PROPERTY_LISTING_STATUS_KEYS,
+  createListingStatus,
+  getPropertyListingStatusColorScheme,
+  statusColorSchemeToBadgeVariant,
+} from "./listingStatus";
 
 type NullableString = string | null;
 type NullableNumber = number | null;
@@ -15,7 +29,7 @@ export interface PropertyListing {
   description: LocalizedNullableText;
 
   price: string;
-  status: string;
+  status: PropertyListingStatus;
   category: string;
 
   searchPropertyType: string;

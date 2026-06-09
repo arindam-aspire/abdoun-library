@@ -13,7 +13,11 @@ import {
   textPaginationSummaryClasses,
 } from "../../../lib/typography";
 import type { ButtonSize } from "../Button/types";
-import { DEFAULT_PAGE_SIZE_OPTIONS, type PaginationProps } from "./types";
+import {
+  DEFAULT_PAGE_SIZE_OPTIONS,
+  type PaginationProps,
+  type PaginationVariant,
+} from "./types";
 
 function getTotalPages(totalItems: number, pageSize: number): number {
   if (totalItems <= 0 || pageSize <= 0) {
@@ -224,7 +228,7 @@ function PageNumberButtons({
               pageButtonBaseClasses,
               pageButtonSizeClassName,
               isActive
-                ? "bg-primary text-white"
+                ? "border border-primary bg-primary text-white"
                 : "border border-secondary/15 bg-surface text-text hover:bg-page",
             )}
           >
@@ -236,6 +240,16 @@ function PageNumberButtons({
   );
 }
 
+function resolveMaxPageButtons(
+  variant: PaginationVariant,
+  maxPageButtons: number | undefined,
+): number {
+  if (maxPageButtons != null) {
+    return maxPageButtons;
+  }
+  return variant === "table" ? 3 : 5;
+}
+
 export function Pagination({
   currentPage,
   totalItems,
@@ -243,11 +257,12 @@ export function Pagination({
   onPageChange,
   onPageSizeChange,
   pageSizeOptions = [...DEFAULT_PAGE_SIZE_OPTIONS],
-  maxPageButtons = 5,
+  maxPageButtons: maxPageButtonsProp,
   showPageSizeSelector = true,
   showResultsSummary = true,
-  perPageLabel = "Per page",
+  perPageLabel,
   resultsLabel = "results",
+  variant = "default",
   buttonSize = "md",
   pageSizeSelectSize = "md",
   pageButtonClassName,
@@ -256,6 +271,9 @@ export function Pagination({
   className,
   disabled = false,
 }: PaginationProps) {
+  const isTableVariant = variant === "table";
+  const maxPageButtons = resolveMaxPageButtons(variant, maxPageButtonsProp);
+  const resolvedPerPageLabel = perPageLabel ?? (isTableVariant ? "Rows" : "Per page");
   const resolvedPageButtonSizeClasses =
     pageButtonClassName ?? pageButtonSizeClasses[buttonSize];
   const resolvedPageIconSizeClasses =
@@ -276,15 +294,20 @@ export function Pagination({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 border-t border-secondary/15 pt-4 sm:flex-row sm:items-center sm:justify-between",
+        "flex flex-col sm:flex-row sm:items-center sm:justify-between",
+        isTableVariant
+          ? "gap-2 px-3 py-2.5 sm:gap-3 sm:px-4 sm:py-3"
+          : "gap-4 border-t border-secondary/15 pt-4",
         className,
       )}
     >
       {showResultsSummary ? (
         <p
           className={cn(
-            "order-2 text-center sm:order-1 sm:text-start",
-            textPaginationSummaryClasses,
+            isTableVariant
+              ? "order-2 text-start text-muted"
+              : "order-2 text-center sm:order-1 sm:text-start",
+            isTableVariant ? textPaginationLabelClasses : textPaginationSummaryClasses,
           )}
         >
           Showing <span className="font-semibold text-secondary">{from}</span> to{" "}
@@ -294,16 +317,26 @@ export function Pagination({
         </p>
       ) : null}
 
-      <div className="order-1 flex flex-wrap items-center justify-center gap-4 sm:order-2 sm:justify-end">
+      <div
+        className={cn(
+          "order-1 flex flex-wrap items-center justify-between gap-2 sm:order-2 sm:justify-end",
+          isTableVariant ? "w-full sm:w-auto sm:gap-3" : "justify-center gap-4",
+        )}
+      >
         {showPageSizeSelector && onPageSizeChange ? (
-          <div className="hidden items-center gap-2 sm:flex">
-            <span className={textPaginationLabelClasses}>{perPageLabel}</span>
+          <div
+            className={cn(
+              "flex items-center gap-1.5 sm:gap-2",
+              isTableVariant ? "" : "hidden sm:flex",
+            )}
+          >
+            <span className={textPaginationLabelClasses}>{resolvedPerPageLabel}</span>
             <SelectDropdown
               options={pageSizeOptions.map((option) => ({
                 value: String(option),
                 label: String(option),
               }))}
-              placeholder="Per page"
+              placeholder={resolvedPerPageLabel}
               value={String(pageSize)}
               onChange={(value) => {
                 if (value !== SELECT_DROPDOWN_EMPTY_VALUE) {
@@ -314,18 +347,22 @@ export function Pagination({
               fullWidth={false}
               wrapperClassName="w-auto"
               triggerClassName={cn(
-                "min-w-[4.5rem] rounded-lg font-semibold text-secondary",
+                "min-w-[3.5rem] rounded-md font-medium text-secondary sm:min-w-[4rem]",
+                isTableVariant ? "rounded-md" : "rounded-lg font-semibold",
                 pageSizeSelectTriggerClassName,
               )}
               variant="outline"
-              size={pageSizeSelectSize}
+              size={isTableVariant ? "sm" : pageSizeSelectSize}
               aria-label="Items per page"
             />
           </div>
         ) : null}
 
         <nav
-          className="flex items-center gap-1.5"
+          className={cn(
+            "flex items-center",
+            isTableVariant ? "ms-auto gap-1 sm:ms-0 sm:gap-1.5" : "gap-1.5",
+          )}
           aria-label="Pagination navigation"
         >
           <button

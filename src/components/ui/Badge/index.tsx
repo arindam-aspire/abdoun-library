@@ -11,6 +11,7 @@ export const badgeVariants = cva(
         default: "",
         secondary: "",
         outline: "",
+        info: "",
         success: "",
         warning: "",
         destructive: "",
@@ -52,6 +53,16 @@ export const badgeVariants = cva(
         variant: "outline",
         appearance: "solid",
         class: "bg-page text-text shadow-sm ring-1 ring-secondary/15",
+      },
+      {
+        variant: "info",
+        appearance: "soft",
+        class: "border-info/30 bg-info/15 text-info",
+      },
+      {
+        variant: "info",
+        appearance: "solid",
+        class: "bg-info text-page",
       },
       {
         variant: "success",

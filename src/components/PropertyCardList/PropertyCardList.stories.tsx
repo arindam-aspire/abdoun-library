@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 import { useCallback, useMemo, useState } from "react";
 import { Button } from "../ui/Button";
+import { createListingStatus } from "./listingStatus";
 import { PropertyCardList } from "./index";
 import type {
   CardLayoutVariant,
@@ -56,7 +57,7 @@ function buildProperty(
     title: { en: title, ar: title, esp: title, fr: title },
     description: { en: `${title} description`, ar: null, esp: null, fr: null },
     price,
-    status: "Available",
+    status: createListingStatus("verified"),
     category: "Residential",
     searchPropertyType: "villa",
     city: "Amman",
