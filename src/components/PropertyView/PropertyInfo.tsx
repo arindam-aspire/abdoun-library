@@ -5,6 +5,12 @@ import { cn } from "../../lib/cn";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { IconButton } from "../ui/IconButton";
+import type { UiControlSize } from "../ui/commonTypes";
+import {
+  propertyViewButtonSizeClasses,
+  propertyViewIconButtonGlyphClasses,
+  propertyViewIconButtonSizeClasses,
+} from "../ui/responsiveSizes";
 import { WhatsAppIcon } from "../ui/WhatsAppIcon";
 import type { PropertyDetails, PropertyInfoProps } from "./types";
 import { hasPropertyDocuments } from "./utils";
@@ -251,10 +257,12 @@ function AgentDetailsRow({
 }
 
 function ContactActions({
+  buttonSize = "md",
   onEmail,
   onPhone,
   onWhatsApp,
 }: {
+  buttonSize?: UiControlSize;
   onEmail?: () => void;
   onPhone?: () => void;
   onWhatsApp?: () => void;
@@ -267,7 +275,10 @@ function ContactActions({
         variant="solid"
         size="md"
         onClick={onEmail}
-        className="min-w-0 flex-1"
+        className={cn(
+          propertyViewButtonSizeClasses(buttonSize),
+          "min-w-0 flex-1",
+        )}
         iconStart={<Mail aria-hidden />}
       >
         <span className="truncate">Email</span>
@@ -278,7 +289,10 @@ function ContactActions({
         variant="outline"
         size="md"
         onClick={onPhone}
-        className="min-w-0 flex-1"
+        className={cn(
+          propertyViewButtonSizeClasses(buttonSize),
+          "min-w-0 flex-1",
+        )}
         iconStart={<Phone aria-hidden />}
       >
         <span className="truncate">Call</span>
@@ -289,7 +303,11 @@ function ContactActions({
         variant="outline"
         size="md"
         onClick={onWhatsApp}
-        className="shrink-0"
+        className={cn(
+          propertyViewIconButtonSizeClasses(buttonSize),
+          propertyViewIconButtonGlyphClasses(buttonSize),
+          "shrink-0",
+        )}
         icon={<WhatsAppIcon />}
         aria-label="WhatsApp"
       />
@@ -299,11 +317,13 @@ function ContactActions({
 
 function ListingAgentSection({
   agent,
+  buttonSize = "md",
   onEmail,
   onPhone,
   onWhatsApp,
 }: {
   agent: NonNullable<PropertyDetails["agent"]>;
+  buttonSize?: UiControlSize;
   onEmail?: () => void;
   onPhone?: () => void;
   onWhatsApp?: () => void;
@@ -317,6 +337,7 @@ function ListingAgentSection({
       <AgentDetailsRow agent={agent} />
 
       <ContactActions
+        buttonSize={buttonSize}
         onEmail={onEmail}
         onPhone={onPhone}
         onWhatsApp={onWhatsApp}
@@ -330,12 +351,14 @@ function ListingAgentSection({
 function OwnerSection({
   owner,
   showAgentAbove,
+  buttonSize = "md",
   onEmail,
   onPhone,
   onWhatsApp,
 }: {
   owner: NonNullable<PropertyDetails["owner"]>;
   showAgentAbove?: boolean;
+  buttonSize?: UiControlSize;
   onEmail?: () => void;
   onPhone?: () => void;
   onWhatsApp?: () => void;
@@ -354,6 +377,7 @@ function OwnerSection({
       />
 
       <ContactActions
+        buttonSize={buttonSize}
         onEmail={onEmail}
         onPhone={onPhone}
         onWhatsApp={onWhatsApp}
@@ -367,6 +391,7 @@ export function PropertyInfo({
   className,
   showAgent = true,
   showOwner = true,
+  buttonSize = "md",
   onEmail,
   onPhone,
   onWhatsApp,
@@ -441,6 +466,7 @@ export function PropertyInfo({
             {displayAgentSection && agent ? (
               <ListingAgentSection
                 agent={agent}
+                buttonSize={buttonSize}
                 onEmail={onEmail}
                 onPhone={onPhone}
                 onWhatsApp={onWhatsApp}
@@ -451,6 +477,7 @@ export function PropertyInfo({
               <OwnerSection
                 owner={owner}
                 showAgentAbove={Boolean(displayAgentSection && agent)}
+                buttonSize={buttonSize}
                 onEmail={onOwnerEmail}
                 onPhone={onOwnerPhone}
                 onWhatsApp={onOwnerWhatsApp}

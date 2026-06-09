@@ -25,6 +25,13 @@ const meta = {
     onClickCall: fn(),
     onClickWhatsApp: fn(),
     onClickFavourite: fn(),
+    buttonSize: "md",
+  },
+  argTypes: {
+    buttonSize: {
+      control: "select",
+      options: ["sm", "md", "lg"],
+    },
   },
 } satisfies Meta<typeof SimilarProperties>;
 
@@ -33,6 +40,20 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+/** Larger card actions and carousel controls from `sm` up. */
+export const ButtonSizeLarge: Story = {
+  args: {
+    buttonSize: "lg",
+  },
+};
+
+/** Compact card actions and carousel controls from `sm` up. */
+export const ButtonSizeSmall: Story = {
+  args: {
+    buttonSize: "sm",
+  },
+};
 
 export const WithoutViewMore: Story = {
   args: {

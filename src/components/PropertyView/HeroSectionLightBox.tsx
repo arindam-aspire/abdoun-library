@@ -6,6 +6,10 @@ import { createPortal } from "react-dom";
 import { cn } from "../../lib/cn";
 import { textOverlayButtonClasses } from "../../lib/typography";
 import { IconButton } from "../ui/IconButton";
+import {
+  propertyViewIconButtonGlyphClasses,
+  propertyViewIconButtonSizeClasses,
+} from "../ui/responsiveSizes";
 import { HeroCarouselControls } from "./HeroCarouselControls";
 import type { HeroSectionLightBoxProps } from "./types";
 
@@ -17,6 +21,7 @@ export function HeroSectionLightBox({
   onActiveIndexChange,
   title,
   ariaLabel = "Property image gallery",
+  buttonSize = "md",
 }: HeroSectionLightBoxProps) {
   const total = images.length;
   const hasMultiple = total > 1;
@@ -98,9 +103,14 @@ export function HeroSectionLightBox({
               color="inherit"
               variant="outline"
               isRounded
+              size="md"
               icon={<ChevronLeft />}
               onClick={goPrev}
-              className="absolute top-1/2 left-4 z-20 -translate-y-1/2 bg-page/90 sm:left-6"
+              className={cn(
+                "absolute top-1/2 left-4 z-20 -translate-y-1/2 bg-page/90 sm:left-6",
+                propertyViewIconButtonSizeClasses(buttonSize),
+                propertyViewIconButtonGlyphClasses(buttonSize),
+              )}
               aria-label="Previous image"
             />
             <IconButton
@@ -108,9 +118,14 @@ export function HeroSectionLightBox({
               color="inherit"
               variant="outline"
               isRounded
+              size="md"
               icon={<ChevronRight />}
               onClick={goNext}
-              className="absolute top-1/2 right-4 z-20 -translate-y-1/2 bg-page/90 sm:right-6"
+              className={cn(
+                "absolute top-1/2 right-4 z-20 -translate-y-1/2 bg-page/90 sm:right-6",
+                propertyViewIconButtonSizeClasses(buttonSize),
+                propertyViewIconButtonGlyphClasses(buttonSize),
+              )}
               aria-label="Next image"
             />
           </>
@@ -124,6 +139,7 @@ export function HeroSectionLightBox({
           onSelect={onActiveIndexChange}
           onPrev={goPrev}
           onNext={goNext}
+          buttonSize={buttonSize}
         />
       </div>
     </div>,

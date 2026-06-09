@@ -6,6 +6,11 @@ import { cn } from "../../lib/cn";
 import { textPageTitleClasses } from "../../lib/typography";
 import { Button } from "../ui/Button";
 import { IconButton } from "../ui/IconButton";
+import {
+  propertyViewButtonSizeClasses,
+  propertyViewIconButtonGlyphClasses,
+  propertyViewIconButtonSizeClasses,
+} from "../ui/responsiveSizes";
 import { GridCard } from "../PropertyListCard/GridCard";
 import { GridCardSkeleton } from "../PropertyListCard/GridCardSkeleton";
 import { SimilarPropertiesEmpty } from "./SimilarPropertiesEmpty";
@@ -60,6 +65,7 @@ export function SimilarProperties({
   onClickCall,
   onClickWhatsApp,
   onClickFavourite,
+  buttonSize = "md",
 }: SimilarPropertiesProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
@@ -172,6 +178,7 @@ export function SimilarProperties({
                 variant="solid"
                 size="md"
                 onClick={onViewMore}
+                className={propertyViewButtonSizeClasses(buttonSize)}
               >
                 {viewMoreLabel}
               </Button>
@@ -211,6 +218,7 @@ export function SimilarProperties({
                       canViewBadges={canViewBadges}
                       applicationKey={applicationKey}
                       isFavouriteLoading={property.is_favourite_loading}
+                      buttonSize={buttonSize}
                       onClick={onClick}
                       onClickEmail={onClickEmail}
                       onClickCall={onClickCall}
@@ -232,7 +240,11 @@ export function SimilarProperties({
                   isRounded
                   icon={<ChevronLeft aria-hidden />}
                   onClick={() => scrollByDirection(-1)}
-                  className={CAROUSEL_NAV_BUTTON_CLASS}
+                  className={cn(
+                    CAROUSEL_NAV_BUTTON_CLASS,
+                    propertyViewIconButtonSizeClasses(buttonSize),
+                    propertyViewIconButtonGlyphClasses(buttonSize),
+                  )}
                   aria-label="Scroll to previous properties"
                 />
               </div>
@@ -248,7 +260,11 @@ export function SimilarProperties({
                   isRounded
                   icon={<ChevronRight aria-hidden />}
                   onClick={() => scrollByDirection(1)}
-                  className={CAROUSEL_NAV_BUTTON_CLASS}
+                  className={cn(
+                    CAROUSEL_NAV_BUTTON_CLASS,
+                    propertyViewIconButtonSizeClasses(buttonSize),
+                    propertyViewIconButtonGlyphClasses(buttonSize),
+                  )}
                   aria-label="Scroll to next properties"
                 />
               </div>

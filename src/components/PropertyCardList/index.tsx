@@ -22,6 +22,9 @@ export function PropertyCardList({
   onClickCall,
   onClickWhatsApp,
   onClickFavourite,
+  canViewDelete,
+  onClickDelete,
+  buttonSize = "md",
   pagination,
   className,
 }: PropertyCardListProps) {
@@ -55,6 +58,7 @@ export function PropertyCardList({
           layoutVariant={layoutVariant}
           title={listTitle}
           totalCount={totalCount}
+          buttonSize={buttonSize}
           {...toolbar}
         />
       ) : null}
@@ -71,6 +75,9 @@ export function PropertyCardList({
           onClickCall={onClickCall}
           onClickWhatsApp={onClickWhatsApp}
           onClickFavourite={onClickFavourite}
+          canViewDelete={canViewDelete}
+          onClickDelete={onClickDelete}
+          buttonSize={buttonSize}
         />
       ) : (
         <CardGridView
@@ -83,10 +90,13 @@ export function PropertyCardList({
           onClickCall={onClickCall}
           onClickWhatsApp={onClickWhatsApp}
           onClickFavourite={onClickFavourite}
+          canViewDelete={canViewDelete}
+          onClickDelete={onClickDelete}
+          buttonSize={buttonSize}
         />
       )}
       {pagination && !showNoData ? (
-        <PropertyPaginition {...pagination} />
+        <PropertyPaginition {...pagination} buttonSize={buttonSize} />
       ) : null}
     </section>
   );

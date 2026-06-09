@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import type { UiControlSize } from "../ui/commonTypes";
+
 type NullableString = string | null;
 type NullableNumber = number | null;
 export type ApplicationKey = "abdoun_web" | "mls_web";
@@ -11,6 +13,8 @@ export interface HeroCarouselControlsProps {
   onNext: () => void;
   isPaused?: boolean;
   onPauseToggle?: () => void;
+  /** Control size from `sm` breakpoint up; below `sm` always uses compact tier. */
+  buttonSize?: UiControlSize;
   className?: string;
 }
 
@@ -22,6 +26,8 @@ export interface HeroSectionLightBoxProps {
   onActiveIndexChange: (index: number) => void;
   title: string;
   ariaLabel?: string;
+  /** Control size from `sm` breakpoint up; below `sm` always uses compact tier. */
+  buttonSize?: UiControlSize;
 }
 
 export interface HeroSectionProps {
@@ -40,6 +46,8 @@ export interface HeroSectionProps {
   isFavourite?: boolean;
   isFavouriteLoading?: boolean;
   onFavourite?: () => void;
+  /** Control size from `sm` breakpoint up; below `sm` always uses compact tier. */
+  buttonSize?: UiControlSize;
   className?: string;
 }
 
@@ -288,6 +296,8 @@ export type PropertyInfoProps = {
   onOwnerEmail?: () => void;
   onOwnerPhone?: () => void;
   onOwnerWhatsApp?: () => void;
+  /** Control size from `sm` breakpoint up; below `sm` always uses compact tier. */
+  buttonSize?: UiControlSize;
 };
 
 export type PropertyViewTabOption = {
@@ -323,6 +333,8 @@ export type PropertyDetailsTabsProps = {
   onOwnerEmail?: () => void;
   onOwnerPhone?: () => void;
   onOwnerWhatsApp?: () => void;
+  /** Control size from `sm` breakpoint up; below `sm` always uses compact tier. */
+  buttonSize?: UiControlSize;
 };
 
 export interface PropertyViewProps {
@@ -345,6 +357,8 @@ export interface PropertyViewProps {
   onClickOwnerWhatsApp?: (id: number) => void;
   onClickOwner?: (id: number) => void;
   locale?: Locale;
+  /** Action control size from `sm` breakpoint up; below `sm` viewport unchanged. */
+  buttonSize?: UiControlSize;
   className?: string;
 }
 

@@ -55,6 +55,38 @@ export const Default: Story = {
   render: () => <CarouselControlsDemo total={5} />,
 };
 
+export const ButtonSizeLarge: Story = {
+  render: () => (
+    <div className="w-full max-w-md p-4">
+      <HeroCarouselControls
+        total={5}
+        activeIndex={2}
+        onSelect={fn()}
+        onPrev={fn()}
+        onNext={fn()}
+        onPauseToggle={fn()}
+        buttonSize="lg"
+      />
+    </div>
+  ),
+};
+
+export const ButtonSizeSmall: Story = {
+  render: () => (
+    <div className="w-full max-w-md p-4">
+      <HeroCarouselControls
+        total={5}
+        activeIndex={2}
+        onSelect={fn()}
+        onPrev={fn()}
+        onNext={fn()}
+        onPauseToggle={fn()}
+        buttonSize="sm"
+      />
+    </div>
+  ),
+};
+
 export const LargeGallery: Story = {
   render: () => (
     <div className="w-full max-w-xl p-4">

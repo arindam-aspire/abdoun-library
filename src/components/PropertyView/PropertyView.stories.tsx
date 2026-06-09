@@ -342,6 +342,10 @@ const meta = {
     onClickOwner: { action: "owner" },
     isLoading: { control: "boolean" },
     isFavouriteLoading: { control: "boolean" },
+    buttonSize: {
+      control: "select",
+      options: ["sm", "md", "lg"],
+    },
     locale: {
       control: "select",
       options: ["en", "ar", "esp", "fr"],
@@ -354,6 +358,20 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+/** Larger hero and contact actions from `sm` up; mobile sizing unchanged. */
+export const ButtonSizeLarge: Story = {
+  args: {
+    buttonSize: "lg",
+  },
+};
+
+/** Compact hero and contact actions from `sm` up; mobile sizing unchanged. */
+export const ButtonSizeSmall: Story = {
+  args: {
+    buttonSize: "sm",
+  },
+};
 
 export const AgentOnly: Story = {
   name: "Agent only (no owner)",

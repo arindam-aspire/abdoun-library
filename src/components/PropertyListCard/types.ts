@@ -3,6 +3,7 @@ import type {
   CardLayoutVariant,
   PropertyListing,
 } from "../PropertyCardList/types";
+import type { UiControlSize } from "../ui/commonTypes";
 
 export type { ApplicationKey, CardLayoutVariant, PropertyListing };
 
@@ -16,12 +17,17 @@ export interface PropertyListCardCoreProps {
   onClickCall?: (propertyDetails: PropertyListing) => void;
   onClickWhatsApp?: (propertyDetails: PropertyListing) => void;
   onClickFavourite?: (propertyDetails: PropertyListing) => void;
+  canViewDelete?: boolean;
+  onClickDelete?: (propertyDetails: PropertyListing) => void;
+  /** Card action control size from `sm` breakpoint up; below `sm` always uses compact `sm` tier. */
+  buttonSize?: UiControlSize;
 }
 
 export interface PropertyListCardProps extends PropertyListCardCoreProps {
   layoutVariant: CardLayoutVariant;
   applicationKey?: ApplicationKey;
   isFavouriteLoading?: boolean;
+  isDeleteLoading?: boolean;
 }
 
 export interface ImageGallaryProps
@@ -32,7 +38,11 @@ export interface ImageGallaryProps
   layoutVariant: CardLayoutVariant;
   applicationKey?: ApplicationKey;
   onClickFavourite?: PropertyListCardCoreProps["onClickFavourite"];
+  canViewDelete?: PropertyListCardCoreProps["canViewDelete"];
+  onClickDelete?: PropertyListCardCoreProps["onClickDelete"];
+  buttonSize?: PropertyListCardCoreProps["buttonSize"];
   isFavouriteLoading?: boolean;
+  isDeleteLoading?: boolean;
 }
 
 export interface GridCardSkeletonProps {

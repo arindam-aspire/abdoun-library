@@ -2,6 +2,7 @@ import type {
   ApplicationKey,
   PropertyListing,
 } from "../PropertyCardList/types";
+import type { UiControlSize } from "../ui/commonTypes";
 
 export type { ApplicationKey, PropertyListing };
 
@@ -33,4 +34,6 @@ export interface SimilarPropertiesProps {
   onClickCall?: (propertyDetails: PropertyListing) => void;
   onClickWhatsApp?: (propertyDetails: PropertyListing) => void;
   onClickFavourite?: (propertyDetails: PropertyListing) => void;
+  /** Card and section control size from `sm` breakpoint up; below `sm` unchanged. */
+  buttonSize?: UiControlSize;
 }

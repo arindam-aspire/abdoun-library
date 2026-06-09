@@ -464,6 +464,80 @@ export const CardsOnly: Story = {
   },
 };
 
+/** Larger toolbar, cards, and pagination from `sm` up; mobile unchanged. */
+export const ButtonSizeLarge: Story = {
+  args: {
+    isLoading: false,
+    layoutVariant: "grid",
+    listTitle: "Properties",
+    buttonSize: "lg",
+    data: sampleListings,
+    toolbar: {
+      listingsLabel: "listings",
+      sortOptions: [...defaultSortOptions],
+      sortValue: "newest",
+    },
+    pagination: {
+      total: sampleListings.length,
+      page: 1,
+      pageSize: 10,
+      pageOptions: [10, 15, 20],
+    },
+    ...sharedVisibility,
+    ...sharedHandlers,
+  },
+};
+
+/** Compact toolbar, cards, and pagination from `sm` up; mobile unchanged. */
+export const ButtonSizeSmall: Story = {
+  args: {
+    isLoading: false,
+    layoutVariant: "list",
+    listTitle: "Properties",
+    buttonSize: "sm",
+    data: sampleListings.slice(0, 4),
+    toolbar: {
+      listingsLabel: "listings",
+      sortOptions: [...defaultSortOptions],
+      sortValue: "newest",
+    },
+    pagination: {
+      total: sampleListings.length,
+      page: 1,
+      pageSize: 10,
+      pageOptions: [10, 15, 20],
+    },
+    ...sharedVisibility,
+    ...sharedHandlers,
+  },
+};
+
+/** Delete control on every card; set `is_delete_loading` on a listing for per-item spinners. */
+export const WithDelete: Story = {
+  args: {
+    isLoading: false,
+    layoutVariant: "grid",
+    listTitle: "My listings",
+    canViewDelete: true,
+    data: sampleListings.map((item, index) =>
+      index === 1 ? { ...item, is_delete_loading: true } : item,
+    ),
+    toolbar: {
+      listingsLabel: "listings",
+      sortOptions: [...defaultSortOptions],
+      sortValue: "newest",
+    },
+    pagination: {
+      total: sampleListings.length,
+      page: 1,
+      pageSize: 10,
+    },
+    onClickDelete: fn(),
+    ...sharedVisibility,
+    ...sharedHandlers,
+  },
+};
+
 /** Empty results with no-data UI. */
 export const NoData: Story = {
   args: {

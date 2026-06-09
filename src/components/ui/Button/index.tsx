@@ -3,6 +3,7 @@
 import { Button as HeadlessButton } from "@headlessui/react";
 import { Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
+import { cn } from "../../../lib/cn";
 import {
   buttonIconSizeClasses,
   buttonSizeClasses,
@@ -70,10 +71,6 @@ const colorVariantClasses: Record<
       "border border-success bg-transparent text-success data-hover:bg-success/10 data-active:bg-success/15",
   },
 };
-
-function cn(...classes: (string | false | undefined)[]) {
-  return classes.filter(Boolean).join(" ");
-}
 
 function ButtonIcon({
   icon,

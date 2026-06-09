@@ -1,6 +1,12 @@
 import { LayoutGrid, List, ListFilter } from "lucide-react";
 import { cn } from "../../lib/cn";
-import { selectLeadingIconPositionClasses } from "../ui/responsiveSizes";
+import {
+  cardListSelectTriggerLeadingPaddingClasses,
+  cardListSelectTriggerSizeClasses,
+  cardListToggleSegmentSizeClasses,
+  cardListToggleShellSizeClasses,
+  selectLeadingIconPositionClasses,
+} from "../ui/responsiveSizes";
 import {
   textPageTitleClasses,
   textPageTitleMetaClasses,
@@ -28,6 +34,7 @@ export function ListToolbar({
   sortValue,
   onSortChange,
   onViewChange,
+  buttonSize = "md",
   className,
 }: ListToolbarProps) {
   if (isLoading) {
@@ -90,7 +97,11 @@ export function ListToolbar({
                 fullWidth
                 hasLeadingIcon
                 wrapperClassName="w-full min-w-0 md:w-auto"
-                triggerClassName="min-w-[8.75rem] rounded-lg md:min-w-[11rem] lg:min-w-[12rem]"
+                triggerClassName={cn(
+                  cardListSelectTriggerSizeClasses(buttonSize),
+                  cardListSelectTriggerLeadingPaddingClasses(buttonSize),
+                  "min-w-[8.75rem] rounded-lg md:min-w-[11rem] lg:min-w-[12rem]",
+                )}
                 variant="outline"
                 size="md"
                 aria-label="Sort properties"
@@ -105,7 +116,11 @@ export function ListToolbar({
             color="primary"
             variant="solid"
             size="md"
-            className="shrink-0 sm:w-auto md:min-w-[11rem] lg:min-w-[12rem]"
+            className={cn(
+              cardListToggleShellSizeClasses(buttonSize),
+              "shrink-0 sm:w-auto md:min-w-[11rem] lg:min-w-[12rem]",
+            )}
+            segmentClassName={cardListToggleSegmentSizeClasses(buttonSize)}
             aria-label="Property view"
           />
         </div>

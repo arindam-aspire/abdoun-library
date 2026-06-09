@@ -7,6 +7,10 @@ import { cn } from "../../lib/cn";
 import { Card } from "../ui";
 import { Badge } from "../ui/Badge";
 import { IconButton } from "../ui/IconButton";
+import {
+  propertyViewIconButtonGlyphClasses,
+  propertyViewIconButtonSizeClasses,
+} from "../ui/responsiveSizes";
 import { HeroCarouselControls } from "./HeroCarouselControls";
 import { HeroSectionLightBox } from "./HeroSectionLightBox";
 import {
@@ -26,7 +30,15 @@ import {
 const TRANSITION_MS = 260;
 const AUTOPLAY_MS = 5000;
 const heroCarouselButtonClasses =
-  "pointer-events-auto bg-page/90 shadow-sm backdrop-blur-sm data-hover:bg-page";
+  "pointer-events-auto border-white/25 bg-white/30 text-white shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-black/30 dark:text-white data-hover:border-white/35 data-hover:bg-white/40 dark:data-hover:border-white/15 dark:data-hover:bg-black/40";
+
+function heroIconButtonClasses(buttonSize: HeroSectionProps["buttonSize"]) {
+  return cn(
+    heroCarouselButtonClasses,
+    propertyViewIconButtonSizeClasses(buttonSize ?? "md"),
+    propertyViewIconButtonGlyphClasses(buttonSize ?? "md"),
+  );
+}
 
 const fallbackImageClasses =
   "lg:scale-175 md:scale-150 scale-125 bg-black/10 object-contain p-5 dark:bg-white/40";
@@ -61,6 +73,7 @@ export function HeroSection({
   isFavourite = false,
   isFavouriteLoading = false,
   onFavourite,
+  buttonSize = "md",
   className,
 }: HeroSectionProps) {
   const gallery = useMemo(
@@ -169,7 +182,7 @@ export function HeroSection({
           <iframe
             title={`Property video for ${title}`}
             src={activeVideoEmbedUrl}
-            className="absolute inset-0 z-10 h-full w-full border-0"
+            className="absolute inset-0 z-[5] h-full w-full border-0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
@@ -182,7 +195,7 @@ export function HeroSection({
           href={activeItem.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute inset-0 z-10 flex items-center justify-center"
+          className="absolute inset-0 z-[5] flex items-center justify-center"
           aria-label={`Watch property video for ${title}`}
         >
           <img
@@ -203,7 +216,7 @@ export function HeroSection({
         type="button"
         onClick={openLightbox}
         className={cn(
-          "absolute inset-0 z-10 border-0 bg-transparent p-0",
+          "absolute inset-0 z-[5] border-0 bg-transparent p-0",
           isFallbackGallery ? "cursor-default" : "cursor-zoom-in",
         )}
         aria-label={
@@ -266,7 +279,7 @@ export function HeroSection({
                       className={cn(
                         isFavourite
                           ? "fill-danger text-danger"
-                          : "text-secondary",
+                          : "text-inherit",
                       )}
                       aria-hidden
                     />
@@ -277,8 +290,8 @@ export function HeroSection({
                     onFavourite();
                   }}
                   className={cn(
-                    "absolute top-3 right-3 z-40 sm:top-4 sm:right-4",
-                    heroCarouselButtonClasses,
+                    "absolute top-3 right-3 z-[6] sm:top-4 sm:right-4",
+                    heroIconButtonClasses(buttonSize),
                   )}
                   aria-label={
                     isFavourite
@@ -290,7 +303,7 @@ export function HeroSection({
               ) : null}
 
               {hasCarousel ? (
-                <div className="pointer-events-none absolute inset-0 z-30">
+                <div className="pointer-events-none absolute inset-0 z-[6]">
                   <IconButton
                     type="button"
                     color="inherit"
@@ -305,7 +318,7 @@ export function HeroSection({
                     }}
                     className={cn(
                       "absolute top-1/2 left-2 -translate-y-1/2 sm:left-3",
-                      heroCarouselButtonClasses,
+                      heroIconButtonClasses(buttonSize),
                     )}
                     aria-label="Previous slide"
                   />
@@ -323,7 +336,7 @@ export function HeroSection({
                     }}
                     className={cn(
                       "absolute top-1/2 right-2 -translate-y-1/2 sm:right-3",
-                      heroCarouselButtonClasses,
+                      heroIconButtonClasses(buttonSize),
                     )}
                     aria-label="Next slide"
                   />
@@ -354,6 +367,7 @@ export function HeroSection({
                     onNext={goNext}
                     isPaused={isPaused || isActiveVideo}
                     onPauseToggle={() => setIsPaused((prev) => !prev)}
+                    buttonSize={buttonSize}
                     className="pointer-events-auto w-full max-w-full shrink-0 self-stretch sm:w-auto sm:self-end"
                   />
                 ) : null}
@@ -440,6 +454,7 @@ export function HeroSection({
           onClose={() => setIsLightboxOpen(false)}
           images={lightboxImages}
           activeIndex={activeLightboxIndex}
+          buttonSize={buttonSize}
           onActiveIndexChange={(index) => {
             let imageCount = 0;
             for (let galleryIndex = 0; galleryIndex < gallery.length; galleryIndex++) {

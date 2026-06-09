@@ -36,6 +36,7 @@ export function PropertyView({
   onClickOwnerPhone,
   onClickOwnerWhatsApp,
   locale = "en",
+  buttonSize = "md",
   className,
 }: PropertyViewProps) {
   const tabOptions = tabs?.tabOptions ?? [];
@@ -95,6 +96,7 @@ export function PropertyView({
             ? () => onClickFavourite(propertyDetails.id)
             : undefined
         }
+        buttonSize={buttonSize}
       />
 
       {tabOptions.length > 0 ? (
@@ -138,6 +140,7 @@ export function PropertyView({
               ? () => onClickOwnerWhatsApp(propertyDetails.id)
               : undefined
           }
+          buttonSize={buttonSize}
         />
       ) : null}
     </article>

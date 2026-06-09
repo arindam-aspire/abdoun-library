@@ -1,6 +1,6 @@
 {
   "name": "@abdoun/abdoun-library",
-  "version": "0.1.36",
+  "version": "0.1.38",
   "description": "Shared React UI for Abdoun: PropertyView (details), PropertyCardList (list), SimilarProperties (carousel), PropertyListCard (single card). See README for props.",
   "license": "ISC",
   "type": "module",

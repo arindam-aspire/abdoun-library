@@ -285,6 +285,9 @@ import { PropertyView } from "@abdoun/abdoun-library";
 | `onClickCall` | `(item) => void` | — | No | Phone contact on a card. |
 | `onClickWhatsApp` | `(item) => void` | — | No | WhatsApp contact on a card. |
 | `onClickFavourite` | `(item) => void` | — | No | Favourite toggle on a card. |
+| `canViewDelete` | `boolean` | — | No | Show delete control on each card when `onClickDelete` is provided. |
+| `onClickDelete` | `(item) => void` | — | No | Remove/delete handler; receives the listing from `data`. |
+| `buttonSize` | `"sm"` \| `"md"` \| `"lg"` | `"md"` | No | Card, toolbar, and pagination control size from `sm` breakpoint up. |
 | `className` | `string` | — | No | Extra CSS classes on the root wrapper. |
 
 #### `toolbar` object
@@ -364,6 +367,7 @@ import { PropertyView } from "@abdoun/abdoun-library";
 | `is_exclusive` | `boolean` | Exclusive listing flag. |
 | `is_favourite` | `boolean` | Favourite state. |
 | `is_favourite_loading` | `boolean` | Per-card favourite loading spinner. |
+| `is_delete_loading` | `boolean` | Per-card delete loading spinner. |
 | `favourite_id` | `string` | Favourite record id. |
 | `property_hash` | `string` | Hash for sharing/deep links. |
 | `user_id` | `string` | Associated user id. |
@@ -492,6 +496,10 @@ Single property listing card. Use on its own for custom layouts, or rely on `Pro
 | `onClickCall` | `(item) => void` | — | No | Phone contact button. |
 | `onClickWhatsApp` | `(item) => void` | — | No | WhatsApp contact button. |
 | `onClickFavourite` | `(item) => void` | — | No | Favourite toggle; receives `propertyDetails`. |
+| `canViewDelete` | `boolean` | — | No | Show delete control when `onClickDelete` is provided. |
+| `onClickDelete` | `(item) => void` | — | No | Remove/delete handler; receives `propertyDetails`. |
+| `isDeleteLoading` | `boolean` | — | No | Delete spinner on the card; falls back to `propertyDetails.is_delete_loading` when omitted. |
+| `buttonSize` | `"sm"` \| `"md"` \| `"lg"` | `"md"` | No | Card action size from `sm` breakpoint up. |
 
 #### PropertyListCard example
 

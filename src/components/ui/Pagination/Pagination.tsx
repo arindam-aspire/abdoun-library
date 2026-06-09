@@ -180,14 +180,14 @@ function PageNumberButtons({
   items,
   safeCurrentPage,
   disabled,
-  buttonSize,
+  pageButtonSizeClassName,
   onPageChange,
   keyPrefix,
 }: {
   items: PaginationItem[];
   safeCurrentPage: number;
   disabled: boolean;
-  buttonSize: ButtonSize;
+  pageButtonSizeClassName: string;
   onPageChange: (page: number) => void;
   keyPrefix: string;
 }) {
@@ -201,7 +201,7 @@ function PageNumberButtons({
               aria-hidden
               className={cn(
                 "inline-flex items-center justify-center text-muted",
-                pageButtonSizeClasses[buttonSize],
+                pageButtonSizeClassName,
               )}
             >
               ...
@@ -222,7 +222,7 @@ function PageNumberButtons({
             aria-label={`Page ${item}`}
             className={cn(
               pageButtonBaseClasses,
-              pageButtonSizeClasses[buttonSize],
+              pageButtonSizeClassName,
               isActive
                 ? "bg-primary text-white"
                 : "border border-secondary/15 bg-surface text-text hover:bg-page",
@@ -250,9 +250,16 @@ export function Pagination({
   resultsLabel = "results",
   buttonSize = "md",
   pageSizeSelectSize = "md",
+  pageButtonClassName,
+  pageIconClassName,
+  pageSizeSelectTriggerClassName,
   className,
   disabled = false,
 }: PaginationProps) {
+  const resolvedPageButtonSizeClasses =
+    pageButtonClassName ?? pageButtonSizeClasses[buttonSize];
+  const resolvedPageIconSizeClasses =
+    pageIconClassName ?? pageIconSizeClasses[buttonSize];
   const totalPages = getTotalPages(totalItems, pageSize);
   const safeCurrentPage = Math.min(Math.max(currentPage, 1), totalPages);
   const compactItems = getPaginationItemsCompact(safeCurrentPage, totalPages);
@@ -306,7 +313,10 @@ export function Pagination({
               disabled={disabled}
               fullWidth={false}
               wrapperClassName="w-auto"
-              triggerClassName="min-w-[4.5rem] rounded-lg font-semibold text-secondary"
+              triggerClassName={cn(
+                "min-w-[4.5rem] rounded-lg font-semibold text-secondary",
+                pageSizeSelectTriggerClassName,
+              )}
               variant="outline"
               size={pageSizeSelectSize}
               aria-label="Items per page"
@@ -323,10 +333,10 @@ export function Pagination({
             type="button"
             disabled={isPrevDisabled}
             onClick={() => onPageChange(safeCurrentPage - 1)}
-            className={cn(navButtonClasses, pageButtonSizeClasses[buttonSize])}
+            className={cn(navButtonClasses, resolvedPageButtonSizeClasses)}
             aria-label="Previous page"
           >
-            <ChevronLeft className={pageIconSizeClasses[buttonSize]} aria-hidden />
+            <ChevronLeft className={resolvedPageIconSizeClasses} aria-hidden />
           </button>
 
           <div className="flex items-center gap-1.5 md:hidden">
@@ -335,7 +345,7 @@ export function Pagination({
               items={compactItems}
               safeCurrentPage={safeCurrentPage}
               disabled={disabled}
-              buttonSize={buttonSize}
+              pageButtonSizeClassName={resolvedPageButtonSizeClasses}
               onPageChange={onPageChange}
             />
           </div>
@@ -346,7 +356,7 @@ export function Pagination({
               items={desktopItems}
               safeCurrentPage={safeCurrentPage}
               disabled={disabled}
-              buttonSize={buttonSize}
+              pageButtonSizeClassName={resolvedPageButtonSizeClasses}
               onPageChange={onPageChange}
             />
           </div>
@@ -356,10 +366,10 @@ export function Pagination({
             type="button"
             disabled={isNextDisabled}
             onClick={() => onPageChange(safeCurrentPage + 1)}
-            className={cn(navButtonClasses, pageButtonSizeClasses[buttonSize])}
+            className={cn(navButtonClasses, resolvedPageButtonSizeClasses)}
             aria-label="Next page"
           >
-            <ChevronRight className={pageIconSizeClasses[buttonSize]} aria-hidden />
+            <ChevronRight className={resolvedPageIconSizeClasses} aria-hidden />
           </button>
         </nav>
       </div>

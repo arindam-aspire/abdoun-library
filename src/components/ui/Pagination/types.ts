@@ -23,6 +23,12 @@ export type PaginationProps = {
   buttonSize?: ButtonSize;
   /** Size for page-size selector. Defaults to `"md"`. */
   pageSizeSelectSize?: SelectDropdownSize;
+  /** Overrides default page-button size map (e.g. responsive `cardList` scale). */
+  pageButtonClassName?: string;
+  /** Overrides default nav icon size map. */
+  pageIconClassName?: string;
+  /** Extra classes on the per-page `SelectDropdown` trigger. */
+  pageSizeSelectTriggerClassName?: string;
   className?: string;
   disabled?: boolean;
 };

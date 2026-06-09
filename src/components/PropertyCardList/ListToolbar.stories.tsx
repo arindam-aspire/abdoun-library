@@ -54,6 +54,50 @@ export const Default: Story = {
   render: () => <ListToolbarDemo />,
 };
 
+export const ButtonSizeLarge: Story = {
+  render: () => {
+    const [layoutVariant, setLayoutVariant] =
+      useState<CardLayoutVariant>("grid");
+    const [sortValue, setSortValue] = useState("newest");
+
+    return (
+      <ListToolbar
+        title="Properties"
+        totalCount={24}
+        listingsLabel="listings"
+        layoutVariant={layoutVariant}
+        sortOptions={sortOptions}
+        sortValue={sortValue}
+        buttonSize="lg"
+        onSortChange={setSortValue}
+        onViewChange={setLayoutVariant}
+      />
+    );
+  },
+};
+
+export const ButtonSizeSmall: Story = {
+  render: () => {
+    const [layoutVariant, setLayoutVariant] =
+      useState<CardLayoutVariant>("grid");
+    const [sortValue, setSortValue] = useState("newest");
+
+    return (
+      <ListToolbar
+        title="Properties"
+        totalCount={24}
+        listingsLabel="listings"
+        layoutVariant={layoutVariant}
+        sortOptions={sortOptions}
+        sortValue={sortValue}
+        buttonSize="sm"
+        onSortChange={setSortValue}
+        onViewChange={setLayoutVariant}
+      />
+    );
+  },
+};
+
 export const Loading: Story = {
   args: {
     isLoading: true,

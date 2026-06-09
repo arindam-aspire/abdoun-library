@@ -32,6 +32,8 @@ type ToggleButtonSharedProps<T extends string> = {
   isRounded?: boolean;
   fullWidth?: boolean;
   className?: string;
+  /** Merged onto each segment button (e.g. responsive size overrides). */
+  segmentClassName?: string;
   disabled?: boolean;
   "aria-label"?: string;
   id?: string;

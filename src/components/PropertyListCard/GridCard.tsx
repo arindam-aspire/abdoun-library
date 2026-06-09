@@ -13,6 +13,11 @@ import { ImageGallary } from "./ImageGallary";
 import { LocationLightBox } from "../ui/LocationLightBox";
 import { cn } from "../../lib/cn";
 import {
+  cardListButtonSizeClasses,
+  cardListIconButtonGlyphClasses,
+  cardListIconButtonSizeClasses,
+} from "../ui/responsiveSizes";
+import {
   textAvatarInitialClasses,
   textBodyTightClasses,
   textCardPriceClasses,
@@ -48,7 +53,11 @@ export function GridCard({
   canViewOwners,
   applicationKey,
   isFavouriteLoading: isFavouriteLoadingProp,
+  isDeleteLoading: isDeleteLoadingProp,
   onClickFavourite,
+  canViewDelete,
+  onClickDelete,
+  buttonSize = "md",
   onClick,
   onClickEmail,
   onClickCall,
@@ -56,6 +65,8 @@ export function GridCard({
 }: PropertyListCardProps) {
   const isFavouriteLoading =
     isFavouriteLoadingProp ?? propertyDetails.is_favourite_loading;
+  const isDeleteLoading =
+    isDeleteLoadingProp ?? propertyDetails.is_delete_loading;
   const [isLocationLightBoxOpen, setIsLocationLightBoxOpen] = useState(false);
   const formattedPrice = formatPrice(propertyDetails.price);
   const areaValue = Number(propertyDetails.area);
@@ -88,7 +99,11 @@ export function GridCard({
         canViewAgents={canViewAgents}
         canViewBadges={canViewBadges}
         onClickFavourite={onClickFavourite}
+        canViewDelete={canViewDelete}
+        onClickDelete={onClickDelete}
+        buttonSize={buttonSize}
         isFavouriteLoading={isFavouriteLoading}
+        isDeleteLoading={isDeleteLoading}
         applicationKey={applicationKey}
       />
       <div className="flex flex-col p-4">
@@ -196,11 +211,14 @@ export function GridCard({
           <Button
             color="primary"
             variant="solid"
-            size="md"
+            size="sm"
             onClick={(event) =>
               runCardListingAction(event, onClickEmail, propertyDetails)
             }
-            className="min-w-0 shrink-0 flex-1"
+            className={cn(
+              cardListButtonSizeClasses(buttonSize),
+              "min-w-0 shrink-0 flex-1",
+            )}
             iconStart={<Mail aria-hidden />}
           >
             <span className="truncate">Email</span>
@@ -208,11 +226,14 @@ export function GridCard({
           <Button
             color="inherit"
             variant="outline"
-            size="md"
+            size="sm"
             onClick={(event) =>
               runCardListingAction(event, onClickCall, propertyDetails)
             }
-            className="min-w-0 shrink-0 flex-1"
+            className={cn(
+              cardListButtonSizeClasses(buttonSize),
+              "min-w-0 shrink-0 flex-1",
+            )}
             iconStart={<Phone aria-hidden />}
           >
             <span className="truncate">Call</span>
@@ -220,11 +241,15 @@ export function GridCard({
           <IconButton
             color="inherit"
             variant="outline"
-            size="md"
+            size="sm"
             onClick={(event) =>
               runCardListingAction(event, onClickWhatsApp, propertyDetails)
             }
-            className="shrink-0"
+            className={cn(
+              cardListIconButtonSizeClasses(buttonSize),
+              cardListIconButtonGlyphClasses(buttonSize),
+              "shrink-0",
+            )}
             icon={<WhatsAppIcon />}
             aria-label="WhatsApp"
           />

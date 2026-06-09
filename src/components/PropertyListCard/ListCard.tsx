@@ -13,6 +13,11 @@ import type { PropertyListCardProps } from "./types";
 import { ImageGallary } from "./ImageGallary";
 import { cn } from "../../lib/cn";
 import {
+  cardListButtonSizeClasses,
+  cardListIconButtonGlyphClasses,
+  cardListIconButtonSizeClasses,
+} from "../ui/responsiveSizes";
+import {
   textAvatarInitialClasses,
   textBodySmClasses,
   textBodyTightClasses,
@@ -59,7 +64,11 @@ export function ListCard({
   canViewOwners,
   applicationKey,
   isFavouriteLoading: isFavouriteLoadingProp,
+  isDeleteLoading: isDeleteLoadingProp,
   onClickFavourite,
+  canViewDelete,
+  onClickDelete,
+  buttonSize = "md",
   onClick,
   onClickEmail,
   onClickCall,
@@ -67,6 +76,8 @@ export function ListCard({
 }: PropertyListCardProps) {
   const isFavouriteLoading =
     isFavouriteLoadingProp ?? propertyDetails.is_favourite_loading;
+  const isDeleteLoading =
+    isDeleteLoadingProp ?? propertyDetails.is_delete_loading;
   const [isLocationLightBoxOpen, setIsLocationLightBoxOpen] = useState(false);
   const title = resolveTitle(propertyDetails.title);
   const { latitude, longitude, map_embed_url: mapEmbedUrlFromApi } =
@@ -96,8 +107,12 @@ export function ListCard({
           canViewAgents={canViewAgents}
           canViewBadges={canViewBadges}
           applicationKey={applicationKey}
-          isFavouriteLoading={isFavouriteLoading}
           onClickFavourite={onClickFavourite}
+          canViewDelete={canViewDelete}
+          onClickDelete={onClickDelete}
+          buttonSize={buttonSize}
+          isFavouriteLoading={isFavouriteLoading}
+          isDeleteLoading={isDeleteLoading}
         />
       </div>
 
@@ -296,11 +311,14 @@ export function ListCard({
               <Button
                 color="primary"
                 variant="solid"
-                size="md"
+                size="sm"
                 onClick={(event) =>
                   runCardListingAction(event, onClickEmail, propertyDetails)
                 }
-                className="min-w-0 flex-1 sm:min-w-[7.5rem] sm:flex-none"
+                className={cn(
+                  cardListButtonSizeClasses(buttonSize),
+                  "min-w-0 flex-1 sm:min-w-[7.5rem] sm:flex-none",
+                )}
                 iconStart={<Mail aria-hidden />}
               >
                 <span className="truncate">Email</span>
@@ -308,11 +326,14 @@ export function ListCard({
               <Button
                 color="inherit"
                 variant="outline"
-                size="md"
+                size="sm"
                 onClick={(event) =>
                   runCardListingAction(event, onClickCall, propertyDetails)
                 }
-                className="min-w-0 flex-1 sm:min-w-[7.5rem] sm:flex-none"
+                className={cn(
+                  cardListButtonSizeClasses(buttonSize),
+                  "min-w-0 flex-1 sm:min-w-[7.5rem] sm:flex-none",
+                )}
                 iconStart={<Phone aria-hidden />}
               >
                 <span className="truncate">Call</span>
@@ -320,11 +341,15 @@ export function ListCard({
               <IconButton
                 color="inherit"
                 variant="outline"
-                size="md"
+                size="sm"
                 onClick={(event) =>
                   runCardListingAction(event, onClickWhatsApp, propertyDetails)
                 }
-                className="shrink-0"
+                className={cn(
+                  cardListIconButtonSizeClasses(buttonSize),
+                  cardListIconButtonGlyphClasses(buttonSize),
+                  "shrink-0",
+                )}
                 icon={<WhatsAppIcon />}
                 aria-label="WhatsApp"
               />

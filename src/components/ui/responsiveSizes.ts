@@ -325,6 +325,223 @@ export const phoneInputListItemSizeClasses = cnTier(
   controlTextClasses.sm,
 );
 
+/** Property cards: `sm` tier below `sm` viewport; `fromSm` tier from `sm` breakpoint up. */
+const cardListButtonHeightFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:h-9 lg:h-10",
+  md: "sm:h-11 lg:h-12",
+  lg: "sm:h-12 lg:h-14",
+};
+
+const cardListButtonPaddingFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:px-3 lg:px-3.5",
+  md: "sm:px-4 lg:px-5",
+  lg: "sm:px-5 lg:px-6",
+};
+
+const cardListButtonGapFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:gap-1.5 lg:gap-2",
+  md: "sm:gap-2 lg:gap-2.5",
+  lg: "sm:gap-2 lg:gap-3",
+};
+
+const cardListButtonTextFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:text-sm sm:leading-normal",
+  md: "sm:text-sm sm:leading-normal",
+  lg: "sm:text-sm sm:leading-normal lg:text-base lg:leading-normal",
+};
+
+const cardListIconButtonSizeFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:size-9 lg:size-10",
+  md: "sm:size-11 lg:size-12",
+  lg: "sm:size-12 lg:size-14",
+};
+
+const cardListIconButtonGlyphFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:[&_svg]:size-4 lg:[&_svg]:size-4",
+  md: "sm:[&_svg]:size-4 lg:[&_svg]:size-5",
+  lg: "sm:[&_svg]:size-5 lg:[&_svg]:size-5",
+};
+
+/** Pair with `Button` / `IconButton` `size="sm"`; pass `className` to apply responsive scale. */
+export function cardListButtonSizeClasses(fromSm: UiSizeTier = "md"): string {
+  return cnTier(
+    "h-8 px-2 gap-1 text-[11px] leading-none font-medium",
+    cardListButtonHeightFromSm[fromSm],
+    cardListButtonPaddingFromSm[fromSm],
+    cardListButtonGapFromSm[fromSm],
+    cardListButtonTextFromSm[fromSm],
+  );
+}
+
+export function cardListIconButtonSizeClasses(fromSm: UiSizeTier = "md"): string {
+  return cnTier("size-8 shrink-0 !p-0", cardListIconButtonSizeFromSm[fromSm]);
+}
+
+export function cardListIconButtonGlyphClasses(fromSm: UiSizeTier = "md"): string {
+  return cnTier("[&_svg]:size-3.5", cardListIconButtonGlyphFromSm[fromSm]);
+}
+
+/** PropertyView: `md`-tier mobile base; `fromSm` tier from `sm` breakpoint up. */
+const propertyViewButtonHeightFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:h-9 lg:h-10",
+  md: "sm:h-11 lg:h-12",
+  lg: "sm:h-12 lg:h-14",
+};
+
+const propertyViewButtonPaddingFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:px-3 lg:px-3.5",
+  md: "sm:px-4 lg:px-5",
+  lg: "sm:px-5 lg:px-6",
+};
+
+const propertyViewButtonGapFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:gap-1.5 lg:gap-2",
+  md: "sm:gap-2 lg:gap-2.5",
+  lg: "sm:gap-2 lg:gap-3",
+};
+
+const propertyViewButtonTextFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:text-sm sm:leading-normal",
+  md: "sm:text-sm sm:leading-normal",
+  lg: "sm:text-sm sm:leading-normal lg:text-base lg:leading-normal",
+};
+
+const propertyViewIconButtonSizeFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:size-9 lg:size-10",
+  md: "sm:size-11 lg:size-12",
+  lg: "sm:size-12 lg:size-14",
+};
+
+const propertyViewIconButtonGlyphFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:[&_svg]:size-4 lg:[&_svg]:size-4",
+  md: "sm:[&_svg]:size-4 lg:[&_svg]:size-5",
+  lg: "sm:[&_svg]:size-5 lg:[&_svg]:size-5",
+};
+
+const heroCarouselShellHeightFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:h-9 lg:h-10",
+  md: "sm:h-11 lg:h-12",
+  lg: "sm:h-12 lg:h-14",
+};
+
+const heroCarouselShellPaddingFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:px-3 lg:px-3.5",
+  md: "sm:px-4 lg:px-5",
+  lg: "sm:px-5 lg:px-6",
+};
+
+const heroCarouselShellGapFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:gap-1.5 lg:gap-2",
+  md: "sm:gap-2 lg:gap-2.5",
+  lg: "sm:gap-2 lg:gap-3",
+};
+
+const heroCarouselControlIconFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:size-4 lg:size-4",
+  md: "sm:size-4 lg:size-5",
+  lg: "sm:size-5 lg:size-5",
+};
+
+/** Pair with `Button` `size="md"`; pass `className` to scale from `sm` up. */
+export function propertyViewButtonSizeClasses(fromSm: UiSizeTier = "md"): string {
+  return cnTier(
+    "h-9 px-2.5 gap-1 text-sm leading-normal font-medium",
+    propertyViewButtonHeightFromSm[fromSm],
+    propertyViewButtonPaddingFromSm[fromSm],
+    propertyViewButtonGapFromSm[fromSm],
+    propertyViewButtonTextFromSm[fromSm],
+  );
+}
+
+/** Pair with `IconButton` `size="md"`; pass `className` to scale from `sm` up. */
+export function propertyViewIconButtonSizeClasses(fromSm: UiSizeTier = "md"): string {
+  return cnTier(
+    "size-9 shrink-0 !p-0",
+    propertyViewIconButtonSizeFromSm[fromSm],
+  );
+}
+
+export function propertyViewIconButtonGlyphClasses(fromSm: UiSizeTier = "md"): string {
+  return cnTier("[&_svg]:size-3.5", propertyViewIconButtonGlyphFromSm[fromSm]);
+}
+
+export function heroCarouselShellSizeClassesFrom(fromSm: UiSizeTier = "md"): string {
+  return cnTier(
+    "flex min-w-0 items-center justify-between rounded-full",
+    "h-9 px-2.5 gap-1",
+    heroCarouselShellHeightFromSm[fromSm],
+    heroCarouselShellPaddingFromSm[fromSm],
+    heroCarouselShellGapFromSm[fromSm],
+  );
+}
+
+/** Carousel bar icon buttons — compact mobile base; `fromSm` from `sm` up. */
+export function heroCarouselControlButtonSizeClassesFrom(
+  fromSm: UiSizeTier = "md",
+): string {
+  return cardListIconButtonSizeClasses(fromSm);
+}
+
+export function heroCarouselControlIconSizeClassesFrom(
+  fromSm: UiSizeTier = "md",
+): string {
+  return cnTier("size-3.5", heroCarouselControlIconFromSm[fromSm]);
+}
+
+const cardListSelectPaddingEndFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:pe-9 lg:pe-10",
+  md: "sm:pe-10 lg:pe-11",
+  lg: "sm:pe-11 lg:pe-12",
+};
+
+const cardListSelectLeadingPaddingFromSm: Record<UiSizeTier, string> = {
+  sm: "sm:ps-10 lg:ps-11",
+  md: "sm:ps-11 lg:ps-12",
+  lg: "sm:ps-12 lg:ps-14",
+};
+
+/** Pair with `SelectDropdown` `size="md"` + `triggerClassName`. */
+export function cardListSelectTriggerSizeClasses(fromSm: UiSizeTier = "md"): string {
+  return cnTier(
+    "h-9 px-2.5 pe-9 gap-1 text-sm leading-normal font-medium",
+    propertyViewButtonHeightFromSm[fromSm],
+    propertyViewButtonPaddingFromSm[fromSm],
+    cardListSelectPaddingEndFromSm[fromSm],
+    propertyViewButtonGapFromSm[fromSm],
+    propertyViewButtonTextFromSm[fromSm],
+  );
+}
+
+export function cardListSelectTriggerLeadingPaddingClasses(
+  fromSm: UiSizeTier = "md",
+): string {
+  return cnTier("ps-10", cardListSelectLeadingPaddingFromSm[fromSm]);
+}
+
+/** Pair with `ToggleButton` `size="md"` + `className` on the shell. */
+export function cardListToggleShellSizeClasses(fromSm: UiSizeTier = "md"): string {
+  return cnTier("h-9", propertyViewButtonHeightFromSm[fromSm]);
+}
+
+/** Pair with `ToggleButton` `segmentClassName`. */
+export function cardListToggleSegmentSizeClasses(fromSm: UiSizeTier = "md"): string {
+  return cnTier(
+    "h-full min-h-0 px-2.5 gap-1 text-sm leading-normal font-medium",
+    propertyViewButtonPaddingFromSm[fromSm],
+    propertyViewButtonGapFromSm[fromSm],
+    propertyViewButtonTextFromSm[fromSm],
+  );
+}
+
+/** Pagination page / nav buttons — `md` mobile base; `fromSm` from `sm` up. */
+export function cardListPaginationButtonSizeClasses(fromSm: UiSizeTier = "md"): string {
+  return propertyViewIconButtonSizeClasses(fromSm);
+}
+
+export function cardListPaginationIconSizeClasses(fromSm: UiSizeTier = "md"): string {
+  return cnTier("size-3.5", heroCarouselControlIconFromSm[fromSm]);
+}
+
 function cnTier(...classes: string[]) {
   return classes.join(" ");
 }

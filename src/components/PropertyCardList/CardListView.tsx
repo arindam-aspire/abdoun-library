@@ -11,6 +11,9 @@ export function CardListView({
   onClickCall,
   onClickWhatsApp,
   onClickFavourite,
+  canViewDelete,
+  onClickDelete,
+  buttonSize = "md",
 }: CardListProps) {
   if (data.length === 0) return null;
 
@@ -25,11 +28,15 @@ export function CardListView({
           canViewAgents={canViewAgents}
           canViewBadges={canViewBadges}
           isFavouriteLoading={item.is_favourite_loading}
+          isDeleteLoading={item.is_delete_loading}
           onClick={onClick}
           onClickEmail={onClickEmail}
           onClickCall={onClickCall}
           onClickWhatsApp={onClickWhatsApp}
           onClickFavourite={onClickFavourite}
+          canViewDelete={canViewDelete}
+          onClickDelete={onClickDelete}
+          buttonSize={buttonSize}
         />
       ))}
     </div>

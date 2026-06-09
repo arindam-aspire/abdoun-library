@@ -88,6 +88,7 @@ export function PropertyDetailsTabs({
   onOwnerEmail,
   onOwnerPhone,
   onOwnerWhatsApp,
+  buttonSize = "md",
 }: PropertyDetailsTabsProps) {
   const options = useMemo(
     () => mapPropertyViewTabOptions(tabOptions),
@@ -175,6 +176,7 @@ export function PropertyDetailsTabs({
             onOwnerEmail={onOwnerEmail}
             onOwnerPhone={onOwnerPhone}
             onOwnerWhatsApp={onOwnerWhatsApp}
+            buttonSize={buttonSize}
           />
         )}
       </div>

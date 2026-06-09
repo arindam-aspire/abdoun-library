@@ -199,6 +199,7 @@ export function ToggleButton<T extends string = string>({
   isRounded = false,
   fullWidth = false,
   className,
+  segmentClassName,
   disabled = false,
   "aria-label": ariaLabel,
   id,
@@ -324,6 +325,7 @@ export function ToggleButton<T extends string = string>({
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/40 focus-visible:ring-offset-1",
               "data-disabled:cursor-not-allowed data-disabled:opacity-50",
               toggleSegmentSizeClasses[size],
+              segmentClassName,
               isSelected
                 ? activeLabelVariantClasses[color][variant]
                 : inactiveLabelVariantClasses[color][variant],

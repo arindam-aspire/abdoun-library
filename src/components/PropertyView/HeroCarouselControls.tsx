@@ -5,24 +5,32 @@ import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { cn } from "../../lib/cn";
 import {
-  heroCarouselControlButtonSizeClasses,
-  heroCarouselControlIconSizeClasses,
-  heroCarouselShellSizeClasses,
+  heroCarouselControlButtonSizeClassesFrom,
+  heroCarouselControlIconSizeClassesFrom,
+  heroCarouselShellSizeClassesFrom,
 } from "../ui/responsiveSizes";
 import { textCarouselCounterClasses } from "../../lib/typography";
 import type { HeroCarouselControlsProps } from "./types";
 
-const carouselControlButtonClasses = cn(
-  "inline-flex items-center justify-center rounded-full bg-secondary-light/25 text-page transition-colors hover:bg-secondary-light/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-page/50",
-  heroCarouselControlButtonSizeClasses,
-);
+function carouselControlButtonClasses(buttonSize: HeroCarouselControlsProps["buttonSize"]) {
+  return cn(
+    "inline-flex items-center justify-center rounded-full bg-secondary-light/25 text-page transition-colors hover:bg-secondary-light/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-page/50",
+    heroCarouselControlButtonSizeClassesFrom(buttonSize ?? "md"),
+  );
+}
 
-function CarouselControlIcon({ children }: { children: ReactNode }) {
+function CarouselControlIcon({
+  buttonSize = "md",
+  children,
+}: {
+  buttonSize?: HeroCarouselControlsProps["buttonSize"];
+  children: ReactNode;
+}) {
   return (
     <span
       className={cn(
         "inline-flex shrink-0 [&>svg]:size-full",
-        heroCarouselControlIconSizeClasses,
+        heroCarouselControlIconSizeClassesFrom(buttonSize ?? "md"),
       )}
       aria-hidden
     >
@@ -68,6 +76,7 @@ export function HeroCarouselControls({
   onNext,
   isPaused = false,
   onPauseToggle,
+  buttonSize = "md",
   className,
 }: HeroCarouselControlsProps) {
   const showProgressDots = total > 1;
@@ -86,7 +95,7 @@ export function HeroCarouselControls({
   return (
     <div
       className={cn(
-        heroCarouselShellSizeClasses,
+        heroCarouselShellSizeClassesFrom(buttonSize),
         "w-full max-w-full min-w-0 bg-secondary text-page shadow-lg sm:min-w-[17.5rem]",
         className,
       )}
@@ -141,10 +150,10 @@ export function HeroCarouselControls({
                 event.stopPropagation();
                 onPauseToggle();
               }}
-              className={carouselControlButtonClasses}
+              className={carouselControlButtonClasses(buttonSize)}
               aria-label={isPaused ? "Play slideshow" : "Pause slideshow"}
             >
-              <CarouselControlIcon>
+              <CarouselControlIcon buttonSize={buttonSize}>
                 {isPaused ? (
                   <Play className="fill-current" />
                 ) : (
@@ -161,10 +170,10 @@ export function HeroCarouselControls({
               event.stopPropagation();
               onPrev();
             }}
-            className={carouselControlButtonClasses}
+            className={carouselControlButtonClasses(buttonSize)}
             aria-label="Previous image"
           >
-            <CarouselControlIcon>
+            <CarouselControlIcon buttonSize={buttonSize}>
               <ChevronLeft />
             </CarouselControlIcon>
           </button>
@@ -176,10 +185,10 @@ export function HeroCarouselControls({
               event.stopPropagation();
               onNext();
             }}
-            className={carouselControlButtonClasses}
+            className={carouselControlButtonClasses(buttonSize)}
             aria-label="Next image"
           >
-            <CarouselControlIcon>
+            <CarouselControlIcon buttonSize={buttonSize}>
               <ChevronRight />
             </CarouselControlIcon>
           </button>

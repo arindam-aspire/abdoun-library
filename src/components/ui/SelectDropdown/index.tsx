@@ -33,7 +33,7 @@ import {
 } from "./types";
 
 const triggerBaseClasses = cn(
-  "relative flex w-full items-center rounded-xl transition-colors",
+  "relative flex w-full items-center rounded-xl text-start transition-colors",
   "outline-none data-disabled:cursor-not-allowed data-disabled:opacity-50",
 );
 
@@ -200,8 +200,8 @@ export function SelectDropdown({
           >
             <span
               className={cn(
-                "min-w-0 flex-1 truncate",
-                isRtl ? "text-end" : "text-left",
+                "block min-w-0 flex-1 truncate",
+                isRtl ? "text-end" : "text-start",
                 hasSelection
                   ? "font-medium text-text"
                   : "font-normal text-muted",
@@ -210,7 +210,10 @@ export function SelectDropdown({
               {hasSelection ? selectedOption.label : placeholder}
             </span>
             <ChevronDown
-              className={cn("shrink-0 text-muted", fieldIconSizeClasses[size])}
+              className={cn(
+                "pointer-events-none absolute top-1/2 end-2 -translate-y-1/2 text-muted sm:end-3",
+                fieldIconSizeClasses[size],
+              )}
               aria-hidden
             />
           </ListboxButton>

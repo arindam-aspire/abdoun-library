@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { ListFilter } from "lucide-react";
 import { fn } from "storybook/test";
+import { cn } from "../../../lib/cn";
+import { selectLeadingIconPositionClasses } from "../responsiveSizes";
 import { SelectDropdown } from "./index";
 import {
   SELECT_DROPDOWN_SIZES,
@@ -135,4 +138,31 @@ export const WithoutLabel: Story = {
     "aria-label": "City",
     defaultValue: "irbid",
   },
+};
+
+/** Matches sort dropdown in `ListToolbar` — chevron pinned to the trailing edge. */
+export const WithLeadingIcon: Story = {
+  render: () => (
+    <div className="relative w-full min-w-[11rem]">
+      <ListFilter
+        className={cn(
+          "pointer-events-none absolute z-10 text-muted",
+          selectLeadingIconPositionClasses.md,
+        )}
+        aria-hidden
+      />
+      <SelectDropdown
+        options={[
+          { value: "newest", label: "Newest" },
+          { value: "oldest", label: "Oldest" },
+        ]}
+        placeholder="Sort by"
+        defaultValue="newest"
+        hasLeadingIcon
+        fullWidth
+        triggerClassName="rounded-lg ps-10 sm:ps-11"
+        aria-label="Sort"
+      />
+    </div>
+  ),
 };

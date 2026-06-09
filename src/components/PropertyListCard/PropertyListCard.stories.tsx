@@ -243,6 +243,21 @@ const withoutFavouritePair = createLayoutPair({ onClickFavourite: undefined });
 export const ListWithoutFavourite = withoutFavouritePair.list;
 export const GridWithoutFavourite = withoutFavouritePair.grid;
 
+const withDeletePair = createLayoutPair({
+  canViewDelete: true,
+  onClickDelete: () => {},
+});
+export const ListWithDelete = withDeletePair.list;
+export const GridWithDelete = withDeletePair.grid;
+
+const deleteLoadingPair = createLayoutPair({
+  canViewDelete: true,
+  onClickDelete: () => {},
+  propertyDetails: buildPropertyListing({ is_delete_loading: true }),
+});
+export const ListDeleteLoading = deleteLoadingPair.list;
+export const GridDeleteLoading = deleteLoadingPair.grid;
+
 const noBadgesPair = createLayoutPair({
   canViewBadges: false,
   propertyDetails: buildPropertyListing({ badges: [] }),

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { UiControlSize } from "../ui/commonTypes";
 
 type NullableString = string | null;
 type NullableNumber = number | null;
@@ -51,6 +52,7 @@ export interface PropertyListing {
   is_exclusive: boolean;
   is_favourite: boolean;
   is_favourite_loading?: boolean;
+  is_delete_loading?: boolean;
   favourite_id?: string;
   property_hash?: string;
   user_id?: string;
@@ -190,6 +192,11 @@ export interface CardListProps {
   onClickCall?: (propertyDetails: PropertyListing) => void;
   onClickWhatsApp?: (propertyDetails: PropertyListing) => void;
   onClickFavourite?: (propertyDetails: PropertyListing) => void;
+  /** Show delete control on each card when `onClickDelete` is provided. */
+  canViewDelete?: boolean;
+  onClickDelete?: (propertyDetails: PropertyListing) => void;
+  /** Card action control size from `sm` breakpoint up; below `sm` always uses compact `sm` tier. */
+  buttonSize?: UiControlSize;
 }
 
 export interface PropertyCardListProps extends CardListProps {
@@ -226,6 +233,8 @@ export interface PropertyCardListToolbar {
 export interface PropertyCardListToolbarProps extends PropertyCardListToolbar {
   isLoading?: boolean;
   totalCount?: number;
+  /** Control size from `sm` breakpoint up; below `sm` unchanged. */
+  buttonSize?: UiControlSize;
   className?: string;
 }
 
@@ -247,5 +256,7 @@ export interface PropertyCardListSortOptions {
 
 export interface PropertyPaginitionProps extends PaginitionContent {
   isLoading?: boolean;
+  /** Control size from `sm` breakpoint up; below `sm` unchanged. */
+  buttonSize?: UiControlSize;
   className?: string;
 }

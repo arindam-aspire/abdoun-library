@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart, Trash2 } from "lucide-react";
 import type { MouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -21,6 +21,11 @@ import { ImageLightBox } from "../ui/ImageLightBox";
 import { stopCardClickPropagation } from "./cardClickHandlers";
 import type { ImageGallaryProps } from "./types";
 import { textBadgeClasses } from "../../lib/typography";
+import type { UiControlSize } from "../ui/commonTypes";
+import {
+  cardListIconButtonGlyphClasses,
+  cardListIconButtonSizeClasses,
+} from "../ui/responsiveSizes";
 
 const TRANSITION_MS = 260;
 
@@ -88,7 +93,15 @@ function resolveBadges(propertyDetails: PropertyListing): GalleryBadge[] {
 }
 
 const floatingControlClasses =
-  "bg-page/45 shadow-sm backdrop-blur-sm transition-colors hover:bg-page/65";
+  "border-white/25 bg-white/30 text-white shadow-sm backdrop-blur-sm transition-colors data-hover:border-white/35 data-hover:bg-white/40 dark:border-white/10 dark:bg-black/30 dark:text-white dark:data-hover:border-white/15 dark:data-hover:bg-black/40";
+
+function galleryIconButtonClasses(buttonSize: UiControlSize) {
+  return cn(
+    floatingControlClasses,
+    cardListIconButtonSizeClasses(buttonSize),
+    cardListIconButtonGlyphClasses(buttonSize),
+  );
+}
 
 const carouselDotClasses =
   "size-1.5 shrink-0 rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80";
@@ -111,7 +124,11 @@ export function ImageGallary({
   layoutVariant,
   applicationKey,
   onClickFavourite,
+  canViewDelete = false,
+  onClickDelete,
+  buttonSize = "md",
   isFavouriteLoading = false,
+  isDeleteLoading = false,
 }: ImageGallaryProps) {
   const title = useMemo(
     () => resolveTitle(propertyDetails.title),
@@ -199,6 +216,18 @@ export function ImageGallary({
     [isFavouriteLoading, onClickFavourite, propertyDetails],
   );
 
+  const handleDelete = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (isDeleteLoading) return;
+      onClickDelete?.(propertyDetails);
+    },
+    [isDeleteLoading, onClickDelete, propertyDetails],
+  );
+
+  const showDelete = Boolean(canViewDelete && onClickDelete);
+
   const openLightbox = useCallback((index: number) => {
     setActiveIndex(index);
     setIsLightboxOpen(true);
@@ -262,36 +291,53 @@ export function ImageGallary({
         </div>
       ) : null}
 
-      {isAuthenticated ? (
-        <IconButton
-          type="button"
-          color="inherit"
-          variant="outline"
-          isRounded
-          size="md"
-          isLoading={isFavouriteLoading}
-          icon={
-            <Heart
-              className={cn(
-                isFavourite ? "fill-danger text-danger" : "text-secondary",
-              )}
-              aria-hidden
+      {showDelete || isAuthenticated ? (
+        <div className="absolute top-3 right-3 z-[6] flex items-center gap-1.5 sm:top-4 sm:right-4 sm:gap-2">
+          {showDelete ? (
+            <IconButton
+              type="button"
+              color="inherit"
+              variant="outline"
+              isRounded
+              size="sm"
+              isLoading={isDeleteLoading}
+              icon={<Trash2 className="text-danger" aria-hidden />}
+              onClick={handleDelete}
+              className={galleryIconButtonClasses(buttonSize)}
+              aria-label={
+                isDeleteLoading ? "Removing listing" : "Remove listing"
+              }
             />
-          }
-          onClick={handleFavourite}
-          className={cn(
-            "absolute top-3 right-3 z-[6]",
-            floatingControlClasses,
-          )}
-          aria-label={
-            isFavouriteLoading
-              ? "Updating favourites"
-              : isFavourite
-                ? "Remove from favourites"
-                : "Add to favourites"
-          }
-          aria-pressed={isFavourite}
-        />
+          ) : null}
+          {isAuthenticated ? (
+            <IconButton
+              type="button"
+              color="inherit"
+              variant="outline"
+              isRounded
+              size="sm"
+              isLoading={isFavouriteLoading}
+              icon={
+                <Heart
+                  className={cn(
+                    isFavourite ? "fill-danger text-danger" : "text-inherit",
+                  )}
+                  aria-hidden
+                />
+              }
+              onClick={handleFavourite}
+              className={galleryIconButtonClasses(buttonSize)}
+              aria-label={
+                isFavouriteLoading
+                  ? "Updating favourites"
+                  : isFavourite
+                    ? "Remove from favourites"
+                    : "Add to favourites"
+              }
+              aria-pressed={isFavourite}
+            />
+          ) : null}
+        </div>
       ) : null}
 
       <div
@@ -349,6 +395,7 @@ export function ImageGallary({
             color="inherit"
             variant="outline"
             isRounded
+            size="sm"
             icon={<ChevronLeft />}
             onClick={(event) => {
               event.preventDefault();
@@ -357,7 +404,7 @@ export function ImageGallary({
             }}
             className={cn(
               "absolute top-1/2 left-3 z-[6] -translate-y-1/2",
-              floatingControlClasses,
+              galleryIconButtonClasses(buttonSize),
             )}
             aria-label="Previous image"
           />
@@ -366,6 +413,7 @@ export function ImageGallary({
             color="inherit"
             variant="outline"
             isRounded
+            size="sm"
             icon={<ChevronRight />}
             onClick={(event) => {
               event.preventDefault();
@@ -374,7 +422,7 @@ export function ImageGallary({
             }}
             className={cn(
               "absolute top-1/2 right-3 z-[6] -translate-y-1/2",
-              floatingControlClasses,
+              galleryIconButtonClasses(buttonSize),
             )}
             aria-label="Next image"
           />

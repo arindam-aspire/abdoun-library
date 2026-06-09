@@ -1,5 +1,10 @@
 import { createElement, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
+import {
+  cardListPaginationButtonSizeClasses,
+  cardListPaginationIconSizeClasses,
+  cardListSelectTriggerSizeClasses,
+} from "../ui/responsiveSizes";
 import { Pagination } from "../ui/Pagination";
 import { PaginitionSkeleton } from "./PaginitionSkeleton";
 import type { PropertyPaginitionProps } from "./types";
@@ -13,6 +18,7 @@ export function PropertyPaginition({
   maxPageButtons,
   onPageChange,
   onPageSizeChange,
+  buttonSize = "md",
   className,
 }: PropertyPaginitionProps): ReactNode {
   if (isLoading) {
@@ -29,6 +35,9 @@ export function PropertyPaginition({
     onPageSizeChange: onPageSizeChange
       ? (nextPageSize: number) => onPageSizeChange(nextPageSize)
       : undefined,
+    pageButtonClassName: cardListPaginationButtonSizeClasses(buttonSize),
+    pageIconClassName: cardListPaginationIconSizeClasses(buttonSize),
+    pageSizeSelectTriggerClassName: cardListSelectTriggerSizeClasses(buttonSize),
     className: cn(className),
   });
 }
