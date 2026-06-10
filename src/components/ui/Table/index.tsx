@@ -1,6 +1,12 @@
 "use client";
 
-import { useMemo, useRef, type MouseEvent, type ReactNode } from "react";
+import {
+  useMemo,
+  useRef,
+  type CSSProperties,
+  type MouseEvent,
+  type ReactNode,
+} from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { cn } from "../../../lib/cn";
 import {
@@ -13,6 +19,7 @@ import {
   tableSectionDividerClassName,
 } from "./tableDividerStyles";
 import {
+  tableHeaderCellClassName,
   tableHeaderCellPaddingClassName,
   tableHeaderRowClassName,
 } from "./tableHeaderStyles";
@@ -28,9 +35,23 @@ import {
   getPinnedCellClassName,
   getPinnedCellStyle,
 } from "./pinnedColumns";
+import { TableColumnResizeHandle } from "./TableColumnResizeHandle";
+import {
+  getColumnWidthStyle,
+  hasCompleteColumnWidths,
+  resizableTableCellOverflowClassName,
+} from "./tableColumnResize";
 import { getNextSortConfig } from "./sortUtils";
+import { useColumnResize } from "./useColumnResize";
 import { usePinnedColumnOffsets } from "./usePinnedColumnOffsets";
 import type { SortConfig, TableColumn, TableProps } from "./types";
+
+function mergeCellStyles(
+  ...styles: Array<CSSProperties | undefined>
+): CSSProperties | undefined {
+  const merged = Object.assign({}, ...styles.filter(Boolean));
+  return Object.keys(merged).length > 0 ? merged : undefined;
+}
 
 export { getNextSortConfig, sortRowsByConfig } from "./sortUtils";
 export { TableBodySkeleton } from "./TableBodySkeleton";
@@ -42,6 +63,7 @@ export type {
   SortRule,
   TableColumn,
   TableColumnAlign,
+  TableColumnWidths,
   TablePaginationConfig,
   TableProps,
   PinnedColumns,
@@ -177,6 +199,10 @@ export function Table<T>({
   pagination,
   paginationFooter,
   pinnedColumns,
+  resizableColumns = false,
+  columnWidths,
+  defaultColumnWidths,
+  onColumnWidthsChange,
   className,
   tableClassName,
 }: TableProps<T>) {
@@ -185,12 +211,37 @@ export function Table<T>({
     () => columns.map((column) => column.id),
     [columns],
   );
+  const { widths, onResizeStart, isColumnResizable } = useColumnResize({
+    enabled: resizableColumns,
+    columnIds,
+    columns,
+    tableRef,
+    columnWidths,
+    defaultColumnWidths,
+    onColumnWidthsChange,
+  });
   const desktopPinnedColumns = pinnedColumns;
+  const columnsSized =
+    resizableColumns && hasCompleteColumnWidths(columnIds, widths);
+  const totalColumnWidth = useMemo(
+    () =>
+      columnsSized
+        ? columnIds.reduce((sum, id) => sum + (widths[id] ?? 0), 0)
+        : 0,
+    [columnIds, columnsSized, widths],
+  );
   const pinnedMeta = usePinnedColumnOffsets(
     columnIds,
     desktopPinnedColumns,
     tableRef,
+    resizableColumns && hasCompleteColumnWidths(columnIds, widths)
+      ? widths
+      : undefined,
   );
+
+  const columnAllowsPinnedOverflow = (column: TableColumn<T>) =>
+    column.headerClassName?.includes("overflow-visible") ||
+    column.cellClassName?.includes("overflow-visible");
   const colCount = columns.length;
   const sortableSet = new Set(
     columns.filter((c) => c.sortable && c.getSortValue).map((c) => c.id),
@@ -250,11 +301,23 @@ export function Table<T>({
           ref={tableRef}
           className={cn(
             "w-full border-separate border-spacing-0 text-left text-text",
+            columnsSized && "table-fixed",
             textBodySmClasses,
             tableClassName,
           )}
-          style={{ minWidth: minTableWidth }}
+          style={{
+            minWidth: columnsSized
+              ? `max(100%, ${totalColumnWidth}px)`
+              : minTableWidth,
+          }}
         >
+          {columnsSized ? (
+            <colgroup>
+              {columns.map((col) => (
+                <col key={col.id} style={{ width: widths[col.id] }} />
+              ))}
+            </colgroup>
+          ) : null}
           <thead>
             <tr className={tableHeaderRowClassName}>
               {columns.map((col) => {
@@ -270,22 +333,39 @@ export function Table<T>({
                         ? "ascending"
                         : "descending";
                 const pinMeta = pinnedMeta.get(col.id);
+                const isPinned = Boolean(pinMeta);
+                const columnResizable = isColumnResizable(col);
 
                 return (
                   <th
                     key={col.id}
                     scope="col"
                     className={cn(
+                      tableHeaderCellClassName,
                       tableHeaderCellPaddingClassName,
                       "font-medium",
                       tableRowDividerClassName,
                       getTableColumnAlignClass(col),
                       textMetaClasses,
+                      columnResizable && "relative",
+                      columnsSized &&
+                        !isPinned &&
+                        col.resizable !== false &&
+                        resizableTableCellOverflowClassName,
                       col.headerClassName,
                       col.className,
-                      getPinnedCellClassName(pinMeta, { isHeader: true }),
+                      getPinnedCellClassName(pinMeta, {
+                        isHeader: true,
+                        allowOverflow:
+                          columnResizable || columnAllowsPinnedOverflow(col),
+                      }),
                     )}
-                    style={getPinnedCellStyle(pinMeta, { isHeader: true })}
+                    style={mergeCellStyles(
+                      columnsSized
+                        ? getColumnWidthStyle(col, widths, { isPinned })
+                        : undefined,
+                      getPinnedCellStyle(pinMeta, { isHeader: true }),
+                    )}
                     aria-sort={ariaSort}
                   >
                     {canSort ? (
@@ -307,6 +387,11 @@ export function Table<T>({
                     ) : (
                       col.header
                     )}
+                    {columnResizable ? (
+                      <TableColumnResizeHandle
+                        onResizeStart={(event) => onResizeStart(col.id, event)}
+                      />
+                    ) : null}
                   </th>
                 );
               })}
@@ -367,13 +452,24 @@ export function Table<T>({
                           "px-3 py-2.5 sm:px-4 sm:py-3",
                           rowIndex < data.length - 1 && tableRowDividerClassName,
                           getTableColumnAlignClass(col),
+                          columnsSized &&
+                            !isPinned &&
+                            col.resizable !== false &&
+                            resizableTableCellOverflowClassName,
                           col.cellClassName,
                           col.className,
                           isPinned
-                            ? getPinnedCellClassName(pinMeta)
+                            ? getPinnedCellClassName(pinMeta, {
+                                allowOverflow: columnAllowsPinnedOverflow(col),
+                              })
                             : "group-hover:bg-page/50",
                         )}
-                        style={getPinnedCellStyle(pinMeta)}
+                        style={mergeCellStyles(
+                          columnsSized
+                            ? getColumnWidthStyle(col, widths, { isPinned })
+                            : undefined,
+                          getPinnedCellStyle(pinMeta),
+                        )}
                       >
                         {col.render(row)}
                       </td>

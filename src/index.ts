@@ -50,6 +50,7 @@ export type {
   SortRule,
   TableColumn,
   TableColumnAlign,
+  TableColumnWidths,
   TablePaginationConfig,
   TableProps,
 } from "./components/ui/Table";

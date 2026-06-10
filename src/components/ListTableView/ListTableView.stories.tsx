@@ -90,6 +90,7 @@ const meta = {
     },
     workflowActions: demoWorkflowActions,
     onClick: fn(),
+    onColumnWidthsChange: fn(),
   },
 } satisfies Meta<typeof ListTableView>;
 
@@ -203,6 +204,61 @@ export const WithPinnedColumns: Story = {
     },
     canViewDelete: true,
     onClickDelete: fn(),
+    onColumnWidthsChange: fn(),
+  },
+  render: (args) => <ListTableViewDemo {...args} />,
+};
+
+export const ResizableWithPinnedColumns: Story = {
+  decorators: [
+    (Story) => (
+      <div className="mx-auto w-full max-w-2xl bg-page p-4">
+        <Story />
+      </div>
+    ),
+  ],
+  args: {
+    resizableColumns: true,
+    pinnedColumns: {
+      left: ["reference", "property"],
+      right: ["action"],
+    },
+    canViewDelete: true,
+    onClickDelete: fn(),
+    onColumnWidthsChange: fn(),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Resizable columns with left/right pinning. Scroll horizontally and drag header edges to resize.",
+      },
+    },
+  },
+  render: (args) => <ListTableViewDemo {...args} />,
+};
+
+export const ResizableColumns: Story = {
+  decorators: [
+    (Story) => (
+      <div className="mx-auto w-full max-w-4xl bg-page p-4">
+        <Story />
+      </div>
+    ),
+  ],
+  args: {
+    resizableColumns: true,
+    canViewDelete: true,
+    onClickDelete: fn(),
+    onColumnWidthsChange: fn(),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Drag the right edge of each header to resize columns on desktop. The actions column stays fixed width.",
+      },
+    },
   },
   render: (args) => <ListTableViewDemo {...args} />,
 };

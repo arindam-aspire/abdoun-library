@@ -2,7 +2,12 @@ import type { ReactNode } from "react";
 import type { UiControlSize } from "../ui/commonTypes";
 import type { CardListProps, PaginitionContent } from "../PropertyCardList/types";
 import type { TableNoDataFoundContent } from "./TableNoDataFound";
-import type { PinnedColumns, SortConfig, TableColumn } from "../ui/Table";
+import type {
+  PinnedColumns,
+  SortConfig,
+  TableColumn,
+  TableColumnWidths,
+} from "../ui/Table";
 import type { PropertyListing } from "../PropertyListCard/types";
 import type { PropertyTableWorkflowActionsConfig } from "./propertyTableWorkflowActions";
 import type { PropertyTableRowActionsInput } from "./rowActionTypes";
@@ -49,6 +54,11 @@ export type ListTableViewProps = CardListProps & {
    * Aliases: `property` → `title`, `action` → `actions`.
    */
   pinnedColumns?: PinnedColumns;
+  /** Enable drag-to-resize column headers on `sm+`. Defaults to `true`. */
+  resizableColumns?: boolean;
+  columnWidths?: TableColumnWidths;
+  defaultColumnWidths?: TableColumnWidths;
+  onColumnWidthsChange?: (widths: TableColumnWidths) => void;
 };
 
 export type { PinnedColumns, TableNoDataFoundContent };

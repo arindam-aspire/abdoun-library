@@ -128,12 +128,16 @@ function TableDemo({
   error = null as string | null,
   data = demoRows,
   pinnedColumns,
+  resizableColumns = false,
+  onColumnWidthsChange = fn(),
 }: {
   initialSort?: SortConfig;
   loading?: boolean;
   error?: string | null;
   data?: DemoRow[];
   pinnedColumns?: { left?: string[]; right?: string[] };
+  resizableColumns?: boolean;
+  onColumnWidthsChange?: (widths: Record<string, number>) => void;
 }) {
   const [sortConfig, setSortConfig] = useState<SortConfig>(initialSort);
   const [page, setPage] = useState(1);
@@ -174,6 +178,8 @@ function TableDemo({
         },
       }}
       pinnedColumns={pinnedColumns}
+      resizableColumns={resizableColumns}
+      onColumnWidthsChange={onColumnWidthsChange}
     />
   );
 }
@@ -192,6 +198,9 @@ const meta = {
       </div>
     ),
   ],
+  args: {
+    onColumnWidthsChange: fn(),
+  },
 } satisfies Meta<typeof Table>;
 
 export default meta;
@@ -255,6 +264,44 @@ export const WithPinnedColumns: Story = {
   ],
   render: () => (
     <TableDemo
+      pinnedColumns={{
+        left: ["reference", "title"],
+        right: ["updatedAt"],
+      }}
+    />
+  ),
+};
+
+export const ResizableColumns: Story = {
+  decorators: [
+    (Story) => (
+      <div className="mx-auto w-full max-w-4xl bg-page p-4">
+        <Story />
+      </div>
+    ),
+  ],
+  render: () => <TableDemo resizableColumns />,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Drag the handle on the right edge of each header cell to resize columns (`sm+` only). Works with pinned columns.",
+      },
+    },
+  },
+};
+
+export const ResizableWithPinnedColumns: Story = {
+  decorators: [
+    (Story) => (
+      <div className="mx-auto w-full max-w-xl bg-page p-4">
+        <Story />
+      </div>
+    ),
+  ],
+  render: () => (
+    <TableDemo
+      resizableColumns
       pinnedColumns={{
         left: ["reference", "title"],
         right: ["updatedAt"],

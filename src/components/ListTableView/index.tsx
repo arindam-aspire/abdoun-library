@@ -43,6 +43,10 @@ export function ListTableView({
   rowActions: rowActionsProp,
   workflowActions,
   pinnedColumns,
+  resizableColumns = true,
+  columnWidths,
+  defaultColumnWidths,
+  onColumnWidthsChange,
   className,
   tableClassName,
 }: ListTableViewProps) {
@@ -128,6 +132,10 @@ export function ListTableView({
         minTableWidth={minTableWidth}
         tableClassName={tableClassName}
         pinnedColumns={resolvedPinnedColumns}
+        resizableColumns={resizableColumns}
+        columnWidths={columnWidths}
+        defaultColumnWidths={defaultColumnWidths}
+        onColumnWidthsChange={onColumnWidthsChange}
         paginationFooter={
           showPagination ? (
             <TablePaginition {...pagination!} buttonSize={buttonSize} />

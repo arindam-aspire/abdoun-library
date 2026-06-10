@@ -70,7 +70,10 @@ export function buildPinnedColumnMeta(
 
 export function getPinnedCellClassName(
   meta: PinnedColumnMeta | undefined,
-  { isHeader = false }: { isHeader?: boolean } = {},
+  {
+    isHeader = false,
+    allowOverflow = false,
+  }: { isHeader?: boolean; allowOverflow?: boolean } = {},
 ): string {
   if (!meta) {
     return "";
@@ -85,8 +88,12 @@ export function getPinnedCellClassName(
       ? "shadow-[4px_0_8px_-4px] shadow-secondary/15"
       : "shadow-[-4px_0_8px_-4px] shadow-secondary/15";
 
+  const overflowClass =
+    isHeader || allowOverflow ? "overflow-visible" : "overflow-hidden";
+
   return [
-    "sticky isolate overflow-visible",
+    "sticky isolate",
+    overflowClass,
     background,
     meta.isEdge ? edgeShadow : "",
   ]

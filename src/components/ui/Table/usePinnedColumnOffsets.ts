@@ -2,6 +2,7 @@
 
 import {
   useLayoutEffect,
+  useMemo,
   useState,
   type RefObject,
 } from "react";
@@ -12,24 +13,58 @@ import {
   type PinnedColumnMeta,
   type PinnedColumns,
 } from "./pinnedColumns";
+import {
+  columnWidthsToArray,
+  hasCompleteColumnWidths,
+  type TableColumnWidths,
+} from "./tableColumnResize";
 
 export function usePinnedColumnOffsets(
   columnIds: string[],
   pinnedColumns: PinnedColumns | undefined,
   tableRef: RefObject<HTMLTableElement | null>,
+  columnWidths?: TableColumnWidths,
 ): Map<string, PinnedColumnMeta> {
   const columnIdsKey = columnIds.join("|");
   const pinnedColumnsKey = getPinnedColumnsKey(pinnedColumns);
+  const columnWidthsKey = columnWidths
+    ? columnIds.map((id) => columnWidths[id] ?? 0).join(",")
+    : "";
+  const useExplicitWidths = hasCompleteColumnWidths(columnIds, columnWidths);
 
-  const [metaMap, setMetaMap] = useState<Map<string, PinnedColumnMeta>>(
+  const explicitMeta = useMemo(() => {
+    if (!pinnedColumns || pinnedColumnsKey === "" || !useExplicitWidths) {
+      return null;
+    }
+
+    return buildPinnedColumnMeta(
+      columnIds,
+      pinnedColumns,
+      columnWidthsToArray(columnIds, columnWidths!),
+    );
+  }, [
+    columnIds,
+    columnIdsKey,
+    columnWidths,
+    columnWidthsKey,
+    pinnedColumns,
+    pinnedColumnsKey,
+    useExplicitWidths,
+  ]);
+
+  const [measuredMeta, setMeasuredMeta] = useState<Map<string, PinnedColumnMeta>>(
     () => new Map(),
   );
 
   useLayoutEffect(() => {
+    if (explicitMeta) {
+      return;
+    }
+
     const table = tableRef.current;
 
     if (!table || !pinnedColumns || pinnedColumnsKey === "") {
-      setMetaMap((previous) => (previous.size === 0 ? previous : new Map()));
+      setMeasuredMeta((previous) => (previous.size === 0 ? previous : new Map()));
       return;
     }
 
@@ -47,7 +82,7 @@ export function usePinnedColumnOffsets(
       );
       const nextMeta = buildPinnedColumnMeta(columnIds, pinnedColumns, widths);
 
-      setMetaMap((previous) =>
+      setMeasuredMeta((previous) =>
         pinnedColumnMapsEqual(previous, nextMeta) ? previous : nextMeta,
       );
     };
@@ -66,7 +101,14 @@ export function usePinnedColumnOffsets(
       cancelAnimationFrame(frame);
       observer.disconnect();
     };
-  }, [columnIds, columnIdsKey, pinnedColumns, pinnedColumnsKey]);
+  }, [
+    columnIds,
+    columnIdsKey,
+    explicitMeta,
+    pinnedColumns,
+    pinnedColumnsKey,
+    tableRef,
+  ]);
 
-  return metaMap;
+  return explicitMeta ?? measuredMeta;
 }

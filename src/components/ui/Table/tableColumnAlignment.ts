@@ -38,5 +38,5 @@ export function getTableColumnHeaderButtonClass<T>(
 export function getTableColumnHeaderLabelClass<T>(
   column: Pick<TableColumn<T>, "align">,
 ): string {
-  return getTableColumnAlign(column) === "start" ? "min-w-0 flex-1" : "";
+  return getTableColumnAlign(column) === "start" ? "min-w-0 flex-1 truncate" : "";
 }

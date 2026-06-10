@@ -62,13 +62,13 @@ export function buildPropertyTableColumns({
             onClick={() => onClick(row)}
             className={cn(
               textBodySmClasses,
-              "max-w-[16rem] truncate text-start font-medium text-secondary underline-offset-2 hover:underline",
+              "block w-full min-w-0 truncate text-start font-medium text-secondary underline-offset-2 hover:underline",
             )}
           >
             {resolveTitle(row, locale)}
           </button>
         ) : (
-          <span className="block max-w-[16rem] truncate text-start">
+          <span className="block w-full min-w-0 truncate text-start">
             {resolveTitle(row, locale)}
           </span>
         ),
@@ -80,7 +80,7 @@ export function buildPropertyTableColumns({
       sortable: true,
       getSortValue: (row) => resolveLocation(row),
       render: (row) => (
-        <span className="block max-w-[12rem] truncate text-text/80">
+        <span className="block w-full min-w-0 truncate text-text/80">
           {resolveLocation(row)}
         </span>
       ),
@@ -91,7 +91,10 @@ export function buildPropertyTableColumns({
       align: "start",
       sortable: true,
       getSortValue: (row) => row.propertyType,
-      render: (row) => row.propertyType,
+      cellClassName: "truncate",
+      render: (row) => (
+        <span className="block w-full min-w-0 truncate">{row.propertyType}</span>
+      ),
     },
     {
       id: "price",
@@ -126,7 +129,9 @@ export function buildPropertyTableColumns({
       align: "center",
       sortable: true,
       getSortValue: (row) => row.status.label,
-      cellClassName: "w-px whitespace-nowrap",
+      width: 140,
+      minWidth: 120,
+      cellClassName: "whitespace-nowrap",
       render: (row) => (
         <div className="flex justify-center">
           <ListingStatusBadge status={row.status} />
@@ -140,6 +145,10 @@ export function buildPropertyTableColumns({
       id: "actions",
       header: "",
       align: "center",
+      width: 48,
+      minWidth: 48,
+      maxWidth: 80,
+      resizable: false,
       headerClassName: "w-12 overflow-visible p-0",
       cellClassName: "overflow-visible p-0",
       render: (row) => (

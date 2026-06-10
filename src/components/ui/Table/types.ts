@@ -14,12 +14,20 @@ export type SortConfig = SortRule[];
 
 export type TableColumnAlign = "start" | "center" | "end";
 
+export type TableColumnWidths = Record<string, number>;
+
 export type TableColumn<T> = {
   id: string;
   header: ReactNode;
   /** Cell and header text alignment. Defaults to `start`. */
   align?: TableColumnAlign;
   sortable?: boolean;
+  /** Initial width in pixels (`sm+` only). */
+  width?: number;
+  minWidth?: number;
+  maxWidth?: number;
+  /** When `resizableColumns` is enabled, set `false` to disable resizing this column. */
+  resizable?: boolean;
   className?: string;
   headerClassName?: string;
   cellClassName?: string;
@@ -63,6 +71,13 @@ export type TableProps<T> = {
   /** Custom footer (e.g. `TablePaginition`) rendered below the table body. */
   paginationFooter?: ReactNode;
   pinnedColumns?: PinnedColumns;
+  /** Enable drag-to-resize column headers on `sm+`. */
+  resizableColumns?: boolean;
+  /** Controlled column widths in pixels (`sm+` only). */
+  columnWidths?: TableColumnWidths;
+  /** Uncontrolled initial column widths in pixels. */
+  defaultColumnWidths?: TableColumnWidths;
+  onColumnWidthsChange?: (widths: TableColumnWidths) => void;
   className?: string;
   tableClassName?: string;
 };
