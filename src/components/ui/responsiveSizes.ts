@@ -325,6 +325,40 @@ export const phoneInputListItemSizeClasses = cnTier(
   controlTextClasses.sm,
 );
 
+/** Doc upload drop zone — padding and min height. */
+export const docInputDropzoneSizeClasses: Record<UiSizeTier, string> = {
+  sm: cnTier(
+    "min-h-28 px-3 py-4 sm:min-h-32 sm:px-4 sm:py-5",
+    controlGapClasses.sm,
+  ),
+  md: cnTier(
+    "min-h-32 px-4 py-5 sm:min-h-36 sm:px-5 sm:py-6",
+    controlGapClasses.md,
+  ),
+  lg: cnTier(
+    "min-h-36 px-5 py-6 sm:min-h-40 sm:px-6 sm:py-7",
+    controlGapClasses.lg,
+  ),
+};
+
+export const docInputDropzoneCompactSizeClasses: Record<UiSizeTier, string> = {
+  sm: cnTier("px-3 py-2.5 sm:px-4 sm:py-3", controlGapClasses.sm),
+  md: cnTier("px-3.5 py-3 sm:px-4 sm:py-3.5", controlGapClasses.md),
+  lg: cnTier("px-4 py-3.5 sm:px-5 sm:py-4", controlGapClasses.lg),
+};
+
+export const docInputIconWrapSizeClasses: Record<UiSizeTier, string> = {
+  sm: "size-10 sm:size-11",
+  md: "size-11 sm:size-12",
+  lg: "size-12 sm:size-14",
+};
+
+export const docInputFileItemSizeClasses: Record<UiSizeTier, string> = {
+  sm: cnTier("px-2.5 py-2 sm:px-3 sm:py-2.5", controlGapClasses.sm),
+  md: cnTier("px-3 py-2.5 sm:px-3.5 sm:py-3", controlGapClasses.md),
+  lg: cnTier("px-3.5 py-3 sm:px-4 sm:py-3.5", controlGapClasses.lg),
+};
+
 /** Property cards: `sm` tier below `sm` viewport; `fromSm` tier from `sm` breakpoint up. */
 const cardListButtonHeightFromSm: Record<UiSizeTier, string> = {
   sm: "sm:h-9 lg:h-10",
@@ -572,6 +606,55 @@ export function tablePaginationIconSizeClasses(fromSm: UiSizeTier = "md"): strin
 export function tablePaginationSelectTriggerSizeClasses(fromSm: UiSizeTier = "md"): string {
   return tablePaginationSelectTriggerFromSm[fromSm];
 }
+
+/** Vertical stepper row — matches `Button` outer height and horizontal rhythm per `size`. */
+export const verticalStepperRowSizeClasses: Record<UiSizeTier, string> = {
+  sm: cnTier(
+    controlHeightClasses.sm,
+    controlPaddingClasses.sm,
+    controlGapClasses.sm,
+    controlTextClasses.sm,
+    "flex w-full min-w-0 items-center rounded-xl py-0 font-medium",
+  ),
+  md: cnTier(
+    controlHeightClasses.md,
+    controlPaddingClasses.md,
+    controlGapClasses.md,
+    controlTextClasses.md,
+    "flex w-full min-w-0 items-center rounded-xl py-0 font-medium",
+  ),
+  lg: cnTier(
+    controlHeightClasses.lg,
+    controlPaddingClasses.lg,
+    controlGapClasses.lg,
+    controlTextClasses.lg,
+    "flex w-full min-w-0 items-center rounded-xl py-0 font-medium",
+  ),
+};
+
+/**
+ * Step indicator disc — inset within the button-tall row (not full row height).
+ * Scales with the same `sm` | `md` | `lg` tiers as `Button`.
+ */
+export const verticalStepperCircleSizeClasses: Record<UiSizeTier, string> = {
+  sm: "size-6 shrink-0 sm:size-7 lg:size-7",
+  md: "size-7 shrink-0 sm:size-8 lg:size-9",
+  lg: "size-8 shrink-0 sm:size-9 lg:size-10",
+};
+
+export const verticalStepperIconSizeClasses = buttonIconSizeClasses;
+
+export const verticalStepperCounterSizeClasses: Record<UiSizeTier, string> = {
+  sm: cnTier(controlTextClasses.sm, "font-semibold leading-none"),
+  md: cnTier(controlTextClasses.md, "font-semibold leading-none"),
+  lg: cnTier(controlTextClasses.lg, "font-semibold leading-none"),
+};
+
+export const verticalStepperListGapClasses: Record<UiSizeTier, string> = {
+  sm: "gap-1 sm:gap-1.5",
+  md: "gap-1 sm:gap-1.5 lg:gap-2",
+  lg: "gap-1.5 sm:gap-2 lg:gap-2.5",
+};
 
 function cnTier(...classes: string[]) {
   return classes.join(" ");

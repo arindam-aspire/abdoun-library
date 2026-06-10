@@ -30,6 +30,15 @@
   --color-background: var(--page);
   --color-foreground: var(--text);
   --color-card-background: var(--card-background);
+  --color-stepper-active-text: var(--stepper-active-text, var(--text));
+  --color-stepper-active-bg: var(--stepper-active-bg, var(--accent));
+  --color-stepper-completed-text: var(--stepper-completed-text, var(--page));
+  --color-stepper-completed-bg: var(--stepper-completed-bg, var(--secondary));
+  --color-stepper-default-text: var(--stepper-default-text, var(--muted));
+  --color-stepper-default-bg: var(--stepper-default-bg, var(--primary-light));
+  --color-stepper-active-label-text: var(--stepper-active-label-text, var(--secondary));
+  --color-stepper-completed-label-text: var(--stepper-completed-label-text, var(--text));
+  --color-stepper-default-label-text: var(--stepper-default-label-text, var(--muted));
   --font-sans: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   --font-mono: ui-monospace, monospace;
 }

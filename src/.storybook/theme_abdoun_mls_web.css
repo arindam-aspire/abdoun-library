@@ -4,6 +4,7 @@
   --white: #ffffff;
   --black: #000000;
   --inherit: #5f5e5a;
+  --inherit-light: #eeedec;
 }
 
 :root {
@@ -25,11 +26,21 @@
   --danger: #c62828;
   --info: #1565c0;
   --card-background: #ffffff;
+  --stepper-active-text: var(--white);
+  --stepper-active-bg: var(--primary);
+  --stepper-active-label-text: var(--primary-dark);
+  --stepper-completed-text: var(--white);
+  --stepper-completed-bg: var(--primary-dark);
+  --stepper-completed-label-text: var(--primary-dark);
+  --stepper-default-text: var(--inherit);
+  --stepper-default-bg: var(--inherit-light);
+  --stepper-default-label-text: var(--inherit);
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
+    --inherit-light: #1e2419;
     --primary: #a3d96a;
     --primary-dark: #5a8230;
     --primary-light: #1e2b16;
@@ -53,6 +64,7 @@
 }
 
 :root.dark {
+  --inherit-light: #1e2419;
   --primary: #a3d96a;
   --primary-dark: #5a8230;
   --primary-light: #1e2b16;

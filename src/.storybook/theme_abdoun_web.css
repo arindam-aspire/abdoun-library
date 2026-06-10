@@ -3,6 +3,7 @@
 :root {
   --white: #ffffff;
   --black: #000000;
+  --inherit-light: #e2e8f0;
 }
 
 :root {
@@ -25,11 +26,21 @@
   --danger: #c62828;
   --info: #2b5ba6;
   --card-background: #ffffff;
+  --stepper-active-text: var(--primary-dark);
+  --stepper-active-bg: var(--accent);
+  --stepper-active-label-text: var(--primary-dark);
+  --stepper-completed-text: var(--white);
+  --stepper-completed-bg: var(--primary-dark);
+  --stepper-completed-label-text: var(--primary-dark);
+  --stepper-default-text: var(--inherit);
+  --stepper-default-bg: var(--inherit-light);
+  --stepper-default-label-text: var(--inherit);
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
+    --inherit-light: #334155;
     --primary: #cbd5e1;
     --primary-dark: #94a3b8;
     --primary-light: #334155;
@@ -54,6 +65,7 @@
 }
 
 :root.dark {
+  --inherit-light: #334155;
   --primary: #cbd5e1;
   --primary-dark: #94a3b8;
   --primary-light: #334155;
