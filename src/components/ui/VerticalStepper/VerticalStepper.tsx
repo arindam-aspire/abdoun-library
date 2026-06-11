@@ -3,10 +3,16 @@
 import { Check } from "lucide-react";
 import { cn } from "../../../lib/cn";
 import type { UiControlSize } from "../commonTypes";
+import {
+  stepperCircleClass,
+  stepperLabelClass,
+  stepperVerticalActiveRowClass,
+  type StepperVisualState,
+} from "../HorizontalStepper/stepperStyles";
 import type { VerticalStepperProps, VerticalStepperStep } from "./types";
 import { verticalStepperSizeClasses } from "./verticalStepperSizes";
 
-type StepState = "completed" | "active" | "default";
+type StepState = StepperVisualState;
 
 function resolveStepState(
   index: number,
@@ -22,33 +28,6 @@ function resolveStepState(
   }
 
   return "default";
-}
-
-function circleToneClass(
-  state: StepState,
-  usesCounter: boolean,
-  usesIcon: boolean,
-) {
-  if (state === "completed") {
-    return "bg-stepper-completed-bg text-stepper-completed-text";
-  }
-
-  if (state === "active" && (usesCounter || usesIcon)) {
-    return "bg-stepper-active-text text-stepper-active-bg";
-  }
-
-  return "bg-stepper-default-bg text-stepper-default-text";
-}
-
-function labelToneClass(state: StepState) {
-  switch (state) {
-    case "completed":
-      return "text-stepper-completed-label-text";
-    case "active":
-      return "font-bold text-stepper-active-text";
-    default:
-      return "text-stepper-default-label-text";
-  }
 }
 
 function StepIndicator({
@@ -96,7 +75,9 @@ function StepIndicator({
       className={cn(
         "inline-flex shrink-0 items-center justify-center rounded-full",
         sizeClasses.circle,
-        circleToneClass(state, usesCounter, usesIcon),
+        stepperCircleClass(state, {
+          invertActive: state === "active" && (usesCounter || usesIcon),
+        }),
       )}
       aria-hidden
     >
@@ -130,7 +111,7 @@ function VerticalStepRow({
         step={step}
         size={size}
       />
-      <span className={cn(sizeClasses.label, labelToneClass(state))}>
+      <span className={cn(sizeClasses.label, stepperLabelClass(state))}>
         {step.label}
       </span>
     </>
@@ -158,7 +139,7 @@ function VerticalStepRow({
       className={cn(
         sizeClasses.row,
         "cursor-default",
-        state === "active" && "bg-stepper-active-bg",
+        state === "active" && stepperVerticalActiveRowClass,
       )}
     >
       {rowContent}

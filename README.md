@@ -39,19 +39,42 @@ Use **one** `globals.css`. Order matters:
 /* .dark / .light / prefers-color-scheme blocks */
 
 @theme inline {
-  --color-page: var(--page);
-  --color-surface: var(--surface);
-  --color-page-ghost: color-mix(in srgb, var(--page) 20%, var(--surface));
-  --color-card-background: var(--card-background);
   --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-light: var(--primary-light);
+  --color-accent: var(--accent);
   --color-secondary: var(--secondary);
+  --color-secondary-light: var(--secondary-light);
+  --color-secondary-dark: var(--secondary-dark);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-dark: var(--tertiary-dark);
+  --color-tertiary-light: var(--tertiary-light);
+  --color-page: var(--page);
+  --color-page-ghost: color-mix(in srgb, var(--page) 20%, var(--surface));
+  --color-surface: var(--surface);
   --color-text: var(--text);
   --color-muted: var(--muted);
-  /* …see src/styles/theme.css (commented reference)… */
+  --color-white: var(--white);
+  --color-black: var(--black);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-inherit-color: var(--inherit);
+  --color-inherit-color-15: color-mix(in srgb, var(--inherit) 15%, var(--page));
+  --color-hero-on-image: var(--hero-on-image, var(--white));
+  --color-background: var(--page);
+  --color-foreground: var(--text);
+  --color-card-background: var(--card-background, var(--surface));
+  /* inherit-color — used by ToggleButton and stepper default states */
+  --color-inherit-color-15: color-mix(in srgb, var(--inherit) 15%, var(--page));
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
 @import "@abdoun/abdoun-library/integration.css";
 ```
+
+Full copy-paste reference: `node_modules/@abdoun/abdoun-library/src/styles/theme.css` (comments only — do not `@import` it).
 
 ```tsx
 // layout.tsx

@@ -1,9 +1,18 @@
 /**
- * Tailwind ↔ app CSS variables. Use in globals.css AFTER your :root / .dark / .light blocks.
+ * REFERENCE ONLY — do not @import this file in globals.css.
  *
- * Prefer pasting this @theme block into your globals.css (avoids @import hoisting).
- * Or: @import "@abdoun/abdoun-library/theme.css"; at the end of globals.css, after :root.
+ * CSS @import is hoisted above :root, so a second @theme from this file breaks
+ * light/dark tokens in consuming apps. Copy the @theme inline block below into
+ * your globals.css AFTER :root / .dark / .light, then import integration.css only.
+ *
+ * @import "tailwindcss";
+ * :root { --page: ...; --surface: ...; }
+ * :root.dark { ... }
+ * @theme inline { ...paste block below... }
+ * @import "@abdoun/abdoun-library/integration.css";
  */
+
+/*
 @theme inline {
   --color-primary: var(--primary);
   --color-primary-dark: var(--primary-dark);
@@ -26,6 +35,7 @@
   --color-danger: var(--danger);
   --color-info: var(--info);
   --color-inherit-color: var(--inherit);
+  --color-inherit-color-15: color-mix(in srgb, var(--inherit) 15%, var(--page));
   --color-hero-on-image: var(--hero-on-image, var(--white));
   --color-background: var(--page);
   --color-foreground: var(--text);
@@ -39,4 +49,8 @@
   --color-stepper-active-label-text: var(--stepper-active-label-text, var(--secondary));
   --color-stepper-completed-label-text: var(--stepper-completed-label-text, var(--text));
   --color-stepper-default-label-text: var(--stepper-default-label-text, var(--muted));
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-arabic: var(--font-tajawal);
 }
+*/

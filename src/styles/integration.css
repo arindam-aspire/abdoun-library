@@ -6,5 +6,7 @@
  * :root { --page: ...; --surface: ...; --card-background: var(--surface); }
  * @theme inline { --color-page: var(--page); --color-surface: var(--surface); ... }
  * @import "@abdoun/abdoun-library/integration.css";
+ *
+ * Do NOT also @import theme.css — paste that @theme block into this file instead.
  */
 @source "../../dist/**/*.{js,cjs}";
