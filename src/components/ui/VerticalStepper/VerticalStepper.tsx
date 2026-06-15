@@ -2,17 +2,12 @@
 
 import { Check } from "lucide-react";
 import { cn } from "../../../lib/cn";
+import { verticalStepperThemeClasses } from "../stepperThemeClasses";
 import type { UiControlSize } from "../commonTypes";
-import {
-  stepperCircleClass,
-  stepperLabelClass,
-  stepperVerticalActiveRowClass,
-  type StepperVisualState,
-} from "../HorizontalStepper/stepperStyles";
 import type { VerticalStepperProps, VerticalStepperStep } from "./types";
 import { verticalStepperSizeClasses } from "./verticalStepperSizes";
 
-type StepState = StepperVisualState;
+type StepState = "completed" | "active" | "default";
 
 function resolveStepState(
   index: number,
@@ -28,6 +23,33 @@ function resolveStepState(
   }
 
   return "default";
+}
+
+function circleToneClass(
+  state: StepState,
+  usesCounter: boolean,
+  usesIcon: boolean,
+) {
+  if (state === "completed") {
+    return verticalStepperThemeClasses.circle.completed;
+  }
+
+  if (state === "active" && (usesCounter || usesIcon)) {
+    return verticalStepperThemeClasses.circle.active;
+  }
+
+  return verticalStepperThemeClasses.circle.default;
+}
+
+function labelToneClass(state: StepState) {
+  switch (state) {
+    case "completed":
+      return verticalStepperThemeClasses.label.completed;
+    case "active":
+      return verticalStepperThemeClasses.label.active;
+    default:
+      return verticalStepperThemeClasses.label.default;
+  }
 }
 
 function StepIndicator({
@@ -75,9 +97,7 @@ function StepIndicator({
       className={cn(
         "inline-flex shrink-0 items-center justify-center rounded-full",
         sizeClasses.circle,
-        stepperCircleClass(state, {
-          invertActive: state === "active" && (usesCounter || usesIcon),
-        }),
+        circleToneClass(state, usesCounter, usesIcon),
       )}
       aria-hidden
     >
@@ -111,7 +131,7 @@ function VerticalStepRow({
         step={step}
         size={size}
       />
-      <span className={cn(sizeClasses.label, stepperLabelClass(state))}>
+      <span className={cn(sizeClasses.label, labelToneClass(state))}>
         {step.label}
       </span>
     </>
@@ -139,7 +159,7 @@ function VerticalStepRow({
       className={cn(
         sizeClasses.row,
         "cursor-default",
-        state === "active" && stepperVerticalActiveRowClass,
+        state === "active" && verticalStepperThemeClasses.activeRow,
       )}
     >
       {rowContent}

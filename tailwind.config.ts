@@ -25,6 +25,7 @@ const config: Config = {
         danger: "var(--danger)",
         info: "var(--info)",
         "inherit-color": "var(--inherit)",
+        "inherit-light": "var(--inherit-light)",
         "card-background": "var(--card-background)",
       },
     },

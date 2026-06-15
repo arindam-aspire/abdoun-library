@@ -4,6 +4,7 @@ import { Field, Label } from "@headlessui/react";
 import { CheckCircle2, CloudUpload, Loader2, X } from "lucide-react";
 import {
   useCallback,
+  useEffect,
   useId,
   useRef,
   useState,
@@ -347,7 +348,9 @@ export const DocInput = ({
   labelClassName,
   value,
   onChange,
+  onRemove,
   onUpload,
+  onUploadingChange,
   multiple = true,
   accept = DOC_INPUT_ACCEPT,
   size = "md",
@@ -383,6 +386,30 @@ export const DocInput = ({
   const isUploading = inFlightItems.some(
     (item) => item.status === "uploading" || item.status === "processing",
   );
+  const onUploadingChangeRef = useRef(onUploadingChange);
+  const wasUploadingRef = useRef(false);
+
+  onUploadingChangeRef.current = onUploadingChange;
+
+  useEffect(() => {
+    if (wasUploadingRef.current === isUploading) {
+      return;
+    }
+
+    wasUploadingRef.current = isUploading;
+    onUploadingChangeRef.current?.(isUploading);
+  }, [isUploading]);
+
+  useEffect(() => {
+    return () => {
+      if (!wasUploadingRef.current) {
+        return;
+      }
+
+      wasUploadingRef.current = false;
+      onUploadingChangeRef.current?.(false);
+    };
+  }, []);
 
   const hasError = Boolean(error);
 
@@ -581,6 +608,7 @@ export const DocInput = ({
 
   const handleRemoveQueueItem = (item: InFlightQueueItem) => {
     if (item.status === "completed") {
+      onRemove?.(item.document);
       const nextValue = valueRef.current.filter(
         (document) => !documentsMatch(document, item.document),
       );

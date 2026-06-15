@@ -1,5 +1,6 @@
 "use client";
 
+import { FileText } from "lucide-react";
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { cn } from "../../lib/cn";
@@ -10,12 +11,14 @@ import {
   textSectionTitleClasses,
 } from "../../lib/typography";
 import { Card } from "../ui/Card";
+import { Checkbox } from "../ui/Checkbox";
 import { formatFileSize } from "../ui/FileSelectInput";
 import { formatPriceValue } from "../ui/PriceInput/utils";
 import {
   getFilteredFeaturesAndAmenitiesCatalog,
   isAmenityGroup,
   isFeatureGroup,
+  resolveSelectedCatalogItems,
 } from "./amenitiesFormOptions";
 import { nationalityOptions } from "./ownerInfoFormOptions";
 import {
@@ -28,6 +31,11 @@ import {
   parkingSpaceOptions,
   propertyAgeOptions,
 } from "./propertyDetailsFormOptions";
+import {
+  areAllTermsAccepted,
+  createAcceptedTermsValues,
+  createDeclinedTermsValues,
+} from "./propertyFormDefaults";
 import { propertyFormGridClasses, propertyFormStackClasses } from "./propertyFormFieldLayout";
 import type {
   AmenitiesFormValues,
@@ -42,14 +50,24 @@ import type {
   PropertyDetailsFormValues,
   PropertyTaxonomyCategory,
   SelectedDocument,
+  TermsAcceptanceFormValues,
 } from "./types";
 
 const REVIEW_TITLE = "Review & Submit";
 const REVIEW_SUBTITLE =
   "Review all property details below before submitting your listing.";
+const TERMS_SECTION_TITLE = "Terms & Conditions";
+const TERMS_AGREE_LABEL =
+  "I have read the points above and agree to all of them.";
+const TERMS_BULLETS = [
+  "I confirm that all information provided is accurate and complete to the best of my knowledge.",
+  "I agree to the platform's terms of service and privacy policy.",
+  "I authorize the platform to display this property listing publicly.",
+  "I understand that listing fees and commissions apply as per the platform's pricing policy.",
+] as const;
 const EMPTY_VALUE = "—";
 const REVIEW_CARD_CLASSES =
-  "border border-secondary/10 bg-black/5 p-4 dark:bg-white/5 sm:p-5";
+  "border border-secondary/10 bg-page p-4 sm:p-5";
 
 const listingPurposeLabels: Record<string, string> = {
   sale: "Sale",
@@ -153,22 +171,6 @@ function resolveNationality(value: string): string {
   );
 }
 
-function resolveSelectedCatalogItems(
-  catalog: FeaturesAndAmenities[],
-  selectedValues: string[],
-): FeaturesAndAmenities[] {
-  if (selectedValues.length === 0) {
-    return [];
-  }
-
-  const bySlug = new Map(catalog.map((item) => [item.slug, item]));
-  const byName = new Map(catalog.map((item) => [item.name, item]));
-
-  return selectedValues
-    .map((value) => bySlug.get(value) ?? byName.get(value))
-    .filter((item): item is FeaturesAndAmenities => item != null);
-}
-
 function isImageDocument(document: SelectedDocument): boolean {
   if (document.mimeType?.startsWith("image/")) {
     return true;
@@ -208,7 +210,7 @@ function ReviewSection({
   title,
   children,
 }: {
-  title: string;
+  title: ReactNode;
   children: ReactNode;
 }) {
   return (
@@ -320,7 +322,7 @@ function MediaPreviewGrid({ mediaFiles }: { mediaFiles: SelectedDocument[] }) {
   );
 }
 
-function OwnerReviewCard({
+function OwnerReviewFields({
   owner,
   index,
   hasMultipleOwners,
@@ -330,7 +332,12 @@ function OwnerReviewCard({
   hasMultipleOwners: boolean;
 }) {
   return (
-    <Card className={REVIEW_CARD_CLASSES}>
+    <div
+      className={cn(
+        index > 0 && "border-t border-secondary/15 pt-4",
+        hasMultipleOwners && index > 0 && "mt-4",
+      )}
+    >
       {hasMultipleOwners ? (
         <h4 className={cn("mb-4 font-semibold text-secondary", textBodySmClasses)}>
           Owner {index + 1}
@@ -369,7 +376,7 @@ function OwnerReviewCard({
           />
         </div>
       </dl>
-    </Card>
+    </div>
   );
 }
 
@@ -384,6 +391,10 @@ export interface ReviewAndSubmitStepProps {
   categoryTaxonomy: PropertyTaxonomyCategory[];
   locationTaxonomy: LocationTaxonomyCity[];
   featuresAndAmenities: FeaturesAndAmenities[];
+  termsAcceptance: TermsAcceptanceFormValues;
+  onTermsAcceptanceChange: (terms: TermsAcceptanceFormValues) => void;
+  /** When false, the terms agreement checkbox is disabled. */
+  canEdit?: boolean;
   className?: string;
 }
 
@@ -398,8 +409,12 @@ export function ReviewAndSubmitStep({
   categoryTaxonomy,
   locationTaxonomy,
   featuresAndAmenities,
+  termsAcceptance,
+  onTermsAcceptanceChange,
+  canEdit = true,
   className,
 }: ReviewAndSubmitStepProps) {
+  const allTermsAccepted = areAllTermsAccepted(termsAcceptance);
   const filteredCatalog = useMemo(
     () =>
       getFilteredFeaturesAndAmenitiesCatalog(
@@ -415,8 +430,9 @@ export function ReviewAndSubmitStep({
       resolveSelectedCatalogItems(
         filteredCatalog,
         amenities.selected_amenities,
+        amenities.feature_ids,
       ),
-    [amenities.selected_amenities, filteredCatalog],
+    [amenities.feature_ids, amenities.selected_amenities, filteredCatalog],
   );
 
   const selectedFeatures = useMemo(
@@ -560,16 +576,18 @@ export function ReviewAndSubmitStep({
       </ReviewSection>
 
       <ReviewSection title="Owner Information">
-        <div className={propertyFormStackClasses}>
-          {ownerInfo.owners.map((owner, index) => (
-            <OwnerReviewCard
+        {ownerInfo.owners.length === 0 ? (
+          <span className={textBodySmClasses}>{EMPTY_VALUE}</span>
+        ) : (
+          ownerInfo.owners.map((owner, index) => (
+            <OwnerReviewFields
               key={`owner-review-${index}`}
               owner={owner}
               index={index}
               hasMultipleOwners={ownerInfo.owners.length > 1}
             />
-          ))}
-        </div>
+          ))
+        )}
       </ReviewSection>
 
       <ReviewSection title="Pricing">
@@ -618,6 +636,40 @@ export function ReviewAndSubmitStep({
             value={<DocumentList documents={media.documents} />}
           />
         </dl>
+      </ReviewSection>
+
+      <ReviewSection
+        title={
+          <span className="inline-flex items-center gap-2">
+            <FileText className="size-5 shrink-0 text-secondary" aria-hidden />
+            {TERMS_SECTION_TITLE}
+          </span>
+        }
+      >
+        <ul
+          className={cn(
+            "list-disc space-y-2 ps-5 text-text",
+            textBodySmClasses,
+          )}
+        >
+          {TERMS_BULLETS.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+
+        <div className="mt-4 border-t border-secondary/10 pt-4">
+          <Checkbox
+            name="terms_accept_all"
+            label={TERMS_AGREE_LABEL}
+            checked={allTermsAccepted}
+            disabled={!canEdit}
+            onChange={(checked) => {
+              onTermsAcceptanceChange(
+                checked ? createAcceptedTermsValues() : createDeclinedTermsValues(),
+              );
+            }}
+          />
+        </div>
       </ReviewSection>
     </div>
   );

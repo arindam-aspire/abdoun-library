@@ -33,18 +33,6 @@ Use **one** `globals.css`. Order matters:
   --page: #f8fafc;       /* app background */
   --surface: #ffffff;    /* cards, panels */
   --card-background: var(--surface);
-  --inherit-light: #eeedec;
-  /* PropertyForm steppers — paste into each theme block (.dark / .light too) */
-  --stepper-active-text: var(--white);
-  --stepper-active-bg: var(--primary);
-  --stepper-active-row-bg: var(--primary-light);
-  --stepper-active-label-text: var(--primary-dark);
-  --stepper-completed-text: var(--white);
-  --stepper-completed-bg: var(--primary-dark);
-  --stepper-completed-label-text: var(--primary-dark);
-  --stepper-default-text: var(--inherit);
-  --stepper-default-bg: var(--inherit-light);
-  --stepper-default-label-text: var(--inherit);
   /* …primary, secondary, text, etc.… */
 }
 
@@ -72,18 +60,30 @@ Use **one** `globals.css`. Order matters:
   --color-danger: var(--danger);
   --color-info: var(--info);
   --color-inherit-color: var(--inherit);
+  --color-inherit-light: var(--inherit-light);
   --color-inherit-color-15: color-mix(in srgb, var(--inherit) 15%, var(--page));
   --color-hero-on-image: var(--hero-on-image, var(--white));
   --color-background: var(--page);
   --color-foreground: var(--text);
   --color-card-background: var(--card-background, var(--surface));
-  --color-inherit-color-15: color-mix(in srgb, var(--inherit) 15%, var(--page));
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
+/* Optional stepper overrides in :root (not @theme) — see theme.css reference */
+/*
+  --horizontal-stepper-active-bg: var(--primary);
+  --horizontal-stepper-active-text: var(--white);
+  ...
+  --vertical-stepper-active-row-bg: var(--accent);
+  --vertical-stepper-active-circle-bg: var(--primary);
+  ...
+*/
+
 @import "@abdoun/abdoun-library/integration.css";
 ```
+
+Stepper colors use `--horizontal-stepper-*` and `--vertical-stepper-*` in `:root`. If omitted, semantic fallbacks (`--accent`, `--primary-dark`, etc.) apply. See `src/styles/theme.css` for the full token list and `src/.storybook/theme_abdoun_mls_web.css` for example values.
 
 Full copy-paste reference: `node_modules/@abdoun/abdoun-library/src/styles/theme.css` (comments only — do not `@import` it).
 

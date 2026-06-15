@@ -55,24 +55,109 @@ export type FeaturesAndAmenities = {
 };
 
 export interface PropertyFormProps {
+  /** Current step number (1-based). First step is `1`. */
   activeStep: number;
+  /** Furthest step reached (1-based). Defaults to `activeStep`. */
+  maxReachedStep?: number;
   categoryTaxonomy: PropertyTaxonomyCategory[];
   locationTaxonomy: LocationTaxonomyResponse;
   featuresAndAmenities: FeaturesAndAmenities[];
   propertyDetails: PropertyFormValues;
   title?: string;
+  /**
+   * When true, pins the horizontal stepper and desktop sidebar while scrolling.
+   * Disable when the parent page already manages sticky chrome.
+   */
+  stickyLayout?: boolean;
+  /**
+   * Viewport offset for sticky elements (e.g. app header height).
+   * Defaults to `var(--property-form-sticky-top, 0px)` — set that CSS variable in your app.
+   */
+  stickyTopOffset?: string;
+  /**
+   * When `false`, the form is read-only for submission: terms checkbox, Save as Draft,
+   * and Submit are disabled. Defaults to `true`.
+   */
+  canEdit?: boolean;
+  /**
+   * Optional rejection reason from the API (`rejection_reason`).
+   * When set, shown as an alert above the form steps and the submit button reads "Resubmit".
+   */
+  rejectionReason?: string | null;
   onSubmit?: () => void;
   onPrevious?: () => void;
-  onNext?: () => void;
-  onDraft?: () => void;
-  onUploadOwnerDocument?: (file: File) => Promise<string | null>;
+  /** Called when the active step is valid; parent persists `propertyDetails` and advances. */
+  onNext?: (propertyDetails: PropertyFormValues) => void;
+  /** Called without validation; parent persists current `propertyDetails` as draft. */
+  onDraft?: (propertyDetails: PropertyFormValues) => void;
+  /** Shows loading on **Save as Draft** while the parent saves. Disables all form interaction. */
+  isDraftLoading?: boolean;
+  /** Shows loading on **Submit** while the parent submits. Disables all form interaction. */
+  isSubmitting?: boolean;
+  /**
+   * @deprecated Use `isSubmitting` instead.
+   * Shows loading on **Submit** while the parent submits.
+   */
+  isSubmitLoading?: boolean;
+  /**
+   * When loading a different saved draft into the form, change this id so internal
+   * form state re-hydrates from `propertyDetails`.
+   */
+  draftId?: string | number;
+  /**
+   * Called for each valid file on drop or browse. Return the uploaded file URI.
+   * `FileSelectInput` shows the upload queue and progress; on success the document
+   * is appended to the owner's `owner_documents` and `onOwnerDocumentsChange` runs.
+   */
+  onUploadOwnerDocument?: (
+    file: File,
+    context: { ownerIndex: number },
+  ) => Promise<string | null>;
+  /** Fired when an owner's committed document list changes (upload complete or remove). */
+  onOwnerDocumentsChange?: (
+    ownerIndex: number,
+    documents: SelectedDocument[],
+  ) => void;
+  /** Fired when a committed owner document is removed from the queue. */
+  onRemoveOwnerDocument?: (
+    ownerIndex: number,
+    document: SelectedDocument,
+  ) => void;
+  /**
+   * Called for each valid media file on drop or browse. Return the uploaded file URI.
+   * `MediaInput` shows the upload queue and progress; on success the item is appended
+   * to `media_files` and `onPropertyMediaChange` runs.
+   */
   onUploadPropertyMedia?: (file: File) => Promise<string | null>;
+  /** Fired when committed property media changes (upload complete or remove). */
+  onPropertyMediaChange?: (media: SelectedDocument[]) => void;
+  /** Fired when a committed property media item is removed. */
+  onRemovePropertyMedia?: (media: SelectedDocument) => void;
+  /**
+   * Called for each valid document on drop or browse. Return the uploaded file URI.
+   * `FileSelectInput` shows the upload queue and progress; on success the document
+   * is appended to `documents` and `onPropertyDocumentsChange` runs.
+   */
   onUploadPropertyDocument?: (file: File) => Promise<string | null>;
-  onStepClick?: (index: number, step: PropertyFormStep) => void;
+  /** Fired when committed property documents change (upload complete or remove). */
+  onPropertyDocumentsChange?: (documents: SelectedDocument[]) => void;
+  /** Fired when a committed property document is removed. */
+  onRemovePropertyDocument?: (document: SelectedDocument) => void;
+  /** When moving forward, receives the latest merged form values after validation. */
+  onStepClick?: (
+    /** Target step number (1-based). */
+    step: number,
+    stepConfig: PropertyFormStep,
+    propertyDetails: PropertyFormValues,
+  ) => void;
 }
 
 
 export interface PropertyFormValues {
+  /** Included in onNext/onDraft payloads (1-based). */
+  active_step?: number;
+  /** Included in onNext/onDraft payloads (1-based). */
+  max_reached_step?: number;
   basic_info?: BasicInfoFormValues;
   location_insert?: LocationInsertFormValues;
   property_details?: PropertyDetailsFormValues;
@@ -80,7 +165,15 @@ export interface PropertyFormValues {
   pricing_details?: PricingDetailsFormValues;
   amenities?: AmenitiesFormValues;
   media_upload?: MediaUploadFormValues;
+  terms_acceptance?: TermsAcceptanceFormValues;
 }
+
+export type TermsAcceptanceFormValues = {
+  terms_accepted: boolean;
+  privacy_accepted: boolean;
+  public_display_authorized: boolean;
+  fees_acknowledged: boolean;
+};
 
 export type BasicInfoFormValues = {
   title: string;
@@ -138,7 +231,15 @@ export type PricingDetailsFormValues = {
 
 
 export type AmenitiesFormValues = {
+  /**
+   * Selected feature and amenity **names** (both groups share this array in the form API).
+   */
   selected_amenities: string[];
+  /**
+   * Selected feature and amenity **ids** from the API (FEATURE + AMENITIES catalog items).
+   * Resolved to `selected_amenities` names in the form UI when names are omitted.
+   */
+  feature_ids?: number[];
 };
 
 export type MediaUploadFormValues = {

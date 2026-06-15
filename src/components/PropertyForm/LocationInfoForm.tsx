@@ -151,6 +151,9 @@ export function LocationInfoForm({
             : SELECT_DROPDOWN_EMPTY_VALUE
         }
         onChange={(value) => {
+          const hadAreasSelected = form.values.area_ids.length > 0;
+          const shouldValidateAreas =
+            hadAreasSelected || Boolean(form.touched.area_ids);
           const nextValues = {
             ...form.values,
             city_id: parseSelectId(value),
@@ -158,8 +161,26 @@ export function LocationInfoForm({
           };
           form.setValues(nextValues);
           markFieldTouched("city_id");
-          markFieldTouched("area_ids");
-          syncFieldErrors(form, nextValues, ["city_id", "area_ids"]);
+
+          const fieldsToSync: (keyof LocationInsertFormValues)[] = ["city_id"];
+          if (shouldValidateAreas) {
+            markFieldTouched("area_ids");
+            fieldsToSync.push("area_ids");
+          }
+
+          syncFieldErrors(form, nextValues, fieldsToSync);
+
+          if (!shouldValidateAreas) {
+            form.setErrors((previous) => {
+              if (!previous.area_ids) {
+                return previous;
+              }
+
+              const next = { ...previous };
+              delete next.area_ids;
+              return next;
+            });
+          }
         }}
         onBlur={() => validateSelectField("city_id")}
         error={form.errors.city_id}

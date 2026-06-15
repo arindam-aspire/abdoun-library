@@ -40,13 +40,17 @@ export type ListTableViewProps = CardListProps & {
   className?: string;
   tableClassName?: string;
   /**
-   * Status-driven workflow actions (View, Approve, Reject, etc.).
-   * Keys map to handlers; visibility per row follows `STATUS_WORKFLOW_ACTION_MATRIX` and listing `status.key`.
+   * Handlers for workflow action ids (`view`, `approve`, `reject`, etc.).
+   * When a listing includes `actions` in API JSON, only that row's array is shown
+   * (rows can differ). Use `actions: []` for no actions on a row.
+   * When `actions` is omitted, visibility follows `STATUS_WORKFLOW_ACTION_MATRIX`.
    */
   workflowActions?: PropertyTableWorkflowActionsConfig;
+  /** Fallback handler when an action id has no matching entry in `workflowActions`. */
+  onRowAction?: (actionId: string, listing: PropertyListing) => void;
   /**
    * Row actions for the `…` menu. Static array or per-row factory.
-   * When omitted, `workflowActions` or contact/delete handlers from `CardListProps` are used.
+   * When omitted, `listing.actions` from JSON, then `workflowActions`, then contact/delete handlers are used.
    */
   rowActions?: PropertyTableRowActionsInput;
   /**

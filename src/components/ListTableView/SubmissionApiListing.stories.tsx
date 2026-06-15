@@ -65,7 +65,13 @@ const meta = {
           "",
           "**Status mapping**",
           "- Badge label: `status_name` (e.g. `Verified`)",
-          "- Badge color + workflow actions: `submission_workflow_label` (e.g. `pending_admin_approval`)",
+          "- Badge color: `submission_workflow_label` (e.g. `pending_admin_approval`)",
+          "",
+          "**Row actions (per row)**",
+          "- Each API row may include its own `actions` array — rows can show different buttons",
+          "- Example: row 1 → `view, reassign, unassign`; row 2 → `view, approve, reject, assign`",
+          "- Use `actions: []` when a row should show no actions",
+          "- Pass `workflowActions` (or `onRowAction`) on `ListTableView` to wire click handlers",
           "",
           "**Example API JSON**",
           "```json",
@@ -91,6 +97,17 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const DifferentActionsPerRow: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Each row carries its own `actions` array in the API JSON. Open the action menu on each row to compare view/reassign/unassign vs approve/reject/assign vs continue.",
+      },
+    },
+  },
+};
 
 export const MobileTransposedView: Story = {
   parameters: {

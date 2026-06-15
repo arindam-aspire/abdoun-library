@@ -34,7 +34,11 @@ export interface DocInputProps {
   labelClassName?: string;
   value: DocInputDocument[];
   onChange: (documents: DocInputDocument[]) => void;
+  /** Fired when a committed document is removed from the queue. */
+  onRemove?: (document: DocInputDocument) => void;
   onUpload?: (file: File) => Promise<string | null>;
+  /** Fired when any file enters or leaves the in-flight upload queue. */
+  onUploadingChange?: (isUploading: boolean) => void;
   multiple?: boolean;
   accept?: string;
   size?: DocInputSize;

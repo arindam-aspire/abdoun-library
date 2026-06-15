@@ -15,4 +15,5 @@ export const demoWorkflowActions: PropertyTableWorkflowActionsConfig = {
     onClick: fn(),
     hidden: (listing) => !listing.agent,
   },
+  rejected_reason: { onClick: fn() },
 };

@@ -9,7 +9,14 @@ import {
   User,
   Wallet,
 } from "lucide-react";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   useBasicInfoForm,
   validateBasicInfoFormValues,
@@ -28,6 +35,9 @@ import {
 } from "../../hooks/usePropertyDetailsFormHook";
 import {
   areAmenitiesSelectionsEqual,
+  deriveFeatureIdsFromNames,
+  getFilteredFeaturesAndAmenitiesCatalog,
+  normalizeAmenitiesFormValues,
   pruneAmenitiesSelectionForTaxonomy,
   validateAmenitiesFormValuesForTaxonomy,
 } from "./amenitiesFormOptions";
@@ -37,6 +47,11 @@ import { FormLayout } from "./FormLayout";
 import { LocationInfoForm } from "./LocationInfoForm";
 import { MediaAndDocumentUploadForm } from "./MediaAndDocumentUploadForm";
 import { OwnerInforForm } from "./OwnerInforForm";
+import {
+  mergePropertyFormValues,
+  serializePropertyFormValues,
+} from "./propertyFormDefaults";
+import { isPropertyFormSubmittable } from "./propertyFormValidation";
 import { PricingInfoForm } from "./PricingInfoForm";
 import { PropertyInfoForm } from "./PropertyInfoForm";
 import { ReviewAndSubmitStep } from "./ReviewAndSubmitStep";
@@ -46,6 +61,8 @@ import type {
   PropertyDetailsFormValues,
   PropertyFormProps,
   PropertyFormStep,
+  PropertyFormValues,
+  TermsAcceptanceFormValues,
 } from "./types";
 
 export const propertyFormSteps: PropertyFormStep[] = [
@@ -123,6 +140,23 @@ const MEDIA_STEP_INDEX = propertyFormSteps.findIndex(
   (step) => step.value === "media",
 );
 
+const PROPERTY_FORM_STEP_COUNT = propertyFormSteps.length;
+
+/** Clamp a 1-based step number to the valid range. */
+function clampStepNumber(stepNumber: number) {
+  return Math.min(Math.max(stepNumber, 1), PROPERTY_FORM_STEP_COUNT);
+}
+
+/** Convert public 1-based step number to internal 0-based index. */
+function stepNumberToIndex(stepNumber: number) {
+  return clampStepNumber(stepNumber) - 1;
+}
+
+/** Convert internal 0-based index to public 1-based step number. */
+function stepIndexToNumber(stepIndex: number) {
+  return stepIndex + 1;
+}
+
 function markAllTouched<T extends Record<string, unknown>>(values: T) {
   return (Object.keys(values) as (keyof T)[]).reduce(
     (accumulator, key) => ({ ...accumulator, [key]: true }),
@@ -144,71 +178,261 @@ function isPropertyDetailsValid(values: PropertyDetailsFormValues) {
 
 export function PropertyForm({
   activeStep,
+  maxReachedStep,
   categoryTaxonomy,
   locationTaxonomy,
   featuresAndAmenities,
   propertyDetails,
   title,
+  stickyLayout,
+  stickyTopOffset,
+  draftId,
   onPrevious,
   onNext,
   onSubmit,
   onDraft,
+  isDraftLoading = false,
+  isSubmitting,
+  isSubmitLoading = false,
   onUploadOwnerDocument,
+  onOwnerDocumentsChange,
+  onRemoveOwnerDocument,
   onUploadPropertyMedia,
+  onPropertyMediaChange,
+  onRemovePropertyMedia,
   onUploadPropertyDocument,
+  onPropertyDocumentsChange,
+  onRemovePropertyDocument,
   onStepClick,
+  canEdit = true,
+  rejectionReason,
 }: PropertyFormProps) {
-  const basicInfoForm = useBasicInfoForm(propertyDetails.basic_info);
+  const mergedPropertyDetails = mergePropertyFormValues(propertyDetails);
+  const basicInfoForm = useBasicInfoForm(mergedPropertyDetails.basic_info);
   const locationInsertForm = useLocationInsertForm(
-    propertyDetails.location_insert,
+    mergedPropertyDetails.location_insert,
   );
   const propertyDetailsForm = usePropertyDetailsForm(
-    propertyDetails.property_details,
+    mergedPropertyDetails.property_details,
   );
-  const ownerInfoForm = useOwnerInfoForm(propertyDetails.owner_info);
+  const ownerInfoForm = useOwnerInfoForm(mergedPropertyDetails.owner_info);
   const pricingDetailsForm = usePricingDetailsForm(
-    propertyDetails.pricing_details,
+    mergedPropertyDetails.pricing_details,
   );
-  const amenitiesForm = useAmenitiesForm(propertyDetails.amenities);
-  const mediaUploadForm = useMediaUploadForm(propertyDetails.media_upload);
-  const currentStep = propertyFormSteps[activeStep];
-  const [maxReachedStep, setMaxReachedStep] = useState(activeStep);
+  const amenitiesForm = useAmenitiesForm(mergedPropertyDetails.amenities);
+  const mediaUploadForm = useMediaUploadForm(mergedPropertyDetails.media_upload);
+  const [termsAcceptance, setTermsAcceptance] = useState<TermsAcceptanceFormValues>(
+    () => mergedPropertyDetails.terms_acceptance,
+  );
+  const resolvedIsSubmitting = isSubmitting ?? isSubmitLoading;
+  const [uploadingOwnerIndices, setUploadingOwnerIndices] = useState<Set<number>>(
+    () => new Set(),
+  );
+  const [isPropertyMediaUploading, setIsPropertyMediaUploading] = useState(false);
+  const [isPropertyDocumentUploading, setIsPropertyDocumentUploading] =
+    useState(false);
+  const isOwnerDocumentUploading = uploadingOwnerIndices.size > 0;
+  const isFormLocked =
+    isDraftLoading ||
+    resolvedIsSubmitting ||
+    isOwnerDocumentUploading ||
+    isPropertyMediaUploading ||
+    isPropertyDocumentUploading;
+
+  const handlePropertyMediaUploadingChange = useCallback(
+    (isUploading: boolean) => {
+      setIsPropertyMediaUploading((previous) =>
+        previous === isUploading ? previous : isUploading,
+      );
+    },
+    [],
+  );
+
+  const handlePropertyDocumentUploadingChange = useCallback(
+    (isUploading: boolean) => {
+      setIsPropertyDocumentUploading((previous) =>
+        previous === isUploading ? previous : isUploading,
+      );
+    },
+    [],
+  );
+
+  const handleOwnerDocumentUploadingChange = useCallback(
+    (ownerIndex: number, isUploading: boolean) => {
+      setUploadingOwnerIndices((previous) => {
+        if (isUploading) {
+          if (previous.has(ownerIndex)) {
+            return previous;
+          }
+
+          const next = new Set(previous);
+          next.add(ownerIndex);
+          return next;
+        }
+
+        if (!previous.has(ownerIndex)) {
+          return previous;
+        }
+
+        const next = new Set(previous);
+        next.delete(ownerIndex);
+        return next;
+      });
+    },
+    [],
+  );
+  const activeStepIndex = stepNumberToIndex(activeStep);
+  const resolvedMaxReachedStepIndex =
+    maxReachedStep != null
+      ? Math.min(
+          Math.max(stepNumberToIndex(maxReachedStep), activeStepIndex),
+          PROPERTY_FORM_STEP_COUNT - 1,
+        )
+      : activeStepIndex;
+  const currentStep = propertyFormSteps[activeStepIndex];
+  const syncedPropertyDetailsRef = useRef(
+    serializePropertyFormValues(propertyDetails),
+  );
+  const loadedDraftIdRef = useRef(draftId);
+  const hasHydratedRef = useRef(false);
+  const localPayloadRef = useRef<PropertyFormValues>(propertyDetails);
+
+  const applyFormsFromProps = (details: PropertyFormValues) => {
+    const nextValues = mergePropertyFormValues(details);
+    basicInfoForm.setValues(nextValues.basic_info);
+    locationInsertForm.setValues(nextValues.location_insert);
+    propertyDetailsForm.setValues(nextValues.property_details);
+    ownerInfoForm.setValues(nextValues.owner_info);
+    pricingDetailsForm.setValues(nextValues.pricing_details);
+    amenitiesForm.setAmenitiesValues(
+      normalizeAmenitiesFormValues(
+        featuresAndAmenities,
+        nextValues.basic_info.category_id,
+        nextValues.basic_info.type_id,
+        nextValues.amenities,
+      ),
+    );
+    mediaUploadForm.setValues(nextValues.media_upload);
+    setTermsAcceptance(nextValues.terms_acceptance);
+  };
 
   useEffect(() => {
-    setMaxReachedStep((previous) => Math.max(previous, activeStep));
-  }, [activeStep]);
+    const incomingSerialized = serializePropertyFormValues(propertyDetails);
+    const draftChanged =
+      draftId !== undefined && draftId !== loadedDraftIdRef.current;
 
-  const categoryId = basicInfoForm.values.category_id;
-  const propertyTypeId = basicInfoForm.values.type_id;
-  const previousTaxonomyRef = useRef({
-    categoryId,
-    propertyTypeId,
-  });
-
-  useEffect(() => {
-    const previousTaxonomy = previousTaxonomyRef.current;
-    const taxonomyChanged =
-      previousTaxonomy.categoryId !== categoryId ||
-      previousTaxonomy.propertyTypeId !== propertyTypeId;
-
-    if (!taxonomyChanged) {
+    if (!hasHydratedRef.current || draftChanged) {
+      hasHydratedRef.current = true;
+      if (draftId !== undefined) {
+        loadedDraftIdRef.current = draftId;
+      }
+      syncedPropertyDetailsRef.current = incomingSerialized;
+      applyFormsFromProps(propertyDetails);
       return;
     }
 
-    previousTaxonomyRef.current = { categoryId, propertyTypeId };
-
-    if (amenitiesForm.values.selected_amenities.length > 0) {
-      amenitiesForm.setSelectedAmenities([]);
+    if (incomingSerialized === syncedPropertyDetailsRef.current) {
+      return;
     }
 
-    amenitiesForm.setErrors((previous) => {
-      const next = { ...previous };
-      delete next.selected_amenities;
-      return next;
-    });
+    const localSerialized = serializePropertyFormValues(localPayloadRef.current);
+    if (incomingSerialized === localSerialized) {
+      syncedPropertyDetailsRef.current = incomingSerialized;
+      return;
+    }
+  }, [propertyDetails, draftId]);
 
-    setMaxReachedStep((previous) => Math.min(previous, AMENITIES_STEP_INDEX));
-  }, [categoryId, propertyTypeId]);
+  const categoryId = basicInfoForm.values.category_id;
+  const propertyTypeId = basicInfoForm.values.type_id;
+
+  const isSubmitReady = useMemo(
+    () =>
+      isPropertyFormSubmittable({
+        basicInfo: basicInfoForm.values,
+        location: locationInsertForm.values,
+        propertyDetails: propertyDetailsForm.values,
+        ownerInfo: ownerInfoForm.values,
+        pricing: pricingDetailsForm.values,
+        amenities: amenitiesForm.values,
+        media: mediaUploadForm.values,
+        termsAcceptance,
+        categoryId,
+        propertyTypeId,
+        featuresAndAmenities,
+      }),
+    [
+      amenitiesForm.values,
+      basicInfoForm.values,
+      categoryId,
+      featuresAndAmenities,
+      locationInsertForm.values,
+      mediaUploadForm.values,
+      ownerInfoForm.values,
+      pricingDetailsForm.values,
+      propertyDetailsForm.values,
+      propertyTypeId,
+      termsAcceptance,
+    ],
+  );
+
+  const isSubmitDisabled = !canEdit || !isSubmitReady;
+
+  const buildFormValues = (): PropertyFormValues => {
+    const amenitiesCatalog = getFilteredFeaturesAndAmenitiesCatalog(
+      featuresAndAmenities,
+      categoryId,
+      propertyTypeId,
+    );
+    const nextSelectedAmenities = pruneAmenitiesSelectionForTaxonomy(
+      featuresAndAmenities,
+      categoryId,
+      propertyTypeId,
+      amenitiesForm.values.selected_amenities,
+      amenitiesForm.values.feature_ids,
+    );
+
+    return {
+      basic_info: basicInfoForm.values,
+      location_insert: locationInsertForm.values,
+      property_details: propertyDetailsForm.values,
+      owner_info: ownerInfoForm.values,
+      pricing_details: pricingDetailsForm.values,
+      amenities: {
+        selected_amenities: nextSelectedAmenities,
+        feature_ids: deriveFeatureIdsFromNames(
+          amenitiesCatalog,
+          nextSelectedAmenities,
+        ),
+      },
+      media_upload: mediaUploadForm.values,
+      terms_acceptance: termsAcceptance,
+    };
+  };
+
+  const buildPropertyFormPayload = (): PropertyFormValues => {
+    const resolvedMaxReachedStepNumber =
+      maxReachedStep != null
+        ? clampStepNumber(maxReachedStep)
+        : clampStepNumber(activeStep);
+
+    return {
+      active_step: clampStepNumber(activeStep),
+      max_reached_step: Math.max(
+        resolvedMaxReachedStepNumber,
+        clampStepNumber(activeStep),
+      ),
+      ...buildFormValues(),
+    };
+  };
+
+  const emitPropertyFormPayload = () => {
+    const payload = buildPropertyFormPayload();
+    localPayloadRef.current = payload;
+    syncedPropertyDetailsRef.current = serializePropertyFormValues(payload);
+    return payload;
+  };
+
+  localPayloadRef.current = buildPropertyFormPayload();
 
   const validateBasicInfoStep = () => {
     const formErrors = validateBasicInfoFormValues(basicInfoForm.values);
@@ -244,26 +468,44 @@ export function PropertyForm({
   };
 
   const validateAmenitiesStep = () => {
+    const amenitiesCatalog = getFilteredFeaturesAndAmenitiesCatalog(
+      featuresAndAmenities,
+      categoryId,
+      propertyTypeId,
+    );
     const nextSelected = pruneAmenitiesSelectionForTaxonomy(
       featuresAndAmenities,
       categoryId,
       propertyTypeId,
       amenitiesForm.values.selected_amenities,
+      amenitiesForm.values.feature_ids,
+    );
+    const nextFeatureIds = deriveFeatureIdsFromNames(
+      amenitiesCatalog,
+      nextSelected,
     );
 
     if (
       !areAmenitiesSelectionsEqual(
         amenitiesForm.values.selected_amenities,
         nextSelected,
+      ) ||
+      !areAmenitiesSelectionsEqual(
+        (amenitiesForm.values.feature_ids ?? []).map(String),
+        nextFeatureIds.map(String),
       )
     ) {
-      amenitiesForm.setSelectedAmenities(nextSelected);
+      amenitiesForm.setAmenitiesValues({
+        selected_amenities: nextSelected,
+        feature_ids: nextFeatureIds,
+      });
     }
 
     const formErrors = validateAmenitiesFormValuesForTaxonomy(
       {
         ...amenitiesForm.values,
         selected_amenities: nextSelected,
+        feature_ids: nextFeatureIds,
       },
       featuresAndAmenities,
       categoryId,
@@ -281,31 +523,31 @@ export function PropertyForm({
   };
 
   const validateActiveStep = () => {
-    if (activeStep === 0) {
+    if (activeStepIndex === 0) {
       return validateBasicInfoStep();
     }
 
-    if (activeStep === LOCATION_STEP_INDEX) {
+    if (activeStepIndex === LOCATION_STEP_INDEX) {
       return validateLocationInsertStep();
     }
 
-    if (activeStep === PROPERTY_DETAILS_STEP_INDEX) {
+    if (activeStepIndex === PROPERTY_DETAILS_STEP_INDEX) {
       return validatePropertyDetailsStep();
     }
 
-    if (activeStep === OWNER_INFO_STEP_INDEX) {
+    if (activeStepIndex === OWNER_INFO_STEP_INDEX) {
       return validateOwnerInfoStep();
     }
 
-    if (activeStep === PRICING_STEP_INDEX) {
+    if (activeStepIndex === PRICING_STEP_INDEX) {
       return validatePricingDetailsStep();
     }
 
-    if (activeStep === AMENITIES_STEP_INDEX) {
+    if (activeStepIndex === AMENITIES_STEP_INDEX) {
       return validateAmenitiesStep();
     }
 
-    if (activeStep === MEDIA_STEP_INDEX) {
+    if (activeStepIndex === MEDIA_STEP_INDEX) {
       return validateMediaUploadStep();
     }
 
@@ -313,25 +555,77 @@ export function PropertyForm({
   };
 
   const handleNext = () => {
+    if (isFormLocked) {
+      return;
+    }
+
     if (!validateActiveStep()) {
       return;
     }
 
-    onNext?.();
+    onNext?.(emitPropertyFormPayload());
+  };
+
+  const handleDraft = () => {
+    if (isFormLocked || !canEdit) {
+      return;
+    }
+
+    onDraft?.(emitPropertyFormPayload());
+  };
+
+  const validateAllSteps = () => {
+    return [
+      validateBasicInfoStep(),
+      validateLocationInsertStep(),
+      validatePropertyDetailsStep(),
+      validateOwnerInfoStep(),
+      validatePricingDetailsStep(),
+      validateAmenitiesStep(),
+      validateMediaUploadStep(),
+    ].every(Boolean);
+  };
+
+  const handleSubmit = () => {
+    if (isFormLocked || !canEdit || !isSubmitReady) {
+      return;
+    }
+
+    if (!validateAllSteps()) {
+      return;
+    }
+
+    onSubmit?.();
   };
 
   const handleStepClick = (index: number, step: PropertyFormStep) => {
-    if (index > AMENITIES_STEP_INDEX && maxReachedStep <= AMENITIES_STEP_INDEX) {
+    if (isFormLocked) {
       return;
     }
 
-    if (index > activeStep && !validateActiveStep()) {
+    if (
+      index > AMENITIES_STEP_INDEX &&
+      resolvedMaxReachedStepIndex <= AMENITIES_STEP_INDEX
+    ) {
       return;
     }
 
-    onStepClick?.(index, step);
+    if (index > activeStepIndex && !validateActiveStep()) {
+      return;
+    }
+
+    const stepNumber = stepIndexToNumber(index);
+    const payload = emitPropertyFormPayload();
+
+    if (index > activeStepIndex) {
+      onStepClick?.(stepNumber, step, payload);
+      return;
+    }
+
+    onStepClick?.(stepNumber, step, payload);
   };
 
+  const reviewPropertyDetails = buildFormValues();
   let stepContent: ReactNode = null;
 
   if (currentStep?.value === "setup") {
@@ -355,6 +649,9 @@ export function PropertyForm({
       <OwnerInforForm
         form={ownerInfoForm}
         onUploadOwnerDocument={onUploadOwnerDocument}
+        onOwnerDocumentsChange={onOwnerDocumentsChange}
+        onRemoveOwnerDocument={onRemoveOwnerDocument}
+        onOwnerDocumentUploadingChange={handleOwnerDocumentUploadingChange}
       />
     );
   } else if (currentStep?.value === "pricing") {
@@ -373,22 +670,31 @@ export function PropertyForm({
       <MediaAndDocumentUploadForm
         form={mediaUploadForm}
         onUploadPropertyMedia={onUploadPropertyMedia}
+        onPropertyMediaChange={onPropertyMediaChange}
+        onRemovePropertyMedia={onRemovePropertyMedia}
+        onPropertyMediaUploadingChange={handlePropertyMediaUploadingChange}
         onUploadPropertyDocument={onUploadPropertyDocument}
+        onPropertyDocumentsChange={onPropertyDocumentsChange}
+        onRemovePropertyDocument={onRemovePropertyDocument}
+        onPropertyDocumentUploadingChange={handlePropertyDocumentUploadingChange}
       />
     );
   } else if (currentStep?.value === "finalize") {
     stepContent = (
       <ReviewAndSubmitStep
-        basicInfo={basicInfoForm.values}
-        location={locationInsertForm.values}
-        propertyDetails={propertyDetailsForm.values}
-        ownerInfo={ownerInfoForm.values}
-        pricing={pricingDetailsForm.values}
-        amenities={amenitiesForm.values}
-        media={mediaUploadForm.values}
+        basicInfo={reviewPropertyDetails.basic_info!}
+        location={reviewPropertyDetails.location_insert!}
+        propertyDetails={reviewPropertyDetails.property_details!}
+        ownerInfo={reviewPropertyDetails.owner_info!}
+        pricing={reviewPropertyDetails.pricing_details!}
+        amenities={reviewPropertyDetails.amenities!}
+        media={reviewPropertyDetails.media_upload!}
         categoryTaxonomy={categoryTaxonomy}
         locationTaxonomy={locationTaxonomy.data}
         featuresAndAmenities={featuresAndAmenities}
+        termsAcceptance={termsAcceptance}
+        onTermsAcceptanceChange={setTermsAcceptance}
+        canEdit={canEdit}
       />
     );
   }
@@ -396,18 +702,31 @@ export function PropertyForm({
   return (
     <FormLayout
       steps={propertyFormSteps}
-      activeStep={activeStep}
-      maxReachedStep={maxReachedStep}
+      activeStep={activeStepIndex}
+      maxReachedStep={resolvedMaxReachedStepIndex}
       title={title}
+      stickyLayout={stickyLayout}
+      stickyTopOffset={stickyTopOffset}
       onStepClick={handleStepClick}
       onPrevious={onPrevious}
       onNext={handleNext}
-      onSubmit={onSubmit}
-      onDraft={onDraft}
+      onSubmit={onSubmit ? handleSubmit : undefined}
+      onDraft={handleDraft}
+      isDraftLoading={isDraftLoading}
+      isSubmitting={resolvedIsSubmitting}
+      canEdit={canEdit}
+      rejectionReason={rejectionReason}
+      isFormLocked={isFormLocked}
+      isSubmitDisabled={isSubmitDisabled}
     >
       {stepContent}
     </FormLayout>
   );
 }
 
-export type { PropertyFormProps, PropertyFormStep } from "./types";
+export type {
+  PropertyFormProps,
+  PropertyFormStep,
+  PropertyFormValues,
+  TermsAcceptanceFormValues,
+} from "./types";

@@ -9,6 +9,7 @@ import {
   TableBodySkeleton,
   sortRowsByConfig,
 } from "../ui/Table";
+import { createListingActionsResolver } from "./buildListingRowActions";
 import { buildDefaultPropertyRowActions } from "./defaultPropertyRowActions";
 import { buildPropertyTableColumns } from "./propertyTableColumns";
 import { createWorkflowActionsResolver } from "./propertyTableWorkflowActions";
@@ -42,6 +43,7 @@ export function ListTableView({
   onClickDelete,
   rowActions: rowActionsProp,
   workflowActions,
+  onRowAction,
   pinnedColumns,
   resizableColumns = true,
   columnWidths,
@@ -54,22 +56,48 @@ export function ListTableView({
     if (rowActionsProp) {
       return rowActionsProp;
     }
-    if (workflowActions) {
-      return createWorkflowActionsResolver(workflowActions);
-    }
-    return buildDefaultPropertyRowActions({
+
+    const listingActionOptions = {
+      actionHandlers: workflowActions,
+      onRowAction,
       onClickEmail,
       onClickCall,
       onClickWhatsApp,
       canViewDelete,
       onClickDelete,
-    });
+    };
+
+    const usesJsonRowActions = data.some((listing) => listing.actions != null);
+
+    if (usesJsonRowActions || onRowAction || workflowActions) {
+      const resolveListingActions =
+        createListingActionsResolver(listingActionOptions);
+      const resolveWorkflowActions = workflowActions
+        ? createWorkflowActionsResolver(workflowActions)
+        : null;
+
+      return (listing: (typeof data)[number]) => {
+        if (listing.actions != null) {
+          return resolveListingActions(listing);
+        }
+        if (resolveWorkflowActions) {
+          return resolveWorkflowActions(listing);
+        }
+        return (
+          buildDefaultPropertyRowActions(listingActionOptions) ?? []
+        );
+      };
+    }
+
+    return buildDefaultPropertyRowActions(listingActionOptions);
   }, [
     canViewDelete,
+    data,
     onClickCall,
     onClickDelete,
     onClickEmail,
     onClickWhatsApp,
+    onRowAction,
     rowActionsProp,
     workflowActions,
   ]);
@@ -146,12 +174,25 @@ export function ListTableView({
   );
 }
 
+export {
+  buildRowActionsFromListingDescriptors,
+  createListingActionsResolver,
+} from "./buildListingRowActions";
+export {
+  mapSubmissionApiListingToPropertyListing,
+  mapSubmissionApiListingsToPropertyListings,
+} from "./submissionApiListing";
+export type {
+  SubmissionApiListing,
+  SubmissionApiListingAction,
+} from "./submissionApiListing";
 export { buildPropertyTableColumns } from "./propertyTableColumns";
 export {
   PROPERTY_TABLE_WORKFLOW_ACTION_IDS,
   STATUS_WORKFLOW_ACTION_MATRIX,
   buildStatusBasedRowActions,
   createWorkflowActionsResolver,
+  getDefaultWorkflowActionHidden,
   getWorkflowActionsForStatus,
 } from "./propertyTableWorkflowActions";
 export { ListingStatusBadge } from "./ListingStatusBadge";
@@ -169,3 +210,4 @@ export type {
   PinnedColumns,
   TableNoDataFoundContent,
 } from "./types";
+export type { PropertyListingRowActionDescriptor } from "./rowActionTypes";

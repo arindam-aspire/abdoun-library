@@ -5,6 +5,7 @@ import { cn } from "../../lib/cn";
 import { textBodySmClasses, textPageTitleClasses } from "../../lib/typography";
 import { Badge } from "../ui/Badge";
 import { FileSelectInput } from "../ui/FileSelectInput";
+import type { SelectedDocument } from "../ui/FileSelectInput";
 import { Input } from "../ui/Input";
 import { MediaInput } from "../ui/MediaInput";
 import {
@@ -20,14 +21,26 @@ const MEDIA_UPLOAD_BADGE_LABEL = "Required";
 export interface MediaAndDocumentUploadFormProps {
   form: UseMediaUploadFormReturn;
   onUploadPropertyMedia?: (file: File) => Promise<string | null>;
+  onPropertyMediaChange?: (media: SelectedDocument[]) => void;
+  onRemovePropertyMedia?: (media: SelectedDocument) => void;
+  onPropertyMediaUploadingChange?: (isUploading: boolean) => void;
   onUploadPropertyDocument?: (file: File) => Promise<string | null>;
+  onPropertyDocumentsChange?: (documents: SelectedDocument[]) => void;
+  onRemovePropertyDocument?: (document: SelectedDocument) => void;
+  onPropertyDocumentUploadingChange?: (isUploading: boolean) => void;
   className?: string;
 }
 
 export function MediaAndDocumentUploadForm({
   form,
   onUploadPropertyMedia,
+  onPropertyMediaChange,
+  onRemovePropertyMedia,
+  onPropertyMediaUploadingChange,
   onUploadPropertyDocument,
+  onPropertyDocumentsChange,
+  onRemovePropertyDocument,
+  onPropertyDocumentUploadingChange,
   className,
 }: MediaAndDocumentUploadFormProps) {
   return (
@@ -59,8 +72,15 @@ export function MediaAndDocumentUploadForm({
         name="media_files"
         label="Media"
         value={form.values.media_files}
-        onChange={form.setMediaFiles}
+        onChange={(media) => {
+          form.setMediaFiles(media);
+          onPropertyMediaChange?.(media);
+        }}
+        onRemove={(media) => {
+          onRemovePropertyMedia?.(media);
+        }}
         onUpload={onUploadPropertyMedia}
+        onUploadingChange={onPropertyMediaUploadingChange}
         wrapperClassName="w-full min-w-0"
       />
 
@@ -94,8 +114,15 @@ export function MediaAndDocumentUploadForm({
         name="documents"
         label="Documents"
         value={form.values.documents}
-        onChange={form.setDocuments}
+        onChange={(documents) => {
+          form.setDocuments(documents);
+          onPropertyDocumentsChange?.(documents);
+        }}
+        onRemove={(document) => {
+          onRemovePropertyDocument?.(document);
+        }}
         onUpload={onUploadPropertyDocument}
+        onUploadingChange={onPropertyDocumentUploadingChange}
         multiple
         wrapperClassName="w-full min-w-0"
       />

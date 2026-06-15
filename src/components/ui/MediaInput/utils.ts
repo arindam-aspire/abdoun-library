@@ -114,11 +114,20 @@ export function isAcceptedMediaFile(file: File, accept: string): boolean {
   return false;
 }
 
-export function toSelectedMedia(file: File, uri: string): SelectedMedia {
+export function toSelectedMedia(
+  file: File,
+  uri: string,
+  previewUri?: string,
+): SelectedMedia {
   return {
     name: file.name,
     uri,
+    previewUri,
     mimeType: file.type || undefined,
     size: file.size,
   };
+}
+
+export function getMediaDisplayUri(media: SelectedMedia): string {
+  return media.previewUri ?? media.uri;
 }

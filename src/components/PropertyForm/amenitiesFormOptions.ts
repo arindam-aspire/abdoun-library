@@ -53,19 +53,14 @@ export function matchesFeaturesAndAmenitiesTaxonomy(
   categoryId: number | null,
   propertyTypeId: number | null,
 ): boolean {
-  if (item.category_id != null) {
-    if (categoryId == null || item.category_id !== categoryId) {
-      return false;
-    }
+  if (categoryId == null || propertyTypeId == null) {
+    return false;
   }
 
-  if (item.property_type_id != null) {
-    if (propertyTypeId == null || item.property_type_id !== propertyTypeId) {
-      return false;
-    }
-  }
-
-  return true;
+  return (
+    item.category_id === categoryId &&
+    item.property_type_id === propertyTypeId
+  );
 }
 
 export function filterFeaturesAndAmenitiesByTaxonomy(
@@ -94,11 +89,141 @@ export function getFilteredFeaturesAndAmenitiesCatalog(
   );
 }
 
+function resolveCatalogItemName(
+  catalog: FeaturesAndAmenities[],
+  value: string | number,
+): string | null {
+  const idToName = new Map(catalog.map((item) => [item.id, item.name]));
+  const allowedNames = new Set(catalog.map((item) => item.name));
+  const slugToName = new Map(catalog.map((item) => [item.slug, item.name]));
+
+  if (typeof value === "number") {
+    return idToName.get(value) ?? null;
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  if (allowedNames.has(trimmed)) {
+    return trimmed;
+  }
+
+  const slugMatch = slugToName.get(trimmed);
+  if (slugMatch) {
+    return slugMatch;
+  }
+
+  const numericId = Number(trimmed);
+  if (!Number.isNaN(numericId)) {
+    return idToName.get(numericId) ?? null;
+  }
+
+  return null;
+}
+
+/** Resolve selected catalog item names from ids and/or name/slug values. */
+export function resolveSelectedAmenityNames(
+  catalog: FeaturesAndAmenities[],
+  selected: string[],
+  /** FEATURE and AMENITIES ids from the API (`feature_ids`). */
+  featureIds?: number[],
+): string[] {
+  if (catalog.length === 0) {
+    return [];
+  }
+
+  const resolved: string[] = [];
+
+  for (const id of featureIds ?? []) {
+    const name = resolveCatalogItemName(catalog, id);
+    if (name && !resolved.includes(name)) {
+      resolved.push(name);
+    }
+  }
+
+  for (const value of selected) {
+    const name = resolveCatalogItemName(catalog, value);
+    if (name && !resolved.includes(name)) {
+      resolved.push(name);
+    }
+  }
+
+  return resolved;
+}
+
+export function resolveSelectedCatalogItems(
+  catalog: FeaturesAndAmenities[],
+  selected: string[],
+  featureIds?: number[],
+): FeaturesAndAmenities[] {
+  const names = resolveSelectedAmenityNames(catalog, selected, featureIds);
+  const nameSet = new Set(names);
+
+  return catalog.filter((item) => nameSet.has(item.name));
+}
+
+/** Derive `feature_ids` (features + amenities) from resolved catalog names. */
+export function deriveFeatureIdsFromNames(
+  catalog: FeaturesAndAmenities[],
+  selectedNames: string[],
+): number[] {
+  const nameToId = new Map(catalog.map((item) => [item.name, item.id]));
+
+  return selectedNames
+    .map((name) => nameToId.get(name))
+    .filter((id): id is number => id != null);
+}
+
+export function normalizeAmenitiesFormValues(
+  featuresAndAmenities: FeaturesAndAmenities[],
+  categoryId: number | null,
+  propertyTypeId: number | null,
+  values: AmenitiesFormValues,
+): AmenitiesFormValues {
+  const catalog = getFilteredFeaturesAndAmenitiesCatalog(
+    featuresAndAmenities,
+    categoryId,
+    propertyTypeId,
+  );
+  const selected_amenities = resolveSelectedAmenityNames(
+    catalog,
+    values.selected_amenities,
+    values.feature_ids,
+  );
+
+  return {
+    selected_amenities,
+    feature_ids: deriveFeatureIdsFromNames(catalog, selected_amenities),
+  };
+}
+
+export function isCatalogItemSelected(
+  item: FeaturesAndAmenities,
+  selected: string[],
+  featureIds?: number[],
+): boolean {
+  if (featureIds?.includes(item.id)) {
+    return true;
+  }
+
+  if (selected.includes(item.name) || selected.includes(item.slug)) {
+    return true;
+  }
+
+  return selected.some((value) => {
+    const numericId = Number(value);
+    return !Number.isNaN(numericId) && numericId === item.id;
+  });
+}
+
 export function pruneAmenitiesSelectionForTaxonomy(
   featuresAndAmenities: FeaturesAndAmenities[],
   categoryId: number | null,
   propertyTypeId: number | null,
   selected: string[],
+  featureIds?: number[],
 ): string[] {
   const catalog = getFilteredFeaturesAndAmenitiesCatalog(
     featuresAndAmenities,
@@ -106,36 +231,15 @@ export function pruneAmenitiesSelectionForTaxonomy(
     propertyTypeId,
   );
 
-  if (catalog.length === 0) {
-    return [];
-  }
-
-  const allowedNames = new Set(catalog.map((item) => item.name));
-  const slugToName = new Map(catalog.map((item) => [item.slug, item.name]));
-  const pruned: string[] = [];
-
-  for (const value of selected) {
-    const name = allowedNames.has(value) ? value : slugToName.get(value);
-
-    if (name && allowedNames.has(name) && !pruned.includes(name)) {
-      pruned.push(name);
-    }
-  }
-
-  return pruned;
+  return resolveSelectedAmenityNames(catalog, selected, featureIds);
 }
 
 export function countResolvableAmenitiesSelection(
   catalog: FeaturesAndAmenities[],
   selected: string[],
+  featureIds?: number[],
 ): number {
-  const allowedNames = new Set(catalog.map((item) => item.name));
-  const slugToName = new Map(catalog.map((item) => [item.slug, item.name]));
-
-  return selected.filter((value) => {
-    const name = allowedNames.has(value) ? value : slugToName.get(value);
-    return Boolean(name && allowedNames.has(name));
-  }).length;
+  return resolveSelectedAmenityNames(catalog, selected, featureIds).length;
 }
 
 export function validateAmenitiesFormValuesForTaxonomy(
@@ -156,12 +260,17 @@ export function validateAmenitiesFormValuesForTaxonomy(
     categoryId,
     propertyTypeId,
   );
-  const resolvableCount = countResolvableAmenitiesSelection(
+  const resolvedSelection = resolveSelectedAmenityNames(
     catalog,
     formValues.selected_amenities,
+    formValues.feature_ids,
+  );
+  const incomingCount = Math.max(
+    formValues.selected_amenities.length,
+    formValues.feature_ids?.length ?? 0,
   );
 
-  if (resolvableCount !== formValues.selected_amenities.length) {
+  if (resolvedSelection.length !== incomingCount) {
     return {
       selected_amenities:
         "Some selected features or amenities are not available for the selected category and property type.",

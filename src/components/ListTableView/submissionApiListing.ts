@@ -3,7 +3,10 @@ import {
   createListingStatus,
   type PropertyListingStatusKey,
 } from "../PropertyCardList/listingStatus";
-import type { PropertyListing } from "../PropertyCardList/types";
+import type {
+  PropertyListing,
+  PropertyListingRowActionDescriptor,
+} from "../PropertyCardList/types";
 
 const EMPTY_LOCATION: PropertyListing["location"] = {
   country_id: 0,
@@ -53,7 +56,33 @@ export type SubmissionApiListing = {
   can_edit_submission: boolean;
   can_delete_submission: boolean;
   agency: PropertyListing["agency"] | null;
+  /** Per-row actions returned by the API (visibility and state). */
+  actions?: SubmissionApiListingAction[];
 };
+
+export type SubmissionApiListingAction = {
+  id: string;
+  label?: string;
+  tone?: PropertyListingRowActionDescriptor["tone"];
+  hidden?: boolean;
+  disabled?: boolean;
+  loading?: boolean;
+  loading_label?: string;
+};
+
+function mapSubmissionApiAction(
+  action: SubmissionApiListingAction,
+): PropertyListingRowActionDescriptor {
+  return {
+    id: action.id,
+    label: action.label,
+    tone: action.tone,
+    hidden: action.hidden,
+    disabled: action.disabled,
+    loading: action.loading,
+    loadingLabel: action.loading_label,
+  };
+}
 
 function isPropertyListingStatusKey(
   value: string,
@@ -122,6 +151,8 @@ export function mapSubmissionApiListingToPropertyListing(
     owners: [],
     is_exclusive: false,
     is_favourite: false,
+    submission_review_reason: item.submission_review_reason,
+    actions: item.actions?.map(mapSubmissionApiAction),
   };
 }
 

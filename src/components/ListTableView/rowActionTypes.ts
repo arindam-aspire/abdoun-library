@@ -1,7 +1,12 @@
 import type { ReactNode } from "react";
-import type { PropertyListing } from "../PropertyCardList/types";
+import type {
+  PropertyListing,
+  PropertyListingRowActionDescriptor,
+} from "../PropertyCardList/types";
 
 export type PropertyTableRowActionTone = "default" | "danger";
+
+export type { PropertyListingRowActionDescriptor };
 
 export type PropertyTableRowAction = {
   id: string;

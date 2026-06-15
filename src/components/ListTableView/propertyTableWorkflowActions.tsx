@@ -3,6 +3,7 @@ import {
   ArrowRight,
   CheckCircle2,
   Eye,
+  MessageSquareText,
   UserMinus,
   UserPlus,
   Users,
@@ -21,6 +22,7 @@ export const PROPERTY_TABLE_WORKFLOW_ACTION_IDS = [
   "assign",
   "reassign",
   "unassign",
+  "rejected_reason",
 ] as const;
 
 export type PropertyTableWorkflowActionId =
@@ -42,7 +44,7 @@ export const STATUS_WORKFLOW_ACTION_MATRIX: Record<
   changes_requested: ["view", "reassign", "unassign"],
   approved: ["view", "assign", "reassign", "unassign"],
   verified: ["view", "assign", "reassign", "unassign"],
-  rejected: ["view", "reassign", "unassign"],
+  rejected: ["view", "rejected_reason", "reassign", "unassign"],
 };
 
 export type PropertyTableWorkflowActionConfig = {
@@ -60,6 +62,14 @@ export type PropertyTableWorkflowActionsConfig = Partial<
   Record<PropertyTableWorkflowActionId, PropertyTableWorkflowActionConfig>
 >;
 
+export function isPropertyTableWorkflowActionId(
+  value: string,
+): value is PropertyTableWorkflowActionId {
+  return (PROPERTY_TABLE_WORKFLOW_ACTION_IDS as readonly string[]).includes(
+    value,
+  );
+}
+
 const WORKFLOW_ACTION_LABELS: Record<PropertyTableWorkflowActionId, string> = {
   view: "View",
   approve: "Approve",
@@ -68,6 +78,7 @@ const WORKFLOW_ACTION_LABELS: Record<PropertyTableWorkflowActionId, string> = {
   assign: "Assign",
   reassign: "Reassign",
   unassign: "Unassign",
+  rejected_reason: "Rejected reason",
 };
 
 const WORKFLOW_ACTION_ICONS: Record<
@@ -81,7 +92,28 @@ const WORKFLOW_ACTION_ICONS: Record<
   assign: <UserPlus className="size-4 shrink-0" aria-hidden />,
   reassign: <Users className="size-4 shrink-0" aria-hidden />,
   unassign: <UserMinus className="size-4 shrink-0" aria-hidden />,
+  rejected_reason: (
+    <MessageSquareText className="size-4 shrink-0" aria-hidden />
+  ),
 };
+
+export function getDefaultWorkflowActionHidden(
+  actionId: PropertyTableWorkflowActionId,
+): PropertyTableWorkflowActionConfig["hidden"] | undefined {
+  if (actionId === "rejected_reason") {
+    return (listing) => !listing.submission_review_reason;
+  }
+  return undefined;
+}
+
+export function getWorkflowActionPresentation(
+  actionId: PropertyTableWorkflowActionId,
+) {
+  return {
+    label: WORKFLOW_ACTION_LABELS[actionId],
+    icon: WORKFLOW_ACTION_ICONS[actionId],
+  };
+}
 
 export function getWorkflowActionsForStatus(
   statusKey: PropertyListingStatusKey,
@@ -108,7 +140,7 @@ export function buildStatusBasedRowActions(
         icon: config.icon ?? WORKFLOW_ACTION_ICONS[actionId],
         onClick: config.onClick,
         tone: actionId === "reject" ? "danger" : "default",
-        hidden: config.hidden,
+        hidden: config.hidden ?? getDefaultWorkflowActionHidden(actionId),
         disabled: config.disabled,
         loading: config.loading,
         loadingLabel: config.loadingLabel,

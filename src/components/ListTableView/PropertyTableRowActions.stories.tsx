@@ -2,8 +2,11 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 import { Mail, Phone, Trash2 } from "lucide-react";
 import { WhatsAppIcon } from "../ui/WhatsAppIcon";
+import { buildRowActionsFromListingDescriptors } from "./buildListingRowActions";
 import { listTableStoryListings } from "./listTableStoryData";
+import { submissionApiListTableListings } from "./submissionApiListTableStoryData";
 import { PropertyTableRowActions } from "./PropertyTableRowActions";
+import { demoWorkflowActions } from "./workflowActionsStoryConfig";
 
 const listing = listTableStoryListings[0]!;
 
@@ -51,6 +54,24 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const FromListingJson: Story = {
+  args: {
+    listing: submissionApiListTableListings[0]!,
+    rowActions: (listing) =>
+      buildRowActionsFromListingDescriptors(listing, {
+        actionHandlers: demoWorkflowActions,
+      }),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Row actions resolved from `listing.actions` in API JSON, with handlers from `workflowActions`.",
+      },
+    },
+  },
+};
 
 export const MobileIconButtons: Story = {
   parameters: {

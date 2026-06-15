@@ -26,15 +26,25 @@
   --danger: #c62828;
   --info: #1565c0;
   --card-background: #ffffff;
-  --stepper-active-text: var(--white);
-  --stepper-active-bg: var(--primary);
-  --stepper-active-label-text: var(--primary-dark);
-  --stepper-completed-text: var(--white);
-  --stepper-completed-bg: var(--primary-dark);
-  --stepper-completed-label-text: var(--primary-dark);
-  --stepper-default-text: var(--inherit);
-  --stepper-default-bg: var(--inherit-light);
-  --stepper-default-label-text: var(--inherit);
+  --horizontal-stepper-active-text: var(--white);
+  --horizontal-stepper-active-bg: var(--primary);
+  --horizontal-stepper-active-label-text: var(--primary-dark);
+  --horizontal-stepper-completed-text: var(--white);
+  --horizontal-stepper-completed-bg: var(--primary-dark);
+  --horizontal-stepper-completed-label-text: var(--primary-dark);
+  --horizontal-stepper-default-text: var(--inherit);
+  --horizontal-stepper-default-bg: var(--inherit-light);
+  --horizontal-stepper-default-label-text: var(--inherit);
+  --vertical-stepper-active-row-bg: var(--primary);
+  --vertical-stepper-active-label-text: var(--white);
+  --vertical-stepper-active-circle-bg: var(--white);
+  --vertical-stepper-active-circle-text: var(--primary);
+  --vertical-stepper-completed-text: var(--white);
+  --vertical-stepper-completed-bg: var(--primary-dark);
+  --vertical-stepper-completed-label-text: var(--primary-dark);
+  --vertical-stepper-default-text: var(--inherit);
+  --vertical-stepper-default-bg: var(--inherit-light);
+  --vertical-stepper-default-label-text: var(--inherit);
   color-scheme: light;
 }
 

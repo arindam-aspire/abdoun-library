@@ -166,6 +166,9 @@ export function BasicInfoForm({
             : SELECT_DROPDOWN_EMPTY_VALUE
         }
         onChange={(value) => {
+          const hadTypeSelected = form.values.type_id != null;
+          const shouldValidateType =
+            hadTypeSelected || Boolean(form.touched.type_id);
           const nextValues = {
             ...form.values,
             category_id: parseSelectId(value),
@@ -173,8 +176,26 @@ export function BasicInfoForm({
           };
           form.setValues(nextValues);
           markSelectTouched("category_id");
-          markSelectTouched("type_id");
-          syncFieldErrors(form, nextValues, ["category_id", "type_id"]);
+
+          const fieldsToSync: (keyof BasicInfoFormValues)[] = ["category_id"];
+          if (shouldValidateType) {
+            markSelectTouched("type_id");
+            fieldsToSync.push("type_id");
+          }
+
+          syncFieldErrors(form, nextValues, fieldsToSync);
+
+          if (!shouldValidateType) {
+            form.setErrors((previous) => {
+              if (!previous.type_id) {
+                return previous;
+              }
+
+              const next = { ...previous };
+              delete next.type_id;
+              return next;
+            });
+          }
         }}
         onBlur={() => validateSelectField("category_id")}
         error={form.errors.category_id}

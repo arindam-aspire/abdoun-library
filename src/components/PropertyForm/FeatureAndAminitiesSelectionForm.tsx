@@ -12,7 +12,10 @@ import {
 import { Badge } from "../ui/Badge";
 import { Checkbox } from "../ui/Checkbox";
 import {
+  areAmenitiesSelectionsEqual,
   getFilteredFeaturesAndAmenitiesCatalog,
+  isCatalogItemSelected,
+  resolveSelectedAmenityNames,
   splitFeaturesAndAmenities,
 } from "./amenitiesFormOptions";
 import {
@@ -86,8 +89,14 @@ export function FeatureAndAminitiesSelectionForm({
 
     previousTaxonomyRef.current = { categoryId, propertyTypeId };
 
-    if (form.values.selected_amenities.length > 0) {
-      form.setSelectedAmenities([]);
+    if (
+      form.values.selected_amenities.length > 0 ||
+      (form.values.feature_ids?.length ?? 0) > 0
+    ) {
+      form.setAmenitiesValues({
+        selected_amenities: [],
+        feature_ids: [],
+      });
     }
 
     form.setErrors((previous) => {
@@ -95,7 +104,41 @@ export function FeatureAndAminitiesSelectionForm({
       delete next.selected_amenities;
       return next;
     });
-  }, [categoryId, form.setSelectedAmenities, form.setErrors, propertyTypeId]);
+  }, [categoryId, form.setAmenitiesValues, form.setErrors, propertyTypeId]);
+
+  useEffect(() => {
+    if (!hasTaxonomySelection || catalog.length === 0) {
+      return;
+    }
+
+    const resolvedSelection = resolveSelectedAmenityNames(
+      catalog,
+      form.values.selected_amenities,
+      form.values.feature_ids,
+    );
+
+    if (
+      areAmenitiesSelectionsEqual(
+        resolvedSelection,
+        form.values.selected_amenities,
+      )
+    ) {
+      return;
+    }
+
+    form.setAmenitiesValues({
+      selected_amenities: resolvedSelection,
+      feature_ids: resolvedSelection
+        .map((name) => catalog.find((item) => item.name === name)?.id)
+        .filter((id): id is number => id != null),
+    });
+  }, [
+    catalog,
+    form.setAmenitiesValues,
+    form.values.feature_ids,
+    form.values.selected_amenities,
+    hasTaxonomySelection,
+  ]);
 
   return (
     <form
@@ -154,9 +197,13 @@ export function FeatureAndAminitiesSelectionForm({
                 key={feature.id}
                 name={`feature-${feature.id}`}
                 label={feature.name}
-                checked={form.values.selected_amenities.includes(feature.name)}
+                checked={isCatalogItemSelected(
+                  feature,
+                  form.values.selected_amenities,
+                  form.values.feature_ids,
+                )}
                 onChange={(checked) =>
-                  form.toggleSelection(feature.name, checked)
+                  form.toggleSelection(feature.name, checked, feature.id)
                 }
               />
             ))}
@@ -186,9 +233,13 @@ export function FeatureAndAminitiesSelectionForm({
                 key={amenity.id}
                 name={`amenity-${amenity.id}`}
                 label={amenity.name}
-                checked={form.values.selected_amenities.includes(amenity.name)}
+                checked={isCatalogItemSelected(
+                  amenity,
+                  form.values.selected_amenities,
+                  form.values.feature_ids,
+                )}
                 onChange={(checked) =>
-                  form.toggleSelection(amenity.name, checked)
+                  form.toggleSelection(amenity.name, checked, amenity.id)
                 }
               />
             ))}

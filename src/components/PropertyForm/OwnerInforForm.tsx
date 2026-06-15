@@ -23,7 +23,7 @@ import {
   propertyFormStackClasses,
 } from "./propertyFormFieldLayout";
 import { nationalityOptions } from "./ownerInfoFormOptions";
-import type { OwnerInfoItem } from "./types";
+import type { OwnerInfoItem, SelectedDocument } from "./types";
 
 const OWNER_INFO_TITLE = "Owner Information";
 const OWNER_INFO_SUBTITLE =
@@ -40,13 +40,31 @@ function dialCodeToIso2(dialCode: string): string {
 
 export interface OwnerInforFormProps {
   form: UseOwnerInfoFormReturn;
-  onUploadOwnerDocument?: (file: File) => Promise<string | null>;
+  onUploadOwnerDocument?: (
+    file: File,
+    context: { ownerIndex: number },
+  ) => Promise<string | null>;
+  onOwnerDocumentsChange?: (
+    ownerIndex: number,
+    documents: SelectedDocument[],
+  ) => void;
+  onRemoveOwnerDocument?: (
+    ownerIndex: number,
+    document: SelectedDocument,
+  ) => void;
+  onOwnerDocumentUploadingChange?: (
+    ownerIndex: number,
+    isUploading: boolean,
+  ) => void;
   className?: string;
 }
 
 export function OwnerInforForm({
   form,
   onUploadOwnerDocument,
+  onOwnerDocumentsChange,
+  onRemoveOwnerDocument,
+  onOwnerDocumentUploadingChange,
   className,
 }: OwnerInforFormProps) {
   const updateOwnerField = (
@@ -218,8 +236,20 @@ export function OwnerInforForm({
                   value={owner.owner_documents}
                   onChange={(documents) => {
                     updateOwnerField(index, { owner_documents: documents });
+                    onOwnerDocumentsChange?.(index, documents);
                   }}
-                  onUpload={onUploadOwnerDocument}
+                  onRemove={(document) => {
+                    onRemoveOwnerDocument?.(index, document);
+                  }}
+                  onUpload={
+                    onUploadOwnerDocument
+                      ? (file) =>
+                          onUploadOwnerDocument(file, { ownerIndex: index })
+                      : undefined
+                  }
+                  onUploadingChange={(isUploading) => {
+                    onOwnerDocumentUploadingChange?.(index, isUploading);
+                  }}
                   multiple
                   className={propertyFormGridSpanClasses}
                 />

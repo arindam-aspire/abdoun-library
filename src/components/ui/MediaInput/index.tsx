@@ -11,11 +11,13 @@ import {
 } from "lucide-react";
 import {
   useCallback,
+  useEffect,
   useId,
   useRef,
   useState,
   type ChangeEvent,
   type DragEvent,
+  type SyntheticEvent,
 } from "react";
 import { cn } from "../../../lib/cn";
 import { textBodySmClasses, textMetaClasses } from "../../../lib/typography";
@@ -40,9 +42,11 @@ import {
   getMediaFileKind,
   getMediaKindLabel,
   getMediaKindStyles,
+  getMediaDisplayUri,
   getPreviewUriForFile,
   getSupportedFormatsSentence,
   isAcceptedMediaFile,
+  isImageMedia,
   isVideoMedia,
   toSelectedMedia,
 } from "./utils";
@@ -232,9 +236,37 @@ function MediaQueueCardPreview({
   progress,
   generatingPreviewLabel,
 }: MediaQueueCardPreviewProps) {
-  const hasPreview = Boolean(media.uri);
+  const [previewFailed, setPreviewFailed] = useState(false);
+  const [activePreviewUri, setActivePreviewUri] = useState(() =>
+    getMediaDisplayUri(media),
+  );
+  const hasPreview = Boolean(activePreviewUri) && !previewFailed;
   const isVideo = isVideoMedia(media);
+  const isImage = isImageMedia(media);
   const kind = getMediaFileKind(media.name, media.mimeType);
+
+  useEffect(() => {
+    setPreviewFailed(false);
+    setActivePreviewUri(getMediaDisplayUri(media));
+  }, [media.name, media.previewUri, media.uri]);
+
+  const handlePreviewError = (
+    event: SyntheticEvent<HTMLImageElement | HTMLVideoElement>,
+  ) => {
+    event.currentTarget.onerror = null;
+
+    if (
+      media.previewUri &&
+      activePreviewUri === media.previewUri &&
+      media.uri &&
+      media.uri !== media.previewUri
+    ) {
+      setActivePreviewUri(media.uri);
+      return;
+    }
+
+    setPreviewFailed(true);
+  };
 
   if (status === "processing") {
     return (
@@ -259,20 +291,24 @@ function MediaQueueCardPreview({
       {hasPreview ? (
         isVideo ? (
           <video
-            src={media.uri}
+            src={activePreviewUri}
             muted
             playsInline
             preload="metadata"
+            onError={handlePreviewError}
             className="size-full max-w-full object-cover"
           />
-        ) : (
+        ) : isImage ? (
           <img
-            src={media.uri}
+            src={activePreviewUri}
             alt=""
+            onError={handlePreviewError}
             className="size-full max-w-full object-cover"
           />
-        )
-      ) : (
+        ) : null
+      ) : null}
+
+      {!hasPreview ? (
         <div
           className={cn(
             "flex size-full flex-col items-center justify-center",
@@ -282,7 +318,7 @@ function MediaQueueCardPreview({
           <ImageIcon className="size-5 sm:size-6" aria-hidden />
           <span className="sr-only">{getMediaKindLabel(kind)}</span>
         </div>
-      )}
+      ) : null}
 
       {status === "uploading" ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/45 px-2 sm:px-3">
@@ -485,7 +521,9 @@ export const MediaInput = ({
   labelClassName,
   value,
   onChange,
+  onRemove,
   onUpload,
+  onUploadingChange,
   multiple = true,
   accept = MEDIA_INPUT_ACCEPT,
   size = "md",
@@ -523,6 +561,30 @@ export const MediaInput = ({
   const isUploading = inFlightItems.some(
     (item) => item.status === "uploading" || item.status === "processing",
   );
+  const onUploadingChangeRef = useRef(onUploadingChange);
+  const wasUploadingRef = useRef(false);
+
+  onUploadingChangeRef.current = onUploadingChange;
+
+  useEffect(() => {
+    if (wasUploadingRef.current === isUploading) {
+      return;
+    }
+
+    wasUploadingRef.current = isUploading;
+    onUploadingChangeRef.current?.(isUploading);
+  }, [isUploading]);
+
+  useEffect(() => {
+    return () => {
+      if (!wasUploadingRef.current) {
+        return;
+      }
+
+      wasUploadingRef.current = false;
+      onUploadingChangeRef.current?.(false);
+    };
+  }, []);
 
   const hasError = Boolean(error);
 
@@ -639,7 +701,11 @@ export const MediaInput = ({
           return;
         }
 
-        const completedMedia = toSelectedMedia(file, uri);
+        const completedMedia = toSelectedMedia(
+          file,
+          uri,
+          previewUri || undefined,
+        );
         await finishUpload(id, completedMedia);
       } catch {
         clearProgressTimer(id);
@@ -721,6 +787,7 @@ export const MediaInput = ({
 
   const handleRemoveQueueItem = (item: InFlightQueueItem) => {
     if (item.status === "completed") {
+      onRemove?.(item.media);
       const nextValue = valueRef.current.filter(
         (media) => !mediaMatch(media, item.media),
       );

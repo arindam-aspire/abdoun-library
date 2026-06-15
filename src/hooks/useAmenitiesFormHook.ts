@@ -20,6 +20,7 @@ export function useAmenitiesForm(initialValues?: Partial<AmenitiesFormValues>) {
   const form = useForm<AmenitiesFormValues>({
     initialValues: {
       selected_amenities: [],
+      feature_ids: [],
       ...initialValues,
     },
     validate: validateAmenitiesFormValues,
@@ -28,25 +29,44 @@ export function useAmenitiesForm(initialValues?: Partial<AmenitiesFormValues>) {
   const valuesRef = useRef(form.values);
   valuesRef.current = form.values;
 
+  const setAmenitiesValues = useCallback(
+    (values: Partial<AmenitiesFormValues>) => {
+      form.setValues({
+        ...valuesRef.current,
+        ...values,
+      });
+    },
+    [form],
+  );
+
   const setSelectedAmenities = useCallback((selectedAmenities: string[]) => {
-    form.setValues({
-      ...valuesRef.current,
-      selected_amenities: selectedAmenities,
-    });
-  }, [form]);
+    setAmenitiesValues({ selected_amenities: selectedAmenities });
+  }, [setAmenitiesValues]);
 
-  const toggleSelection = useCallback((name: string, checked: boolean) => {
-    const nextSelected = toggleCatalogSelection(
-      valuesRef.current.selected_amenities,
-      name,
-      checked,
-    );
+  const toggleSelection = useCallback(
+    (name: string, checked: boolean, featureId?: number) => {
+      const nextSelected = toggleCatalogSelection(
+        valuesRef.current.selected_amenities,
+        name,
+        checked,
+      );
+      const currentFeatureIds = valuesRef.current.feature_ids ?? [];
+      const nextFeatureIds =
+        featureId == null
+          ? currentFeatureIds
+          : checked
+            ? currentFeatureIds.includes(featureId)
+              ? currentFeatureIds
+              : [...currentFeatureIds, featureId]
+            : currentFeatureIds.filter((id) => id !== featureId);
 
-    form.setValues({
-      ...valuesRef.current,
-      selected_amenities: nextSelected,
-    });
-  }, [form]);
+      setAmenitiesValues({
+        selected_amenities: nextSelected,
+        feature_ids: nextFeatureIds,
+      });
+    },
+    [setAmenitiesValues],
+  );
 
   const submit = (onValid?: (values: AmenitiesFormValues) => void) => {
     form.setTouched({ selected_amenities: true });
@@ -64,6 +84,7 @@ export function useAmenitiesForm(initialValues?: Partial<AmenitiesFormValues>) {
 
   return {
     ...form,
+    setAmenitiesValues,
     setSelectedAmenities,
     toggleSelection,
     submit,

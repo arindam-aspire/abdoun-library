@@ -2,55 +2,25 @@
  * REFERENCE ONLY — do not @import this file in globals.css.
  *
  * CSS @import is hoisted above :root, so a second @theme from this file breaks
- * light/dark tokens in consuming apps. Copy the @theme inline block below into
- * your globals.css AFTER :root / .dark / .light, then import integration.css only.
+ * light/dark tokens in consuming apps. Copy the @theme inline block into your
+ * globals.css AFTER :root / .dark / .light, then import integration.css only.
  *
- * @import "tailwindcss";
- * :root { --page: ...; --surface: ...; }
- * :root.dark { ... }
- * @theme inline { ...paste block below... }
- * @import "@abdoun/abdoun-library/integration.css";
+ * Stepper tokens (optional in :root — not @theme; components read CSS vars):
+ *
+ * Horizontal: --horizontal-stepper-active-bg, --horizontal-stepper-active-text,
+ *   --horizontal-stepper-completed-bg, --horizontal-stepper-completed-text,
+ *   --horizontal-stepper-default-bg, --horizontal-stepper-default-text,
+ *   --horizontal-stepper-active-label-text, --horizontal-stepper-completed-label-text,
+ *   --horizontal-stepper-default-label-text
+ *
+ * Vertical: --vertical-stepper-active-circle-bg, --vertical-stepper-active-circle-text,
+ *   --vertical-stepper-active-row-bg, --vertical-stepper-active-label-text,
+ *   --vertical-stepper-completed-bg, --vertical-stepper-completed-text,
+ *   --vertical-stepper-default-bg, --vertical-stepper-default-text,
+ *   --vertical-stepper-completed-label-text, --vertical-stepper-default-label-text
+ *
+ * Example values: src/.storybook/theme_abdoun_mls_web.css
+ *
+ * Progress bar track uses `bg-inherit-light` — define `--inherit-light` in :root
+ * and map `--color-inherit-light: var(--inherit-light)` in @theme inline.
  */
-
-/*
-@theme inline {
-  --color-primary: var(--primary);
-  --color-primary-dark: var(--primary-dark);
-  --color-primary-light: var(--primary-light);
-  --color-accent: var(--accent);
-  --color-secondary: var(--secondary);
-  --color-secondary-light: var(--secondary-light);
-  --color-secondary-dark: var(--secondary-dark);
-  --color-tertiary: var(--tertiary);
-  --color-tertiary-dark: var(--tertiary-dark);
-  --color-tertiary-light: var(--tertiary-light);
-  --color-page: var(--page);
-  --color-page-ghost: color-mix(in srgb, var(--page) 20%, var(--surface));
-  --color-surface: var(--surface);
-  --color-text: var(--text);
-  --color-muted: var(--muted);
-  --color-white: var(--white);
-  --color-black: var(--black);
-  --color-success: var(--success);
-  --color-danger: var(--danger);
-  --color-info: var(--info);
-  --color-inherit-color: var(--inherit);
-  --color-inherit-color-15: color-mix(in srgb, var(--inherit) 15%, var(--page));
-  --color-hero-on-image: var(--hero-on-image, var(--white));
-  --color-background: var(--page);
-  --color-foreground: var(--text);
-  --color-card-background: var(--card-background, var(--surface));
-  --color-stepper-active-text: var(--stepper-active-text, var(--text));
-  --color-stepper-active-bg: var(--stepper-active-bg, var(--accent));
-  --color-stepper-completed-text: var(--stepper-completed-text, var(--page));
-  --color-stepper-completed-bg: var(--stepper-completed-bg, var(--secondary));
-  --color-stepper-default-text: var(--stepper-default-text, var(--muted));
-  --color-stepper-default-bg: var(--stepper-default-bg, var(--primary-light));
-  --color-stepper-active-label-text: var(--stepper-active-label-text, var(--secondary));
-  --color-stepper-completed-label-text: var(--stepper-completed-label-text, var(--text));
-  --color-stepper-default-label-text: var(--stepper-default-label-text, var(--muted));
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-arabic: var(--font-tajawal);
-}
-*/

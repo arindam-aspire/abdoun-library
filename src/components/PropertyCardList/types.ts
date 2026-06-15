@@ -20,6 +20,17 @@ type NullableNumber = number | null;
 
 export type ApplicationKey = "abdoun-web" | "mls-web";
 
+/** JSON-serializable row action descriptor on each listing (from API). */
+export type PropertyListingRowActionDescriptor = {
+  id: string;
+  label?: string;
+  tone?: "default" | "danger";
+  hidden?: boolean;
+  disabled?: boolean;
+  loading?: boolean;
+  loadingLabel?: string;
+};
+
 export interface PropertyListing {
   id: number;
   property_id: string;
@@ -70,6 +81,13 @@ export interface PropertyListing {
   favourite_id?: string;
   property_hash?: string;
   user_id?: string;
+  /** Review / rejection reason from submission API (`submission_review_reason`). */
+  submission_review_reason?: NullableString;
+  /**
+   * Per-row action menu items from API JSON.
+   * Each listing may define a different set; use `[]` for no actions on that row.
+   */
+  actions?: PropertyListingRowActionDescriptor[];
 }
 
 interface LocalizedText {

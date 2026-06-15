@@ -4,6 +4,8 @@ import type { UiSizeTier } from "../responsiveSizes";
 export type SelectedMedia = {
   name: string;
   uri: string;
+  /** Local blob URL kept for queue thumbnails when `uri` is not browser-displayable. */
+  previewUri?: string;
   mimeType?: string;
   size?: number;
 };
@@ -45,7 +47,11 @@ export interface MediaInputProps {
   labelClassName?: string;
   value: SelectedMedia[];
   onChange: (media: SelectedMedia[]) => void;
+  /** Fired when a committed media item is removed from the queue. */
+  onRemove?: (media: SelectedMedia) => void;
   onUpload?: (file: File) => Promise<string | null>;
+  /** Fired when any file enters or leaves the in-flight upload queue. */
+  onUploadingChange?: (isUploading: boolean) => void;
   multiple?: boolean;
   accept?: string;
   size?: MediaInputSize;

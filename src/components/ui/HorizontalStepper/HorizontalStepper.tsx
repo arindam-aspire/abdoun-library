@@ -2,16 +2,10 @@
 
 import { Check } from "lucide-react";
 import { cn } from "../../../lib/cn";
+import { horizontalStepperThemeClasses } from "../stepperThemeClasses";
 import type { HorizontalStepperProps, HorizontalStepperStep } from "./types";
-import {
-  stepperCircleClass,
-  stepperConnectorCompletedClass,
-  stepperConnectorDefaultClass,
-  stepperLabelClass,
-  type StepperVisualState,
-} from "./stepperStyles";
 
-type StepState = StepperVisualState;
+type StepState = "completed" | "active" | "default";
 
 const STEP_CIRCLE_CLASS =
   "inline-flex size-7 shrink-0 items-center justify-center rounded-full sm:size-8";
@@ -33,6 +27,34 @@ function resolveStepState(
   }
 
   return "default";
+}
+
+function connectorToneClass(isCompletedSegment: boolean) {
+  return isCompletedSegment
+    ? horizontalStepperThemeClasses.connector.completed
+    : horizontalStepperThemeClasses.connector.default;
+}
+
+function circleToneClass(state: StepState) {
+  switch (state) {
+    case "completed":
+      return horizontalStepperThemeClasses.circle.completed;
+    case "active":
+      return horizontalStepperThemeClasses.circle.active;
+    default:
+      return horizontalStepperThemeClasses.circle.default;
+  }
+}
+
+function labelToneClass(state: StepState) {
+  switch (state) {
+    case "completed":
+      return horizontalStepperThemeClasses.label.completed;
+    case "active":
+      return horizontalStepperThemeClasses.label.active;
+    default:
+      return horizontalStepperThemeClasses.label.default;
+  }
 }
 
 function StepIndicator({
@@ -66,7 +88,7 @@ function StepIndicator({
       </span>
     );
 
-  const circleClassName = cn(STEP_CIRCLE_CLASS, stepperCircleClass(state));
+  const circleClassName = cn(STEP_CIRCLE_CLASS, circleToneClass(state));
 
   if (isClickable && onStepClick) {
     return (
@@ -139,11 +161,7 @@ export function HorizontalStepper({
                 <div
                   className={cn(
                     "h-0.5 min-w-2 flex-1",
-                    index === 0
-                      ? "invisible"
-                      : leftSegmentCompleted
-                        ? stepperConnectorCompletedClass
-                        : stepperConnectorDefaultClass,
+                    index === 0 ? "invisible" : connectorToneClass(leftSegmentCompleted),
                   )}
                   aria-hidden
                 />
@@ -159,14 +177,12 @@ export function HorizontalStepper({
                     "h-0.5 min-w-2 flex-1",
                     index === steps.length - 1
                       ? "invisible"
-                      : rightSegmentCompleted
-                        ? stepperConnectorCompletedClass
-                        : stepperConnectorDefaultClass,
+                      : connectorToneClass(rightSegmentCompleted),
                   )}
                   aria-hidden
                 />
               </div>
-              <span className={cn(STEP_LABEL_CLASS, stepperLabelClass(state))}>
+              <span className={cn(STEP_LABEL_CLASS, labelToneClass(state))}>
                 {step.label}
               </span>
             </li>

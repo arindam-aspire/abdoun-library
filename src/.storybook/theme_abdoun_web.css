@@ -26,15 +26,25 @@
   --danger: #c62828;
   --info: #2b5ba6;
   --card-background: #ffffff;
-  --stepper-active-text: var(--primary-dark);
-  --stepper-active-bg: var(--accent);
-  --stepper-active-label-text: var(--primary-dark);
-  --stepper-completed-text: var(--white);
-  --stepper-completed-bg: var(--primary-dark);
-  --stepper-completed-label-text: var(--primary-dark);
-  --stepper-default-text: var(--inherit);
-  --stepper-default-bg: var(--inherit-light);
-  --stepper-default-label-text: var(--inherit);
+  --horizontal-stepper-active-text: var(--primary-dark);
+  --horizontal-stepper-active-bg: var(--accent);
+  --horizontal-stepper-active-label-text: var(--primary-dark);
+  --horizontal-stepper-completed-text: var(--white);
+  --horizontal-stepper-completed-bg: var(--primary-dark);
+  --horizontal-stepper-completed-label-text: var(--primary-dark);
+  --horizontal-stepper-default-text: var(--inherit);
+  --horizontal-stepper-default-bg: var(--inherit-light);
+  --horizontal-stepper-default-label-text: var(--inherit);
+  --vertical-stepper-active-circle-bg: var(--vertical-stepper-default-bg);
+  --vertical-stepper-active-circle-text: var(--vertical-stepper-default-text);
+  --vertical-stepper-active-label-text: var(--primary-dark);
+  --vertical-stepper-active-row-bg: var(--accent);
+  --vertical-stepper-completed-text: var(--white);
+  --vertical-stepper-completed-bg: var(--primary-dark);
+  --vertical-stepper-completed-label-text: var(--primary-dark);
+  --vertical-stepper-default-text: var(--inherit);
+  --vertical-stepper-default-bg: var(--inherit-light);
+  --vertical-stepper-default-label-text: var(--inherit);
   color-scheme: light;
 }
 
