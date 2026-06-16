@@ -55,7 +55,7 @@ export type ListTableViewProps = CardListProps & {
   rowActions?: PropertyTableRowActionsInput;
   /**
    * Sticky columns while horizontally scrolling.
-   * Aliases: `property` → `title`, `action` → `actions`.
+   * Aliases: `property` → `title`, `reference` → `title`, `submitted` → `submission`, `action` → `actions`.
    */
   pinnedColumns?: PinnedColumns;
   /** Enable drag-to-resize column headers on `sm+`. Defaults to `true`. */

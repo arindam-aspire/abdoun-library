@@ -49,7 +49,9 @@ export type SubmissionApiListing = {
   updated_at: string;
   submission_id: string;
   submission_status: string;
-  submission_submitted_at: string;
+  /** ISO timestamp when the submission was sent. */
+  submitted_on?: string | null;
+  submission_submitted_by?: string | null;
   submission_reviewed_at: string | null;
   submission_review_reason: string | null;
   submission_workflow_label: string;
@@ -152,6 +154,9 @@ export function mapSubmissionApiListingToPropertyListing(
     is_exclusive: false,
     is_favourite: false,
     submission_review_reason: item.submission_review_reason,
+    submitted_on: item.submitted_on ?? null,
+    submission_submitted_by:
+      item.submission_submitted_by ?? item.agency?.agency_name ?? null,
     actions: item.actions?.map(mapSubmissionApiAction),
   };
 }

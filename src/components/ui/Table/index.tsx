@@ -15,6 +15,7 @@ import {
 } from "../../../lib/typography";
 import { TablePagination } from "../Pagination";
 import {
+  tableDesktopHeaderColumnDividerClassName,
   tableRowDividerClassName,
   tableSectionDividerClassName,
 } from "./tableDividerStyles";
@@ -319,7 +320,13 @@ export function Table<T>({
             </colgroup>
           ) : null}
           <thead>
-            <tr className={tableHeaderRowClassName}>
+            <tr
+              className={cn(
+                tableHeaderRowClassName,
+                "border-b",
+                tableSectionDividerClassName,
+              )}
+            >
               {columns.map((col) => {
                 const canSort = Boolean(col.sortable && col.getSortValue);
                 const rules = sortConfig;
@@ -344,7 +351,7 @@ export function Table<T>({
                       tableHeaderCellClassName,
                       tableHeaderCellPaddingClassName,
                       "font-medium",
-                      tableRowDividerClassName,
+                      tableDesktopHeaderColumnDividerClassName,
                       getTableColumnAlignClass(col),
                       textMetaClasses,
                       columnResizable && "relative",

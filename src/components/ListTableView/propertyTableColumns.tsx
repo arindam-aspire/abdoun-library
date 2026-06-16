@@ -1,21 +1,20 @@
 import { cn } from "../../lib/cn";
-import { textBodySmClasses } from "../../lib/typography";
+import { textBodySmClasses, textMetaClasses } from "../../lib/typography";
 import type { PropertyListing } from "../PropertyCardList/types";
 import type { TableColumn } from "../ui/Table";
 import type { UiControlSize } from "../ui/commonTypes";
 import { ListingStatusBadge } from "./ListingStatusBadge";
+import {
+  formatListingSubmissionDate,
+  resolveListingLocation,
+  resolveListingReference,
+  resolveListingSubmittedBy,
+  resolveListingTitle,
+} from "./listTableListingFields";
 import { PropertyTableRowActions } from "./PropertyTableRowActions";
 import type { PropertyTableRowActionsInput } from "./rowActionTypes";
 
 type Locale = keyof PropertyListing["title"];
-
-function resolveTitle(listing: PropertyListing, locale: Locale): string {
-  return listing.title[locale] || listing.title.en;
-}
-
-function resolveLocation(listing: PropertyListing): string {
-  return [listing.areaName, listing.city].filter(Boolean).join(", ");
-}
 
 function parsePriceValue(price: string): number {
   const match = price.match(/[\d,]+/);
@@ -23,65 +22,113 @@ function parsePriceValue(price: string): number {
   return Number(match[0].replace(/,/g, ""));
 }
 
+function PropertyTitleCell({
+  listing,
+  locale,
+  onClick,
+}: {
+  listing: PropertyListing;
+  locale: Locale;
+  onClick?: (listing: PropertyListing) => void;
+}) {
+  const title = resolveListingTitle(listing, locale);
+  const reference = resolveListingReference(listing);
+
+  const content = (
+    <div className="flex min-w-0 flex-col gap-0.5 text-start">
+      <span
+        className={cn(
+          "truncate font-medium text-secondary",
+          textBodySmClasses,
+        )}
+      >
+        {title}
+      </span>
+      {reference ? (
+        <span className={cn("truncate", textMetaClasses)}>{reference}</span>
+      ) : null}
+    </div>
+  );
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={() => onClick(listing)}
+        className="block w-full min-w-0 underline-offset-2 hover:underline"
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return <div className="block w-full min-w-0">{content}</div>;
+}
+
+const EMPTY_CELL_VALUE = "—";
+
+function SubmissionMetaCell({ listing }: { listing: PropertyListing }) {
+  const submittedBy = resolveListingSubmittedBy(listing);
+  const submittedOn = formatListingSubmissionDate(listing.submitted_on);
+
+  if (!submittedOn && !submittedBy) {
+    return <span className={textMetaClasses}>{EMPTY_CELL_VALUE}</span>;
+  }
+
+  return (
+    <div className="flex min-w-0 flex-col gap-0.5 text-start">
+      <span
+        className={cn(
+          "truncate font-medium text-text",
+          textBodySmClasses,
+        )}
+      >
+        {submittedBy || EMPTY_CELL_VALUE}
+      </span>
+      {submittedOn ? (
+        <span className={cn("truncate", textMetaClasses)}>{submittedOn}</span>
+      ) : null}
+    </div>
+  );
+}
+
 export function buildPropertyTableColumns({
   locale = "en",
   buttonSize = "md",
   onClick,
   rowActions,
+  includeSubmissionColumn = false,
 }: {
   locale?: Locale;
   buttonSize?: UiControlSize;
   onClick?: (listing: PropertyListing) => void;
   rowActions?: PropertyTableRowActionsInput;
+  /** When true, adds a stacked Submitted by / Submitted on column. */
+  includeSubmissionColumn?: boolean;
 }): TableColumn<PropertyListing>[] {
   const showActions = Boolean(rowActions);
 
   const columns: TableColumn<PropertyListing>[] = [
     {
-      id: "reference",
-      header: "Reference",
-      align: "start",
-      sortable: true,
-      getSortValue: (row) => row.reference_number ?? row.property_id,
-      render: (row) => (
-        <span className="font-medium text-secondary">
-          {row.reference_number ?? row.property_id}
-        </span>
-      ),
-    },
-    {
       id: "title",
       header: "Property",
       align: "start",
       sortable: true,
-      getSortValue: (row) => resolveTitle(row, locale),
-      render: (row) =>
-        onClick ? (
-          <button
-            type="button"
-            onClick={() => onClick(row)}
-            className={cn(
-              textBodySmClasses,
-              "block w-full min-w-0 truncate text-start font-medium text-secondary underline-offset-2 hover:underline",
-            )}
-          >
-            {resolveTitle(row, locale)}
-          </button>
-        ) : (
-          <span className="block w-full min-w-0 truncate text-start">
-            {resolveTitle(row, locale)}
-          </span>
-        ),
+      minWidth: 160,
+      getSortValue: (row) => resolveListingTitle(row, locale),
+      render: (row) => (
+        <PropertyTitleCell listing={row} locale={locale} onClick={onClick} />
+      ),
     },
     {
       id: "location",
       header: "Location",
       align: "start",
       sortable: true,
-      getSortValue: (row) => resolveLocation(row),
+      getSortValue: (row) => resolveListingLocation(row),
       render: (row) => (
         <span className="block w-full min-w-0 truncate text-text/80">
-          {resolveLocation(row)}
+          {resolveListingLocation(row)}
         </span>
       ),
     },
@@ -96,6 +143,21 @@ export function buildPropertyTableColumns({
         <span className="block w-full min-w-0 truncate">{row.propertyType}</span>
       ),
     },
+  ];
+
+  if (includeSubmissionColumn) {
+    columns.push({
+      id: "submission",
+      header: "Submitted",
+      align: "start",
+      sortable: true,
+      minWidth: 148,
+      getSortValue: (row) => row.submitted_on ?? "",
+      render: (row) => <SubmissionMetaCell listing={row} />,
+    });
+  }
+
+  columns.push(
     {
       id: "price",
       header: "Price",
@@ -138,7 +200,7 @@ export function buildPropertyTableColumns({
         </div>
       ),
     },
-  ];
+  );
 
   if (showActions) {
     columns.push({

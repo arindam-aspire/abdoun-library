@@ -71,6 +71,18 @@ const meta = {
   tags: ["autodocs"],
   parameters: {
     layout: "padded",
+    docs: {
+      description: {
+        component: [
+          "Sortable property table with optional workflow or contact row actions.",
+          "",
+          "**Columns**",
+          "- **Property** — title (primary) + `reference_number` (subtitle)",
+          "- **Submitted** — `submission_submitted_by` (primary) + `submitted_on` date (subtitle), shown when row data includes submission fields",
+          "- **Status**, **Type**, **Price**, beds/baths, and an actions column when handlers are provided",
+        ].join("\n"),
+      },
+    },
   },
   decorators: [
     (Story) => (
@@ -176,13 +188,13 @@ export const WithRowActionsMenu: Story = {
   render: (args) => <ListTableViewDemo {...args} />,
 };
 
-export const MobileTransposedView: Story = {
+export const MobileGridView: Story = {
   parameters: {
     viewport: { defaultViewport: "mobile1" },
     docs: {
       description: {
         story:
-          "Below `sm`: field labels stay pinned on the left; swipe horizontally through listing columns.",
+          "Below `sm`: listings use compact cards with property (title + reference), location, a stats strip for type/beds/baths/price, status, and row actions — matching the desktop table fields.",
       },
     },
   },
@@ -199,7 +211,7 @@ export const WithPinnedColumns: Story = {
   ],
   args: {
     pinnedColumns: {
-      left: ["reference", "property"],
+      left: ["property"],
       right: ["action"],
     },
     canViewDelete: true,
@@ -220,7 +232,7 @@ export const ResizableWithPinnedColumns: Story = {
   args: {
     resizableColumns: true,
     pinnedColumns: {
-      left: ["reference", "property"],
+      left: ["property"],
       right: ["action"],
     },
     canViewDelete: true,

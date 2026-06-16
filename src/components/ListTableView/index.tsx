@@ -13,6 +13,7 @@ import { createListingActionsResolver } from "./buildListingRowActions";
 import { buildDefaultPropertyRowActions } from "./defaultPropertyRowActions";
 import { buildPropertyTableColumns } from "./propertyTableColumns";
 import { createWorkflowActionsResolver } from "./propertyTableWorkflowActions";
+import { hasListingSubmissionMeta } from "./listTableListingFields";
 import { resolvePinnedColumns } from "./resolvePinnedColumns";
 import type { ListTableViewProps } from "./types";
 
@@ -105,6 +106,11 @@ export function ListTableView({
   const skeletonRows = pagination?.pageSize ?? 8;
   const showPagination = Boolean(pagination) && !isEmpty && !isLoading;
 
+  const includeSubmissionColumn = useMemo(
+    () => data.some(hasListingSubmissionMeta),
+    [data],
+  );
+
   const columns = useMemo(
     () =>
       columnsProp ??
@@ -113,8 +119,16 @@ export function ListTableView({
         buttonSize,
         onClick,
         rowActions,
+        includeSubmissionColumn,
       }),
-    [buttonSize, columnsProp, locale, onClick, rowActions],
+    [
+      buttonSize,
+      columnsProp,
+      includeSubmissionColumn,
+      locale,
+      onClick,
+      rowActions,
+    ],
   );
 
   const resolveRowColumnHeader =

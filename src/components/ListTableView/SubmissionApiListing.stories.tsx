@@ -67,8 +67,13 @@ const meta = {
           "- Badge label: `status_name` (e.g. `Verified`)",
           "- Badge color: `submission_workflow_label` (e.g. `pending_admin_approval`)",
           "",
+          "**Columns**",
+          "- **Property** — `title` + `reference_number` in one cell",
+          "- **Submitted** — `submission_submitted_by` + `submitted_on` in one cell",
+          "",
           "**Row actions (per row)**",
           "- Each API row may include its own `actions` array — rows can show different buttons",
+          "- `submission_submitted_by` (title) and `submitted_on` (subtitle) map to the stacked **Submitted** column",
           "- Example: row 1 → `view, reassign, unassign`; row 2 → `view, approve, reject, assign`",
           "- Use `actions: []` when a row should show no actions",
           "- Pass `workflowActions` (or `onRowAction`) on `ListTableView` to wire click handlers",
@@ -131,7 +136,7 @@ export const WithPinnedColumns: Story = {
   ],
   args: {
     pinnedColumns: {
-      left: ["reference", "property"],
+      left: ["property"],
       right: ["action"],
     },
     onColumnWidthsChange: fn(),

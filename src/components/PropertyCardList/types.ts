@@ -83,6 +83,10 @@ export interface PropertyListing {
   user_id?: string;
   /** Review / rejection reason from submission API (`submission_review_reason`). */
   submission_review_reason?: NullableString;
+  /** ISO timestamp when the submission was sent (`submitted_on`). */
+  submitted_on?: NullableString;
+  /** Submitter display name from API (`submission_submitted_by`). */
+  submission_submitted_by?: NullableString;
   /**
    * Per-row action menu items from API JSON.
    * Each listing may define a different set; use `[]` for no actions on that row.
