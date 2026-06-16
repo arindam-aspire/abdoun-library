@@ -1,0 +1,57 @@
+import type { AgentApiListing } from "./agentApiListing";
+
+export const agentApiListTableJson: AgentApiListing[] = [
+  {
+    id: "a25ba54b-5b59-4bcf-8187-d7d5a89b7925",
+    email: "yasmeen.odeh@yopmail.com",
+    fullName: "Yasmeen Odeh",
+    phone: "+962791012233",
+    serviceArea: "Abdoun",
+    status: "ACTIVE",
+    reviewedAt: "2026-06-02T12:27:53.036075Z",
+  },
+  {
+    id: "b18fc62a-6c4a-4f1a-9d2e-1a0b8c4e5f6a",
+    email: "sarah.hassan@abdoun.com",
+    fullName: "Sarah Al-Hassan",
+    phone: "+962 79 123 4567",
+    serviceArea: "Amman",
+    status: "ACTIVE",
+    reviewedAt: "2026-06-09T14:22:00.000Z",
+  },
+  {
+    id: "c29gd73b-7d5b-5cg2-0e3f-2b1c9d5f6a7b",
+    email: "omar.khoury@abdoun.com",
+    fullName: "Omar Khoury",
+    phone: "+962 78 555 0198",
+    serviceArea: "Abdoun",
+    status: "PENDING_APPROVAL",
+    reviewedAt: "2026-06-08T09:15:00.000Z",
+  },
+  {
+    id: "d3ahe84c-8e6c-6dh3-1f4g-3c2d0e6g7b8c",
+    email: "layla.mansour@abdoun.com",
+    fullName: "Layla Mansour",
+    serviceArea: "Khalda",
+    status: "INACTIVE",
+    reviewedAt: "2026-05-30T16:40:00.000Z",
+  },
+  {
+    id: "e4bif95d-9f7d-7ei4-2g5h-4d3e1f7h8c9d",
+    email: "rana.saleh@abdoun.com",
+    fullName: "Rana Saleh",
+    phone: "+962 79 880 2211",
+    serviceArea: "Shmeisani",
+    status: "SUSPENDED",
+    reviewedAt: "2026-05-12T08:30:00.000Z",
+  },
+  {
+    id: "f5cjg06e-0g8e-8fj5-3h6i-5e4f2g8i9d0e",
+    email: "yousef.haddad@abdoun.com",
+    fullName: "Yousef Haddad",
+    phone: "+962 78 441 9920",
+    serviceArea: "Abdoun",
+    status: "ACTIVE",
+    reviewedAt: "2026-06-06T18:50:00.000Z",
+  },
+];

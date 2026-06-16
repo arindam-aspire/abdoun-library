@@ -1,0 +1,57 @@
+import type { Agent } from "./types";
+
+export const agentListStoryAgents: Agent[] = [
+  {
+    id: "agent-001",
+    name: "Sarah Al-Hassan",
+    email: "sarah.hassan@abdoun.com",
+    phone: "+962 79 123 4567",
+    city: "Amman",
+    status: { key: "active", label: "Active" },
+    activityDate: "2026-06-09T14:22:00.000Z",
+  },
+  {
+    id: "agent-002",
+    name: "Omar Khoury",
+    email: "omar.khoury@abdoun.com",
+    phone: "+962 78 555 0198",
+    city: "Abdoun",
+    status: { key: "pending", label: "Pending Approval" },
+    activityDate: "2026-06-08T09:15:00.000Z",
+  },
+  {
+    id: "agent-003",
+    name: "Layla Mansour",
+    email: "layla.mansour@abdoun.com",
+    city: "Khalda",
+    status: { key: "inactive", label: "Inactive" },
+    activityDate: "2026-05-30T16:40:00.000Z",
+  },
+  {
+    id: "agent-004",
+    name: "Fadi Nasser",
+    email: "fadi.nasser@abdoun.com",
+    phone: "+962 77 210 8844",
+    city: "Shmeisani",
+    status: { key: "active", label: "Active" },
+    activityDate: "2026-06-07T11:05:00.000Z",
+  },
+  {
+    id: "agent-005",
+    name: "Rana Saleh",
+    email: "rana.saleh@abdoun.com",
+    phone: "+962 79 880 2211",
+    city: "Amman",
+    status: { key: "suspended", label: "Suspended" },
+    activityDate: "2026-05-12T08:30:00.000Z",
+  },
+  {
+    id: "agent-006",
+    name: "Yousef Haddad",
+    email: "yousef.haddad@abdoun.com",
+    phone: "+962 78 441 9920",
+    city: "Abdoun",
+    status: { key: "active", label: "Active" },
+    activityDate: "2026-06-06T18:50:00.000Z",
+  },
+];
