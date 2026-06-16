@@ -6,14 +6,22 @@ import {
   Table,
   TableBodySkeleton,
   sortRowsByConfig,
+  type TableColumn,
 } from "../ui/Table";
 import { TableNoDataFound } from "../ListTableView/TableNoDataFound";
 import { TablePaginition } from "../ListTableView/TablePaginition";
 import { PaginitionSkeleton } from "../PropertyCardList/PaginitionSkeleton";
 import { PropertyPaginition } from "../PropertyCardList/PropertyPaginition";
 import { AgentGridView } from "./AgentGridView";
+import { buildAgentTableColumns } from "./agentTableColumns";
+import {
+  buildAgentStatusRowActions,
+  hasAgentWorkflowActions,
+} from "./agentStatusRowActions";
 import { resolveAgentPinnedColumns } from "./resolveAgentPinnedColumns";
+import type { Agent } from "./types";
 import type { AgentListViewProps } from "./types";
+import type { AgentRowActionsInput } from "./rowActionTypes";
 
 const DEFAULT_GRID_TITLE_COLUMN_ID = "name";
 const DEFAULT_GRID_HIDDEN_COLUMN_IDS = ["actions"];
@@ -22,7 +30,7 @@ export function AgentListView<T>({
   isLoading = false,
   listTitle = "Agents",
   data,
-  columns,
+  columns: columnsProp,
   getRowId,
   getRowLabel: getRowLabelProp,
   sortConfig,
@@ -30,7 +38,7 @@ export function AgentListView<T>({
   multiSortWithShift = true,
   noDataFound,
   pagination,
-  rowActions,
+  workflowActions,
   mobileRowActions,
   buttonSize = "md",
   gridTitleColumnId = DEFAULT_GRID_TITLE_COLUMN_ID,
@@ -64,6 +72,25 @@ export function AgentListView<T>({
   const tablePaginationFooter = showTablePagination ? (
     <TablePaginition {...pagination!} buttonSize={buttonSize} />
   ) : null;
+
+  const resolvedRowActions = useMemo(
+    () =>
+      hasAgentWorkflowActions(workflowActions)
+        ? buildAgentStatusRowActions(workflowActions)
+        : undefined,
+    [workflowActions],
+  );
+
+  const columns = useMemo((): TableColumn<T>[] => {
+    if (columnsProp) {
+      return columnsProp;
+    }
+    return buildAgentTableColumns({
+      buttonSize,
+      workflowActions,
+      onClick: onRowClick as ((agent: Agent) => void) | undefined,
+    }) as TableColumn<T>[];
+  }, [buttonSize, columnsProp, onRowClick, workflowActions]);
 
   const hiddenColumnIdSet = useMemo(
     () => new Set(gridHiddenColumnIds),
@@ -113,7 +140,9 @@ export function AgentListView<T>({
           columns={columns}
           getRowId={getRowId}
           getRowLabel={resolveRowLabel}
-          rowActions={rowActions}
+          rowActions={
+            resolvedRowActions as AgentRowActionsInput<T> | undefined
+          }
           mobileRowActions={mobileRowActions}
           buttonSize={buttonSize}
           gridTitleColumnId={gridTitleColumnId}
@@ -178,6 +207,7 @@ export {
   AGENT_STATUS_WORKFLOW_ACTION_MATRIX,
   AGENT_WORKFLOW_ACTION_IDS,
   buildAgentStatusRowActions,
+  hasAgentWorkflowActions,
 } from "./agentStatusRowActions";
 export type {
   AgentWorkflowActionId,

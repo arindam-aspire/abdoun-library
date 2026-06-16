@@ -1,12 +1,17 @@
+import { cn } from "../../lib/cn";
 import type { BadgeVariant } from "../ui/Badge";
 import { Badge } from "../ui/Badge";
 import type { AgentStatus, AgentStatusKey } from "./types";
 
 const AGENT_STATUS_BADGE_VARIANT: Record<AgentStatusKey, BadgeVariant> = {
   active: "success",
-  inactive: "secondary",
+  inactive: "outline",
   pending: "warning",
   suspended: "destructive",
+};
+
+const AGENT_STATUS_BADGE_CLASSNAME: Partial<Record<AgentStatusKey, string>> = {
+  inactive: "border-muted/30 bg-muted/15 text-muted shadow-none ring-0",
 };
 
 type AgentStatusBadgeProps = {
@@ -18,7 +23,10 @@ export function AgentStatusBadge({ status }: AgentStatusBadgeProps) {
     <Badge
       variant={AGENT_STATUS_BADGE_VARIANT[status.key]}
       appearance="soft"
-      className="w-fit max-w-max shrink-0 whitespace-nowrap"
+      className={cn(
+        "w-fit max-w-max shrink-0 whitespace-nowrap",
+        AGENT_STATUS_BADGE_CLASSNAME[status.key],
+      )}
     >
       {status.label}
     </Badge>

@@ -1,11 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { SortConfig } from "../ui/Table";
 import { AgentListView } from "./index";
-import { buildAgentTableColumns } from "./agentTableColumns";
 import { agentListStoryAgents } from "./agentListStoryData";
-import { demoAgentStatusRowActions } from "./agentWorkflowActionsStoryConfig";
+import { demoAgentWorkflowActionHandlers } from "./agentWorkflowActionsStoryConfig";
 import type { AgentListViewProps } from "./types";
 import type { Agent } from "./types";
 
@@ -27,33 +26,22 @@ const defaultPagination: NonNullable<AgentListViewProps<Agent>["pagination"]> = 
 function AgentListViewDemo(
   props: Omit<
     AgentListViewProps<Agent>,
-    "sortConfig" | "onSort" | "data" | "columns" | "getRowId"
+    "sortConfig" | "onSort" | "data" | "getRowId"
   > & {
     data?: Agent[];
     initialSort?: SortConfig;
-    columns?: AgentListViewProps<Agent>["columns"];
   },
 ) {
   const {
     initialSort = [],
     data = agentListStoryAgents,
     pagination: paginationProp,
-    columns: columnsProp,
-    rowActions = demoAgentStatusRowActions,
+    workflowActions = demoAgentWorkflowActionHandlers,
     ...rest
   } = props;
   const [sortConfig, setSortConfig] = useState<SortConfig>(initialSort);
   const [page, setPage] = useState(paginationProp?.page ?? 1);
   const [pageSize, setPageSize] = useState(paginationProp?.pageSize ?? 6);
-
-  const columns = useMemo(
-    () =>
-      columnsProp ??
-      buildAgentTableColumns({
-        rowActions,
-      }),
-    [columnsProp, rowActions],
-  );
 
   const pagination = paginationProp
     ? {
@@ -77,12 +65,11 @@ function AgentListViewDemo(
   return (
     <AgentListView
       data={data}
-      columns={columns}
       getRowId={(agent) => agent.id}
       getRowLabel={(agent) => agent.name}
       sortConfig={sortConfig}
       onSort={setSortConfig}
-      rowActions={rowActions}
+      workflowActions={workflowActions}
       pagination={pagination}
       {...rest}
     />
@@ -106,14 +93,14 @@ const meta = {
           "- **City**",
           "- **Status**",
           "- **Activity Date**",
-          "- **Actions** — pinned right; status-based menu from `rowActions`",
+          "- **Actions** — pinned right; status-based menu from `workflowActions`",
           "",
           "**Mobile (`< md`)**",
           "- Status badge top-right; name is plain text (not a link)",
           "- Tappable contacts, then inline action buttons (no footer border)",
-          "- Use `buildAgentStatusRowActions()` for Active / Inactive / Pending action sets",
+          "- Actions are chosen by agent status; pass handlers via `workflowActions`",
           "",
-          "Pass custom `columns` and `rowActions` to override the default agent layout.",
+          "Pass custom `columns` to override the default agent table layout.",
         ].join("\n"),
       },
     },
@@ -128,7 +115,7 @@ const meta = {
   render: (args) => <AgentListViewDemo {...args} />,
   argTypes: {
     columns: { control: false },
-    rowActions: { control: false },
+    workflowActions: { control: false },
     sortConfig: { control: false },
     onSort: { control: false },
     getRowId: { control: false },
@@ -142,7 +129,7 @@ const meta = {
     listTitle: "Agents",
     buttonSize: "md",
     data: agentListStoryAgents,
-    rowActions: demoAgentStatusRowActions,
+    workflowActions: demoAgentWorkflowActionHandlers,
     pagination: defaultPagination,
   },
 } satisfies Meta<typeof AgentListView>;

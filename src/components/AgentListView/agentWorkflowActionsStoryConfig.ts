@@ -1,5 +1,4 @@
 import { fn } from "storybook/test";
-import { buildAgentStatusRowActions } from "./agentStatusRowActions";
 import type { AgentWorkflowActionsConfig } from "./agentStatusRowActions";
 
 export const demoAgentWorkflowActionHandlers: AgentWorkflowActionsConfig = {
@@ -10,7 +9,3 @@ export const demoAgentWorkflowActionHandlers: AgentWorkflowActionsConfig = {
   grant_admin: fn(),
   remove: fn(),
 };
-
-export const demoAgentStatusRowActions = buildAgentStatusRowActions(
-  demoAgentWorkflowActionHandlers,
-);

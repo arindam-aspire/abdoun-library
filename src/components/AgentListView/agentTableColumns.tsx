@@ -6,11 +6,15 @@ import type { UiControlSize } from "../ui/commonTypes";
 import { AgentRowActions } from "./AgentRowActions";
 import { AgentStatusBadge } from "./AgentStatusBadge";
 import {
+  buildAgentStatusRowActions,
+  hasAgentWorkflowActions,
+  type AgentWorkflowActionsConfig,
+} from "./agentStatusRowActions";
+import {
   formatAgentActivityDate,
   resolveAgentContacts,
 } from "./agentListFields";
 import type { Agent } from "./types";
-import type { AgentRowActionsInput } from "./rowActionTypes";
 
 const EMPTY_CELL_VALUE = "—";
 
@@ -85,12 +89,15 @@ function AgentContactsCell({ agent }: { agent: Agent }) {
 export function buildAgentTableColumns({
   buttonSize = "md",
   onClick,
-  rowActions,
+  workflowActions,
 }: {
   buttonSize?: UiControlSize;
   onClick?: (agent: Agent) => void;
-  rowActions?: AgentRowActionsInput<Agent>;
+  workflowActions?: AgentWorkflowActionsConfig;
 } = {}): TableColumn<Agent>[] {
+  const rowActions = hasAgentWorkflowActions(workflowActions)
+    ? buildAgentStatusRowActions(workflowActions)
+    : undefined;
   const showActions = Boolean(rowActions);
 
   const columns: TableColumn<Agent>[] = [

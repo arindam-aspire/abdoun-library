@@ -5,9 +5,8 @@ import type { SortConfig } from "../ui/Table";
 import { AgentListView } from "./index";
 import { mapAgentApiListingsToAgents } from "./agentApiListing";
 import type { AgentApiListing } from "./agentApiListing";
-import { buildAgentTableColumns } from "./agentTableColumns";
 import { agentApiListTableJson } from "./agentApiListStoryData";
-import { demoAgentStatusRowActions } from "./agentWorkflowActionsStoryConfig";
+import { demoAgentWorkflowActionHandlers } from "./agentWorkflowActionsStoryConfig";
 
 const onPageChange = fn();
 const onPageSizeChange = fn();
@@ -27,23 +26,15 @@ function AgentApiListDemo({
 }: AgentApiListDemoProps) {
   const [sortConfig, setSortConfig] = useState<SortConfig>(initialSort ?? []);
   const agents = useMemo(() => mapAgentApiListingsToAgents(apiData), [apiData]);
-  const columns = useMemo(
-    () =>
-      buildAgentTableColumns({
-        rowActions: demoAgentStatusRowActions,
-      }),
-    [],
-  );
 
   return (
     <AgentListView
       data={agents}
-      columns={columns}
       getRowId={(agent) => agent.id}
       getRowLabel={(agent) => agent.name}
       sortConfig={sortConfig}
       onSort={setSortConfig}
-      rowActions={demoAgentStatusRowActions}
+      workflowActions={demoAgentWorkflowActionHandlers}
       listTitle="Agents"
       pagination={{
         total: agents.length,
@@ -75,7 +66,7 @@ const meta = {
           "- `status` → badge (`ACTIVE`, `INACTIVE`, `PENDING_APPROVAL`, `SUSPENDED`, …)",
           "- `reviewedAt` → **Activity Date**",
           "",
-          "**Row actions** — wire handlers with `buildAgentStatusRowActions()`",
+          "**Row actions** — pass handlers via `workflowActions` (status picks which buttons show)",
           "",
           "**Example API JSON**",
           "```json",

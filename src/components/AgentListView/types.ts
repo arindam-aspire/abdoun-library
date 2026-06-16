@@ -8,10 +8,8 @@ import type {
   TableColumn,
   TableColumnWidths,
 } from "../ui/Table";
-import type {
-  AgentRowActionsInput,
-  AgentMobileRowActionsConfig,
-} from "./rowActionTypes";
+import type { AgentMobileRowActionsConfig } from "./rowActionTypes";
+import type { AgentWorkflowActionsConfig } from "./agentStatusRowActions";
 
 export type AgentStatusKey = "active" | "inactive" | "pending" | "suspended";
 
@@ -41,8 +39,10 @@ export type AgentListViewProps<T = Agent> = {
   isLoading?: boolean;
   listTitle?: string;
   data: T[];
-  /** Table columns for `md` and `lg` breakpoints. */
-  columns: TableColumn<T>[];
+  /**
+   * Table columns for `md` and `lg`. Defaults to the standard agent columns when omitted.
+   */
+  columns?: TableColumn<T>[];
   getRowId: (row: T) => string;
   /** Used for action menu labels on mobile cards. */
   getRowLabel?: (row: T) => string;
@@ -59,10 +59,10 @@ export type AgentListViewProps<T = Agent> = {
   noDataFound?: TableNoDataFoundContent;
   pagination?: AgentListPaginationProps;
   /**
-   * Row actions for the actions column and mobile cards.
-   * Static array or per-row factory.
+   * Status-based action handlers (Active, Inactive, Pending, Suspended).
+   * The library picks which buttons to show per row; wire only the callbacks you need.
    */
-  rowActions?: AgentRowActionsInput<T>;
+  workflowActions?: AgentWorkflowActionsConfig;
   /**
    * Mobile card row action layout (`< md` only). Defaults to inline labeled buttons
    * below contacts with no footer border.
@@ -91,6 +91,7 @@ export type AgentListViewProps<T = Agent> = {
 };
 
 export type { SortConfig, PinnedColumns, TableNoDataFoundContent };
+export type { AgentWorkflowActionsConfig } from "./agentStatusRowActions";
 export type {
   AgentMobileRowActionsConfig,
   AgentMobileRowActionsPlacement,

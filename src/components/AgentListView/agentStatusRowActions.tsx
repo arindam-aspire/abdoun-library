@@ -67,6 +67,15 @@ export const AGENT_STATUS_WORKFLOW_ACTION_MATRIX: Record<
   ],
 };
 
+export function hasAgentWorkflowActions(
+  handlers?: AgentWorkflowActionsConfig,
+): handlers is AgentWorkflowActionsConfig {
+  if (!handlers) {
+    return false;
+  }
+  return AGENT_WORKFLOW_ACTION_IDS.some((id) => handlers[id] != null);
+}
+
 export function buildAgentStatusRowActions(
   handlers: AgentWorkflowActionsConfig = {},
 ): AgentRowActionsInput<Agent> {

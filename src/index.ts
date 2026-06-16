@@ -15,6 +15,7 @@ export {
   mapAgentApiStatus,
   resolveAgentPinnedColumns,
   buildAgentStatusRowActions,
+  hasAgentWorkflowActions,
   AGENT_STATUS_WORKFLOW_ACTION_MATRIX,
   AGENT_WORKFLOW_ACTION_IDS,
   DEFAULT_AGENT_MOBILE_ROW_ACTIONS,
