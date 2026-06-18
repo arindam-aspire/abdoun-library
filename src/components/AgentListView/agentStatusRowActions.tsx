@@ -83,7 +83,6 @@ export const AGENT_STATUS_WORKFLOW_ACTION_MATRIX: Record<
   invited: [
     { id: "resend", label: "Resend", icon: WORKFLOW_ACTION_ICONS.resend },
     { id: "revoke", label: "Revoke", icon: WORKFLOW_ACTION_ICONS.revoke },
-    { id: "remove", label: "Remove", icon: WORKFLOW_ACTION_ICONS.remove, tone: "danger", iconOnly: true },
   ],
 };
 
