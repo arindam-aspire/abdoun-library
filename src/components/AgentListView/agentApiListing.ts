@@ -4,24 +4,24 @@ import type { Agent } from "./types";
 /** Shape returned by the agents list API. */
 export type AgentApiListing = {
   id: string;
-  email?: string | null;
-  fullName: string;
-  phone?: string | null;
-  serviceArea: string;
+  email: string;
   status: string;
   /** ISO timestamp for last review / activity. */
-  reviewedAt?: string | null;
+  reviewedAt: string;
+  fullName?: string | null;
+  phone?: string | null;
+  serviceArea?: string | null;
 };
 
 export function mapAgentApiListingToAgent(listing: AgentApiListing): Agent {
   return {
     id: listing.id,
-    name: listing.fullName,
-    email: listing.email?.trim() || undefined,
-    phone: listing.phone?.trim() || undefined,
-    city: listing.serviceArea,
+    email: listing.email.trim(),
     status: mapAgentApiStatus(listing.status),
-    activityDate: listing.reviewedAt ?? "",
+    activityDate: listing.reviewedAt.trim(),
+    name: listing.fullName?.trim() || undefined,
+    phone: listing.phone?.trim() || undefined,
+    city: listing.serviceArea?.trim() || undefined,
   };
 }
 

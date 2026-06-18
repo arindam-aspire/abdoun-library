@@ -26,13 +26,13 @@ export interface AgentStatus {
 
 export interface Agent {
   id: string;
-  name: string;
-  email?: string;
-  phone?: string;
-  city: string;
+  email: string;
   status: AgentStatus;
   /** ISO-8601 activity timestamp. */
   activityDate: string;
+  name?: string;
+  phone?: string;
+  city?: string;
 }
 
 export interface AgentListPaginationProps extends PaginitionContent {

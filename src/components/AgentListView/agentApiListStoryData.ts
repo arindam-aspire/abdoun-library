@@ -31,8 +31,6 @@ export const agentApiListTableJson: AgentApiListing[] = [
   {
     id: "d3ahe84c-8e6c-6dh3-1f4g-3c2d0e6g7b8c",
     email: "layla.mansour@abdoun.com",
-    fullName: "Layla Mansour",
-    serviceArea: "Khalda",
     status: "INACTIVE",
     reviewedAt: "2026-05-30T16:40:00.000Z",
   },

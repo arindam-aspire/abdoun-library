@@ -14,6 +14,7 @@ import { PaginitionSkeleton } from "../PropertyCardList/PaginitionSkeleton";
 import { PropertyPaginition } from "../PropertyCardList/PropertyPaginition";
 import { AgentGridView } from "./AgentGridView";
 import { buildAgentTableColumns } from "./agentTableColumns";
+import { isAgentRow, resolveAgentDisplayName } from "./agentListFields";
 import {
   buildAgentStatusRowActions,
   hasAgentWorkflowActions,
@@ -104,6 +105,10 @@ export function AgentListView<T>({
 
     const titleColumn = columns.find((column) => column.id === gridTitleColumnId);
     return (row: T) => {
+      if (isAgentRow(row)) {
+        return resolveAgentDisplayName(row);
+      }
+
       if (titleColumn?.getSortValue) {
         const value = titleColumn.getSortValue(row);
         if (value != null && value !== "") {

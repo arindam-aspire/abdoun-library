@@ -66,7 +66,6 @@ function AgentListViewDemo(
     <AgentListView
       data={data}
       getRowId={(agent) => agent.id}
-      getRowLabel={(agent) => agent.name}
       sortConfig={sortConfig}
       onSort={setSortConfig}
       workflowActions={workflowActions}
@@ -88,16 +87,16 @@ const meta = {
           "Responsive agent directory with a sortable table on `md` and `lg`, and a grid card layout below `md`.",
           "",
           "**Columns (table)**",
-          "- **Name** — pinned left while scrolling",
-          "- **Contacts** — email and phone stacked",
-          "- **City**",
-          "- **Status**",
-          "- **Activity Date**",
+          "- **Name** — optional; pinned left while scrolling",
+          "- **Email** — required; optional phone shown below",
+          "- **City** — optional",
+          "- **Status** — required",
+          "- **Activity Date** — required",
           "- **Actions** — pinned right; status-based menu from `workflowActions`",
           "",
           "**Mobile (`< md`)**",
-          "- Status badge top-right; name is plain text (not a link)",
-          "- Tappable contacts, then inline action buttons (no footer border)",
+          "- Status badge top-right; title uses name or email",
+          "- Email always shown; phone optional when present",
           "- Actions are chosen by agent status; pass handlers via `workflowActions`",
           "",
           "Pass custom `columns` to override the default agent table layout.",

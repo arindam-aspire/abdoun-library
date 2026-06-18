@@ -31,7 +31,6 @@ function AgentApiListDemo({
     <AgentListView
       data={agents}
       getRowId={(agent) => agent.id}
-      getRowLabel={(agent) => agent.name}
       sortConfig={sortConfig}
       onSort={setSortConfig}
       workflowActions={demoAgentWorkflowActionHandlers}
@@ -60,11 +59,12 @@ const meta = {
           "Use `mapAgentApiListingsToAgents()` to convert agent list API JSON into `Agent[]` for `AgentListView`.",
           "",
           "**Field mapping**",
-          "- `fullName` → **Name**",
-          "- `email` / `phone` → **Contacts**",
-          "- `serviceArea` → **City**",
-          "- `status` → badge (`ACTIVE`, `INACTIVE`, `PENDING_APPROVAL`, `SUSPENDED`, `DECLINED`, `INVITED`, …)",
-          "- `reviewedAt` → **Activity Date**",
+          "- `email` → **Email** (required)",
+          "- `status` → badge (`ACTIVE`, `INACTIVE`, `PENDING_APPROVAL`, `SUSPENDED`, `DECLINED`, `INVITED`, …) (required)",
+          "- `reviewedAt` → **Activity Date** (required)",
+          "- `fullName` → **Name** (optional)",
+          "- `phone` → shown under email (optional)",
+          "- `serviceArea` → **City** (optional)",
           "",
           "**Row actions** — pass handlers via `workflowActions` (status picks which buttons show)",
           "",

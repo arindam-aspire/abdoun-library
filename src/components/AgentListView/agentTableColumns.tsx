@@ -12,11 +12,11 @@ import {
 } from "./agentStatusRowActions";
 import {
   formatAgentActivityDate,
+  formatOptionalAgentText,
   resolveAgentContacts,
+  resolveAgentDisplayName,
 } from "./agentListFields";
 import type { Agent } from "./types";
-
-const EMPTY_CELL_VALUE = "—";
 
 function AgentNameCell({
   agent,
@@ -25,14 +25,16 @@ function AgentNameCell({
   agent: Agent;
   onClick?: (agent: Agent) => void;
 }) {
+  const label = formatOptionalAgentText(agent.name);
   const content = (
     <span
       className={cn(
         "block w-full min-w-0 truncate font-medium text-secondary",
         textBodySmClasses,
+        !agent.name?.trim() && "text-muted",
       )}
     >
-      {agent.name}
+      {label}
     </span>
   );
 
@@ -51,26 +53,20 @@ function AgentNameCell({
   return content;
 }
 
-function AgentContactsCell({ agent }: { agent: Agent }) {
+function AgentEmailCell({ agent }: { agent: Agent }) {
   const { email, phone } = resolveAgentContacts(agent);
-
-  if (!email && !phone) {
-    return <span className={textMetaClasses}>{EMPTY_CELL_VALUE}</span>;
-  }
 
   return (
     <div className="flex min-w-0 flex-col gap-0.5 text-start">
-      {email ? (
-        <span
-          className={cn(
-            "inline-flex min-w-0 items-center gap-1.5 truncate",
-            textBodySmClasses,
-          )}
-        >
-          <Mail className="size-3.5 shrink-0 text-muted" aria-hidden />
-          <span className="truncate">{email}</span>
-        </span>
-      ) : null}
+      <span
+        className={cn(
+          "inline-flex min-w-0 items-center gap-1.5 truncate",
+          textBodySmClasses,
+        )}
+      >
+        <Mail className="size-3.5 shrink-0 text-muted" aria-hidden />
+        <span className="truncate">{email}</span>
+      </span>
       {phone ? (
         <span
           className={cn(
@@ -107,29 +103,33 @@ export function buildAgentTableColumns({
       align: "start",
       sortable: true,
       minWidth: 160,
-      getSortValue: (row) => row.name,
+      getSortValue: (row) => row.name?.trim() ?? "",
       render: (row) => <AgentNameCell agent={row} onClick={onClick} />,
     },
     {
-      id: "contacts",
-      header: "Contacts",
+      id: "email",
+      header: "Email",
       align: "start",
       sortable: true,
       minWidth: 180,
-      getSortValue: (row) =>
-        [row.email, row.phone].filter(Boolean).join(" "),
-      render: (row) => <AgentContactsCell agent={row} />,
+      getSortValue: (row) => [row.email, row.phone].filter(Boolean).join(" "),
+      render: (row) => <AgentEmailCell agent={row} />,
     },
     {
       id: "city",
       header: "City",
       align: "start",
       sortable: true,
-      getSortValue: (row) => row.city,
+      getSortValue: (row) => row.city?.trim() ?? "",
       cellClassName: "truncate",
       render: (row) => (
-        <span className="block w-full min-w-0 truncate text-text/80">
-          {row.city}
+        <span
+          className={cn(
+            "block w-full min-w-0 truncate",
+            row.city?.trim() ? "text-text/80" : "text-muted",
+          )}
+        >
+          {formatOptionalAgentText(row.city)}
         </span>
       ),
     },
@@ -177,7 +177,7 @@ export function buildAgentTableColumns({
             row={row}
             buttonSize={buttonSize}
             rowActions={rowActions}
-            ariaLabel={`Actions for ${row.name}`}
+            ariaLabel={`Actions for ${resolveAgentDisplayName(row)}`}
           />
         </div>
       ),
