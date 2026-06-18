@@ -11,7 +11,13 @@ import type {
 import type { AgentMobileRowActionsConfig } from "./rowActionTypes";
 import type { AgentWorkflowActionsConfig } from "./agentStatusRowActions";
 
-export type AgentStatusKey = "active" | "inactive" | "pending" | "suspended";
+export type AgentStatusKey =
+  | "active"
+  | "inactive"
+  | "pending"
+  | "suspended"
+  | "declined"
+  | "invited";
 
 export interface AgentStatus {
   key: AgentStatusKey;
@@ -59,7 +65,7 @@ export type AgentListViewProps<T = Agent> = {
   noDataFound?: TableNoDataFoundContent;
   pagination?: AgentListPaginationProps;
   /**
-   * Status-based action handlers (Active, Inactive, Pending, Suspended).
+   * Status-based action handlers (Active, Inactive, Pending, Suspended, Declined, Invited).
    * The library picks which buttons to show per row; wire only the callbacks you need.
    */
   workflowActions?: AgentWorkflowActionsConfig;

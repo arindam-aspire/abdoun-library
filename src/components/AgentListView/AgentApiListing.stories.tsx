@@ -63,7 +63,7 @@ const meta = {
           "- `fullName` → **Name**",
           "- `email` / `phone` → **Contacts**",
           "- `serviceArea` → **City**",
-          "- `status` → badge (`ACTIVE`, `INACTIVE`, `PENDING_APPROVAL`, `SUSPENDED`, …)",
+          "- `status` → badge (`ACTIVE`, `INACTIVE`, `PENDING_APPROVAL`, `SUSPENDED`, `DECLINED`, `INVITED`, …)",
           "- `reviewedAt` → **Activity Date**",
           "",
           "**Row actions** — pass handlers via `workflowActions` (status picks which buttons show)",

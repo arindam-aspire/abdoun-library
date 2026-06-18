@@ -7,5 +7,7 @@ export const demoAgentWorkflowActionHandlers: AgentWorkflowActionsConfig = {
   deactivate: fn(),
   decline: fn(),
   grant_admin: fn(),
+  resend: fn(),
+  revoke: fn(),
   remove: fn(),
 };

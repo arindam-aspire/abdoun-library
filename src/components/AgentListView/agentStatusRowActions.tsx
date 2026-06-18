@@ -1,5 +1,7 @@
 import {
+  Ban,
   CheckCircle,
+  RotateCw,
   ShieldPlus,
   Trash2,
   UserCheck,
@@ -17,6 +19,8 @@ export const AGENT_WORKFLOW_ACTION_IDS = [
   "deactivate",
   "decline",
   "grant_admin",
+  "resend",
+  "revoke",
   "remove",
 ] as const;
 
@@ -40,6 +44,8 @@ const WORKFLOW_ACTION_ICONS: Record<AgentWorkflowActionId, ReactNode> = {
   deactivate: <UserX className="size-4 shrink-0" aria-hidden />,
   decline: <XCircle className="size-4 shrink-0" aria-hidden />,
   grant_admin: <ShieldPlus className="size-4 shrink-0" aria-hidden />,
+  resend: <RotateCw className="size-4 shrink-0" aria-hidden />,
+  revoke: <Ban className="size-4 shrink-0" aria-hidden />,
   remove: <Trash2 className="size-4 shrink-0" aria-hidden />,
 };
 
@@ -63,6 +69,20 @@ export const AGENT_STATUS_WORKFLOW_ACTION_MATRIX: Record<
   ],
   suspended: [
     { id: "activate", label: "Activate", icon: WORKFLOW_ACTION_ICONS.activate },
+    { id: "remove", label: "Remove", icon: WORKFLOW_ACTION_ICONS.remove, tone: "danger", iconOnly: true },
+  ],
+  declined: [
+    {
+      id: "remove",
+      label: "Delete",
+      icon: WORKFLOW_ACTION_ICONS.remove,
+      tone: "danger",
+      iconOnly: true,
+    },
+  ],
+  invited: [
+    { id: "resend", label: "Resend", icon: WORKFLOW_ACTION_ICONS.resend },
+    { id: "revoke", label: "Revoke", icon: WORKFLOW_ACTION_ICONS.revoke },
     { id: "remove", label: "Remove", icon: WORKFLOW_ACTION_ICONS.remove, tone: "danger", iconOnly: true },
   ],
 };

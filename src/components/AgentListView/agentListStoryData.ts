@@ -54,4 +54,22 @@ export const agentListStoryAgents: Agent[] = [
     status: { key: "active", label: "Active" },
     activityDate: "2026-06-06T18:50:00.000Z",
   },
+  {
+    id: "agent-007",
+    name: "Nadia Faris",
+    email: "nadia.faris@abdoun.com",
+    phone: "+962 79 334 7788",
+    city: "Amman",
+    status: { key: "declined", label: "Declined" },
+    activityDate: "2026-05-20T10:15:00.000Z",
+  },
+  {
+    id: "agent-008",
+    name: "Karim Abbasi",
+    email: "karim.abbasi@abdoun.com",
+    phone: "+962 79 112 3344",
+    city: "Abdoun",
+    status: { key: "invited", label: "Invited" },
+    activityDate: "2026-06-10T08:00:00.000Z",
+  },
 ];

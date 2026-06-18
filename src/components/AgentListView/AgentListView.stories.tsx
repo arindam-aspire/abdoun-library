@@ -163,7 +163,7 @@ export const MobileGrid: Story = {
     docs: {
       description: {
         story:
-          "Mobile cards show status top-right and status-based action buttons below contacts (Active: Deactivate, Grant Admin, Remove; Inactive: Activate, Remove; Pending: Approve, Decline, Remove).",
+          "Mobile cards show status top-right and status-based action buttons below contacts (Active: Deactivate, Grant Admin, Remove; Inactive: Activate, Remove; Pending: Approve, Decline, Remove; Declined: Delete only; Invited: Resend, Revoke, Remove).",
       },
     },
   },

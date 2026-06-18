@@ -54,4 +54,22 @@ export const agentApiListTableJson: AgentApiListing[] = [
     status: "ACTIVE",
     reviewedAt: "2026-06-06T18:50:00.000Z",
   },
+  {
+    id: "g6dkh17f-1h9f-9gk6-4i7j-6f5g3h9j0e1f",
+    email: "nadia.faris@abdoun.com",
+    fullName: "Nadia Faris",
+    phone: "+962 79 334 7788",
+    serviceArea: "Amman",
+    status: "DECLINED",
+    reviewedAt: "2026-05-20T10:15:00.000Z",
+  },
+  {
+    id: "h7eli28g-2i0g-0hl7-5j8k-7g6h4i0k1f2g",
+    email: "karim.abbasi@abdoun.com",
+    fullName: "Karim Abbasi",
+    phone: "+962 79 112 3344",
+    serviceArea: "Abdoun",
+    status: "INVITED",
+    reviewedAt: "2026-06-10T08:00:00.000Z",
+  },
 ];

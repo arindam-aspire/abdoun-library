@@ -7,6 +7,8 @@ const statuses: { key: AgentStatusKey; label: string }[] = [
   { key: "inactive", label: "Inactive" },
   { key: "pending", label: "Pending" },
   { key: "suspended", label: "Suspended" },
+  { key: "declined", label: "Declined" },
+  { key: "invited", label: "Invited" },
 ];
 
 const meta = {

@@ -6,6 +6,8 @@ const AGENT_API_STATUS_KEY_MAP: Record<string, AgentStatusKey> = {
   PENDING: "pending",
   PENDING_APPROVAL: "pending",
   SUSPENDED: "suspended",
+  DECLINED: "declined",
+  INVITED: "invited",
 };
 
 function formatApiStatusLabel(status: string): string {
