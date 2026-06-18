@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, CalendarDays, Mail, Phone } from "lucide-react";
+import { CalendarDays, Mail, Phone } from "lucide-react";
 import { cn } from "../../lib/cn";
 import {
   textAvatarInitialClasses,
@@ -15,7 +15,6 @@ import { OwnerRowActions } from "./OwnerRowActions";
 import { OwnerStatusBadge } from "./OwnerStatusBadge";
 import {
   formatOwnerJoinedAt,
-  formatPropertyOwnedCount,
   getOwnerInitials,
   resolveOwnerContacts,
   resolveOwnerDisplayName,
@@ -60,7 +59,6 @@ export function OwnerMobileCard({
   const displayName = resolveOwnerDisplayName(owner);
   const { email, phone } = resolveOwnerContacts(owner);
   const joinedLabel = formatOwnerJoinedAt(owner.joinedAt);
-  const propertyLabel = formatPropertyOwnedCount(owner.propertyOwned);
   const { placement, variant } = resolveOwnerMobileRowActionsConfig(mobileRowActions);
   const showHeaderActions = Boolean(rowActions) && placement === "header";
   const showInlineActions = Boolean(rowActions) && placement === "inline";
@@ -107,16 +105,12 @@ export function OwnerMobileCard({
 
             <div
               className={cn(
-                "mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-text/80",
+                "mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-muted",
                 textBodyTightClasses,
               )}
             >
               <span className="inline-flex min-w-0 items-center gap-1.5">
-                <Building2 className="size-3.5 shrink-0 text-muted" aria-hidden />
-                <span className="truncate">{propertyLabel}</span>
-              </span>
-              <span className="inline-flex min-w-0 items-center gap-1.5 text-muted">
-                <CalendarDays className="size-3.5 shrink-0" aria-hidden />
+                <CalendarDays className="size-3.5 shrink-0 text-muted" aria-hidden />
                 <span className="truncate tabular-nums">{joinedLabel}</span>
               </span>
             </div>

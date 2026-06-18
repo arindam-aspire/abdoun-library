@@ -26,11 +26,6 @@ export function formatOwnerJoinedAt(value: string): string {
   return joinedAtFormatter.format(date);
 }
 
-export function formatPropertyOwnedCount(count: number): string {
-  const safeCount = Number.isFinite(count) ? Math.max(0, count) : 0;
-  return `${safeCount} ${safeCount === 1 ? "property" : "properties"}`;
-}
-
 export function resolveOwnerDisplayName(owner: Owner): string {
   return owner.name.trim();
 }

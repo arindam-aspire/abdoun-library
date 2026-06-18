@@ -1,4 +1,4 @@
-import { Building2, Mail, Phone } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import { cn } from "../../lib/cn";
 import { textBodySmClasses, textMetaClasses } from "../../lib/typography";
 import type { TableColumn } from "../ui/Table";
@@ -8,7 +8,6 @@ import { OwnerStatusBadge } from "./OwnerStatusBadge";
 import {
   formatOptionalOwnerText,
   formatOwnerJoinedAt,
-  formatPropertyOwnedCount,
   resolveOwnerContacts,
   resolveOwnerDisplayName,
 } from "./ownerListFields";
@@ -120,21 +119,6 @@ export function buildOwnerTableColumns({
       getSortValue: (row) =>
         [row.email, row.phone].filter(Boolean).join(" "),
       render: (row) => <OwnerContactsCell owner={row} />,
-    },
-    {
-      id: "propertyOwned",
-      header: "Property Owned",
-      align: "start",
-      sortable: true,
-      minWidth: 140,
-      getSortValue: (row) => row.propertyOwned,
-      cellClassName: "whitespace-nowrap tabular-nums",
-      render: (row) => (
-        <span className="inline-flex min-w-0 items-center gap-1.5 text-text/80">
-          <Building2 className="size-3.5 shrink-0 text-muted" aria-hidden />
-          <span>{formatPropertyOwnedCount(row.propertyOwned)}</span>
-        </span>
-      ),
     },
     {
       id: "joinedAt",

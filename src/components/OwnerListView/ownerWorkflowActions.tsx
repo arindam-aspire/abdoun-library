@@ -1,10 +1,9 @@
-import { Eye, Trash2, UserCheck, UserX } from "lucide-react";
+import { Trash2, UserCheck, UserX } from "lucide-react";
 import type { ReactNode } from "react";
 import type { Owner } from "./types";
 import type { OwnerRowActionTone, OwnerRowActionsInput } from "./rowActionTypes";
 
 export const OWNER_WORKFLOW_ACTION_IDS = [
-  "view",
   "activate",
   "suspend",
   "delete",
@@ -25,7 +24,6 @@ type OwnerWorkflowActionDefinition = {
 };
 
 const WORKFLOW_ACTION_ICONS: Record<OwnerWorkflowActionId, ReactNode> = {
-  view: <Eye className="size-4 shrink-0" aria-hidden />,
   activate: <UserCheck className="size-4 shrink-0" aria-hidden />,
   suspend: <UserX className="size-4 shrink-0" aria-hidden />,
   delete: <Trash2 className="size-4 shrink-0" aria-hidden />,
@@ -36,7 +34,6 @@ const OWNER_STATUS_WORKFLOW_ACTION_MATRIX: Record<
   OwnerWorkflowActionDefinition[]
 > = {
   active: [
-    { id: "view", label: "View", icon: WORKFLOW_ACTION_ICONS.view },
     {
       id: "suspend",
       label: "Suspend",
@@ -51,7 +48,6 @@ const OWNER_STATUS_WORKFLOW_ACTION_MATRIX: Record<
     },
   ],
   suspended: [
-    { id: "view", label: "View", icon: WORKFLOW_ACTION_ICONS.view },
     {
       id: "activate",
       label: "Activate",
