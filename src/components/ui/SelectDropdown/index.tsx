@@ -182,6 +182,7 @@ export function SelectDropdown({
       >
         <div className="relative isolate z-[1]">
           <ListboxButton
+            suppressHydrationWarning
             id={selectId}
             autoFocus={autoFocus}
             aria-invalid={hasError || undefined}
