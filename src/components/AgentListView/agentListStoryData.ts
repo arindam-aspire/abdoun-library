@@ -21,9 +21,7 @@ export const agentListStoryAgents: Agent[] = [
   },
   {
     id: "agent-003",
-    name: "Layla Mansour",
     email: "layla.mansour@abdoun.com",
-    city: "Khalda",
     status: { key: "inactive", label: "Inactive" },
     activityDate: "2026-05-30T16:40:00.000Z",
   },
@@ -53,5 +51,28 @@ export const agentListStoryAgents: Agent[] = [
     city: "Abdoun",
     status: { key: "active", label: "Active" },
     activityDate: "2026-06-06T18:50:00.000Z",
+  },
+  {
+    id: "agent-007",
+    name: "Nadia Faris",
+    email: "nadia.faris@abdoun.com",
+    phone: "+962 79 334 7788",
+    city: "Amman",
+    status: { key: "declined", label: "Declined" },
+    activityDate: "2026-05-20T10:15:00.000Z",
+  },
+  {
+    id: "agent-008",
+    email: "karim.abbasi@abdoun.com",
+    phone: "+962 79 112 3344",
+    city: "Abdoun",
+    status: { key: "invited", label: "Invited" },
+    activityDate: "2026-06-10T08:00:00.000Z",
+  },
+  {
+    id: "agent-009",
+    email: "pending.name@abdoun.com",
+    status: { key: "pending", label: "Pending Approval" },
+    activityDate: "2026-06-11T09:30:00.000Z",
   },
 ];

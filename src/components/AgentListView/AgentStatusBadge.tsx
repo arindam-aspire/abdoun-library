@@ -8,6 +8,8 @@ const AGENT_STATUS_BADGE_VARIANT: Record<AgentStatusKey, BadgeVariant> = {
   inactive: "outline",
   pending: "warning",
   suspended: "destructive",
+  declined: "destructive",
+  invited: "info",
 };
 
 const AGENT_STATUS_BADGE_CLASSNAME: Partial<Record<AgentStatusKey, string>> = {

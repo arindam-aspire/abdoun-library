@@ -2,46 +2,46 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 import { useState } from "react";
 import type { SortConfig } from "../ui/Table";
-import { AgentListView } from "./index";
-import { agentListStoryAgents } from "./agentListStoryData";
-import { demoAgentWorkflowActionHandlers } from "./agentWorkflowActionsStoryConfig";
-import type { AgentListViewProps } from "./types";
-import type { Agent } from "./types";
+import { OwnerListView } from "./index";
+import { ownerListStoryOwners } from "./ownerListStoryData";
+import { demoOwnerWorkflowActionHandlers } from "./ownerWorkflowActionsStoryConfig";
+import type { OwnerListViewProps } from "./types";
+import type { Owner } from "./types";
 
 const onPageChange = fn();
 const onPageSizeChange = fn();
 
-const defaultPagination: NonNullable<AgentListViewProps<Agent>["pagination"]> = {
-  total: agentListStoryAgents.length,
+const defaultPagination: NonNullable<OwnerListViewProps<Owner>["pagination"]> = {
+  total: ownerListStoryOwners.length,
   page: 1,
-  pageSize: 6,
+  pageSize: 5,
   totalPages: 1,
   hasNext: false,
   hasPrevious: false,
-  pageOptions: [6, 10, 25],
+  pageOptions: [5, 10, 25],
   onPageChange,
   onPageSizeChange,
 };
 
-function AgentListViewDemo(
+function OwnerListViewDemo(
   props: Omit<
-    AgentListViewProps<Agent>,
+    OwnerListViewProps<Owner>,
     "sortConfig" | "onSort" | "data" | "getRowId"
   > & {
-    data?: Agent[];
+    data?: Owner[];
     initialSort?: SortConfig;
   },
 ) {
   const {
     initialSort = [],
-    data = agentListStoryAgents,
+    data = ownerListStoryOwners,
     pagination: paginationProp,
-    workflowActions = demoAgentWorkflowActionHandlers,
+    workflowActions = demoOwnerWorkflowActionHandlers,
     ...rest
   } = props;
   const [sortConfig, setSortConfig] = useState<SortConfig>(initialSort);
   const [page, setPage] = useState(paginationProp?.page ?? 1);
-  const [pageSize, setPageSize] = useState(paginationProp?.pageSize ?? 6);
+  const [pageSize, setPageSize] = useState(paginationProp?.pageSize ?? 5);
 
   const pagination = paginationProp
     ? {
@@ -63,9 +63,9 @@ function AgentListViewDemo(
     : undefined;
 
   return (
-    <AgentListView
+    <OwnerListView
       data={data}
-      getRowId={(agent) => agent.id}
+      getRowId={(owner) => owner.id}
       sortConfig={sortConfig}
       onSort={setSortConfig}
       workflowActions={workflowActions}
@@ -76,30 +76,29 @@ function AgentListViewDemo(
 }
 
 const meta = {
-  title: "Components/AgentListView",
-  component: AgentListView,
+  title: "Components/OwnerListView",
+  component: OwnerListView,
   tags: ["autodocs"],
   parameters: {
     layout: "padded",
     docs: {
       description: {
         component: [
-          "Responsive agent directory with a sortable table on `md` and `lg`, and a grid card layout below `md`.",
+          "Responsive owner directory with a sortable table on `md` and `lg`, and a grid card layout below `md`.",
           "",
           "**Columns (table)**",
-          "- **Name** — optional; pinned left while scrolling",
-          "- **Email** — required; optional phone shown below",
-          "- **City** — optional",
-          "- **Status** — required",
-          "- **Activity Date** — required",
-          "- **Actions** — pinned right; status-based menu from `workflowActions`",
+          "- **Name** — pinned left while scrolling",
+          "- **Contacts** — email and optional phone",
+          "- **Joined at**",
+          "- **Status**",
+          "- **Actions** — pinned right; Suspend / Activate, Delete",
           "",
           "**Mobile (`< md`)**",
-          "- Status badge top-right; title uses name or email",
-          "- Email always shown; phone optional when present",
-          "- Actions are chosen by agent status; pass handlers via `workflowActions`",
+          "- Status badge top-right; name is plain text",
+          "- Joined date, then optional contacts",
+          "- Inline action buttons below contacts",
           "",
-          "Pass custom `columns` to override the default agent table layout.",
+          "Pass `workflowActions` with `activate`, `suspend`, and `delete` handlers.",
         ].join("\n"),
       },
     },
@@ -111,7 +110,7 @@ const meta = {
       </div>
     ),
   ],
-  render: (args) => <AgentListViewDemo {...args} />,
+  render: (args) => <OwnerListViewDemo {...args} />,
   argTypes: {
     columns: { control: false },
     workflowActions: { control: false },
@@ -125,13 +124,13 @@ const meta = {
     onRowClick: { control: false },
   },
   args: {
-    listTitle: "Agents",
+    listTitle: "Owners",
     buttonSize: "md",
-    data: agentListStoryAgents,
-    workflowActions: demoAgentWorkflowActionHandlers,
+    data: ownerListStoryOwners,
+    workflowActions: demoOwnerWorkflowActionHandlers,
     pagination: defaultPagination,
   },
-} satisfies Meta<typeof AgentListView>;
+} satisfies Meta<typeof OwnerListView>;
 
 export default meta;
 
@@ -162,7 +161,7 @@ export const MobileGrid: Story = {
     docs: {
       description: {
         story:
-          "Mobile cards show status top-right and status-based action buttons below contacts (Active: Deactivate, Grant Admin, Remove; Inactive: Activate, Remove; Pending: Approve, Decline, Remove; Declined: Delete only; Invited: Resend, Revoke).",
+          "Mobile cards show status top-right and owner actions: Suspend (active), Activate (suspended), Delete.",
       },
     },
   },

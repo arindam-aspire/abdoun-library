@@ -12,24 +12,24 @@ import { TableNoDataFound } from "../ListTableView/TableNoDataFound";
 import { TablePaginition } from "../ListTableView/TablePaginition";
 import { PaginitionSkeleton } from "../PropertyCardList/PaginitionSkeleton";
 import { PropertyPaginition } from "../PropertyCardList/PropertyPaginition";
-import { AgentGridView } from "./AgentGridView";
-import { buildAgentTableColumns } from "./agentTableColumns";
-import { isAgentRow, resolveAgentDisplayName } from "./agentListFields";
+import { OwnerGridView } from "./OwnerGridView";
+import { buildOwnerTableColumns } from "./ownerTableColumns";
+import { isOwnerRow, resolveOwnerDisplayName } from "./ownerListFields";
 import {
-  buildAgentStatusRowActions,
-  hasAgentWorkflowActions,
-} from "./agentStatusRowActions";
-import { resolveAgentPinnedColumns } from "./resolveAgentPinnedColumns";
-import type { Agent } from "./types";
-import type { AgentListViewProps } from "./types";
-import type { AgentRowActionsInput } from "./rowActionTypes";
+  buildOwnerRowActions,
+  hasOwnerWorkflowActions,
+} from "./ownerWorkflowActions";
+import { resolveOwnerPinnedColumns } from "./resolveOwnerPinnedColumns";
+import type { Owner } from "./types";
+import type { OwnerListViewProps } from "./types";
+import type { OwnerRowActionsInput } from "./rowActionTypes";
 
 const DEFAULT_GRID_TITLE_COLUMN_ID = "name";
 const DEFAULT_GRID_HIDDEN_COLUMN_IDS = ["actions"];
 
-export function AgentListView<T>({
+export function OwnerListView<T>({
   isLoading = false,
-  listTitle = "Agents",
+  listTitle = "Owners",
   data,
   columns: columnsProp,
   getRowId,
@@ -55,7 +55,7 @@ export function AgentListView<T>({
   onColumnWidthsChange,
   className,
   tableClassName,
-}: AgentListViewProps<T>) {
+}: OwnerListViewProps<T>) {
   const isEmpty = !isLoading && data.length === 0;
   const skeletonRows = pagination?.pageSize ?? 8;
   const hasPagination = Boolean(pagination);
@@ -76,8 +76,8 @@ export function AgentListView<T>({
 
   const resolvedRowActions = useMemo(
     () =>
-      hasAgentWorkflowActions(workflowActions)
-        ? buildAgentStatusRowActions(workflowActions)
+      hasOwnerWorkflowActions(workflowActions)
+        ? buildOwnerRowActions(workflowActions)
         : undefined,
     [workflowActions],
   );
@@ -86,10 +86,10 @@ export function AgentListView<T>({
     if (columnsProp) {
       return columnsProp;
     }
-    return buildAgentTableColumns({
+    return buildOwnerTableColumns({
       buttonSize,
       workflowActions,
-      onClick: onRowClick as ((agent: Agent) => void) | undefined,
+      onClick: onRowClick as ((owner: Owner) => void) | undefined,
     }) as TableColumn<T>[];
   }, [buttonSize, columnsProp, onRowClick, workflowActions]);
 
@@ -105,8 +105,8 @@ export function AgentListView<T>({
 
     const titleColumn = columns.find((column) => column.id === gridTitleColumnId);
     return (row: T) => {
-      if (isAgentRow(row)) {
-        return resolveAgentDisplayName(row);
+      if (isOwnerRow(row)) {
+        return resolveOwnerDisplayName(row);
       }
 
       if (titleColumn?.getSortValue) {
@@ -130,7 +130,7 @@ export function AgentListView<T>({
 
   const resolvedPinnedColumns = useMemo(
     () =>
-      resolveAgentPinnedColumns(
+      resolveOwnerPinnedColumns(
         pinnedColumns,
         columns.map((column) => column.id),
       ),
@@ -140,13 +140,13 @@ export function AgentListView<T>({
   return (
     <section className={cn("w-full", className)} aria-label={listTitle}>
       <div className="space-y-2 md:hidden">
-        <AgentGridView
+        <OwnerGridView
           data={sortedData}
           columns={columns}
           getRowId={getRowId}
           getRowLabel={resolveRowLabel}
           rowActions={
-            resolvedRowActions as AgentRowActionsInput<T> | undefined
+            resolvedRowActions as OwnerRowActionsInput<T> | undefined
           }
           mobileRowActions={mobileRowActions}
           buttonSize={buttonSize}
@@ -178,10 +178,10 @@ export function AgentListView<T>({
           emptyContent={
             isEmpty ? (
               <TableNoDataFound
-                title={noDataFound?.title ?? "No agents found"}
+                title={noDataFound?.title ?? "No owners found"}
                 description={
                   noDataFound?.description ??
-                  "Try adjusting your filters or search terms to find matching agents."
+                  "Try adjusting your filters or search terms to find matching owners."
                 }
                 actions={noDataFound?.actions}
               />
@@ -201,50 +201,44 @@ export function AgentListView<T>({
   );
 }
 
-export { AgentGridCard, agentGridCardClassName } from "./AgentGridCard";
-export { AgentGridSkeleton } from "./AgentGridSkeleton";
-export { AgentGridView } from "./AgentGridView";
-export { AgentMobileCard } from "./AgentMobileCard";
-export { AgentRowActions } from "./AgentRowActions";
-export { AgentStatusBadge } from "./AgentStatusBadge";
-export { buildAgentTableColumns } from "./agentTableColumns";
+export { OwnerGridCard, ownerGridCardClassName } from "./OwnerGridCard";
+export { OwnerGridSkeleton } from "./OwnerGridSkeleton";
+export { OwnerGridView } from "./OwnerGridView";
+export { OwnerMobileCard } from "./OwnerMobileCard";
+export { OwnerRowActions } from "./OwnerRowActions";
+export { OwnerStatusBadge } from "./OwnerStatusBadge";
+export { buildOwnerTableColumns } from "./ownerTableColumns";
 export {
-  AGENT_STATUS_WORKFLOW_ACTION_MATRIX,
-  AGENT_WORKFLOW_ACTION_IDS,
-  buildAgentStatusRowActions,
-  hasAgentWorkflowActions,
-} from "./agentStatusRowActions";
+  OWNER_WORKFLOW_ACTION_IDS,
+  buildOwnerRowActions,
+  hasOwnerWorkflowActions,
+} from "./ownerWorkflowActions";
 export type {
-  AgentWorkflowActionId,
-  AgentWorkflowActionsConfig,
-} from "./agentStatusRowActions";
+  OwnerWorkflowActionId,
+  OwnerWorkflowActionsConfig,
+} from "./ownerWorkflowActions";
+export { mapOwnerApiStatus } from "./ownerStatus";
 export {
-  mapAgentApiListingToAgent,
-  mapAgentApiListingsToAgents,
-} from "./agentApiListing";
-export type { AgentApiListing } from "./agentApiListing";
-export { mapAgentApiStatus } from "./agentStatus";
-export {
-  DEFAULT_AGENT_PINNED_COLUMNS,
-  resolveAgentPinnedColumns,
-} from "./resolveAgentPinnedColumns";
+  DEFAULT_OWNER_PINNED_COLUMNS,
+  resolveOwnerPinnedColumns,
+} from "./resolveOwnerPinnedColumns";
 export type {
-  Agent,
-  AgentListPaginationProps,
-  AgentListViewProps,
-  AgentStatus,
-  AgentStatusKey,
+  Owner,
+  OwnerListPaginationProps,
+  OwnerListViewProps,
+  OwnerStatus,
+  OwnerStatusKey,
 } from "./types";
 export type {
-  AgentRowAction,
-  AgentRowActionTone,
-  AgentRowActionsDisplay,
-  AgentRowActionsInput,
-  AgentMobileRowActionsConfig,
-  AgentMobileRowActionsPlacement,
-  AgentMobileRowActionsVariant,
+  OwnerRowAction,
+  OwnerRowActionTone,
+  OwnerRowActionsDisplay,
+  OwnerRowActionsInput,
+  OwnerMobileRowActionsConfig,
+  OwnerMobileRowActionsPlacement,
+  OwnerMobileRowActionsVariant,
 } from "./rowActionTypes";
 export {
-  DEFAULT_AGENT_MOBILE_ROW_ACTIONS,
-  resolveAgentMobileRowActionsConfig,
+  DEFAULT_OWNER_MOBILE_ROW_ACTIONS,
+  resolveOwnerMobileRowActionsConfig,
 } from "./rowActionTypes";

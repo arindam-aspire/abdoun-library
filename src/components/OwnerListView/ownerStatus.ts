@@ -1,13 +1,9 @@
-import type { AgentStatus, AgentStatusKey } from "./types";
+import type { OwnerStatus, OwnerStatusKey } from "./types";
 
-const AGENT_API_STATUS_KEY_MAP: Record<string, AgentStatusKey> = {
+const OWNER_API_STATUS_KEY_MAP: Record<string, OwnerStatusKey> = {
   ACTIVE: "active",
-  INACTIVE: "inactive",
-  PENDING: "pending",
-  PENDING_APPROVAL: "pending",
+  INACTIVE: "suspended",
   SUSPENDED: "suspended",
-  DECLINED: "declined",
-  INVITED: "invited",
 };
 
 function formatApiStatusLabel(status: string): string {
@@ -19,9 +15,9 @@ function formatApiStatusLabel(status: string): string {
     .join(" ");
 }
 
-export function mapAgentApiStatus(status: string): AgentStatus {
+export function mapOwnerApiStatus(status: string): OwnerStatus {
   const normalized = status.trim().toUpperCase();
-  const key = AGENT_API_STATUS_KEY_MAP[normalized] ?? "inactive";
+  const key = OWNER_API_STATUS_KEY_MAP[normalized] ?? "suspended";
 
   return {
     key,
