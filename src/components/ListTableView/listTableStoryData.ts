@@ -121,7 +121,7 @@ export const listTableStoryListings: PropertyListing[] = [
     propertyType: "Townhouse",
     beds: 4,
     baths: 3,
-    status: createListingStatus("approved", "Approved"),
+    status: createListingStatus("active", "Active"),
     submitted_on: "2026-01-22T09:00:00.000000Z",
     submission_submitted_by: "Khalda Properties",
     agency: {
