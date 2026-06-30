@@ -434,6 +434,45 @@ export function PropertyForm({
 
   localPayloadRef.current = buildPropertyFormPayload();
 
+  useEffect(() => {
+    if (!canEdit || typeof window === "undefined") {
+      return;
+    }
+
+    const hasUnsavedChanges = () =>
+      serializePropertyFormValues(localPayloadRef.current) !==
+      syncedPropertyDetailsRef.current;
+    const message = "You have unsaved property draft changes. Leave without saving?";
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!hasUnsavedChanges()) {
+        return;
+      }
+
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    const handlePopState = () => {
+      if (!hasUnsavedChanges()) {
+        return;
+      }
+
+      if (!window.confirm(message)) {
+        window.history.pushState(null, "", window.location.href);
+      }
+    };
+
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [canEdit]);
+
   const validateBasicInfoStep = () => {
     const formErrors = validateBasicInfoFormValues(basicInfoForm.values);
     basicInfoForm.setErrors(formErrors);
