@@ -5,6 +5,10 @@ import { useForm } from "./useFormHook";
 
 export type { PropertyDetailsFormValues };
 
+function hasTrimmedValue(value: string | number | null | undefined): boolean {
+  return String(value ?? "").trim().length > 0;
+}
+
 export function validatePropertyDetailsFormValues(
   formValues: PropertyDetailsFormValues,
 ) {
@@ -25,10 +29,10 @@ export function validatePropertyDetailsFormValues(
   if (formValues.parking_spaces == null) {
     nextErrors.parking_spaces = "Parking spaces is required.";
   }
-  if (!formValues.property_age?.trim()) {
+  if (!hasTrimmedValue(formValues.property_age)) {
     nextErrors.property_age = "Property age is required.";
   }
-  if (!formValues.completion_status?.trim()) {
+  if (!hasTrimmedValue(formValues.completion_status)) {
     nextErrors.completion_status = "Completion status is required.";
   }
   if (!formValues.total_floor.trim()) {
@@ -36,10 +40,10 @@ export function validatePropertyDetailsFormValues(
   } else if (Number(formValues.total_floor) < 0) {
     nextErrors.total_floor = "Total floor cannot be negative.";
   }
-  if (!formValues.occupancy?.trim()) {
+  if (!hasTrimmedValue(formValues.occupancy)) {
     nextErrors.occupancy = "Occupancy is required.";
   }
-  if (!formValues.ownership_type?.trim()) {
+  if (!hasTrimmedValue(formValues.ownership_type)) {
     nextErrors.ownership_type = "Ownership type is required.";
   }
   if (!formValues.reference_number.trim()) {
@@ -48,7 +52,7 @@ export function validatePropertyDetailsFormValues(
   if (!formValues.permit_dld_number.trim()) {
     nextErrors.permit_dld_number = "Permit / DLD number is required.";
   }
-  if (!formValues.orientation?.trim()) {
+  if (!hasTrimmedValue(formValues.orientation)) {
     nextErrors.orientation = "Orientation is required.";
   }
 

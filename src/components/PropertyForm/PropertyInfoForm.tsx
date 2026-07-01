@@ -133,8 +133,8 @@ export function PropertyInfoForm({ form, className }: PropertyInfoFormProps) {
   const numberSelectValue = (value: number | null) =>
     value != null ? String(value) : SELECT_DROPDOWN_EMPTY_VALUE;
 
-  const stringSelectValue = (value: string | null) =>
-    value ?? SELECT_DROPDOWN_EMPTY_VALUE;
+  const stringSelectValue = (value: string | number | null | undefined) =>
+    value == null ? SELECT_DROPDOWN_EMPTY_VALUE : String(value);
 
   const updateNonNegativeIntegerField = (
     field: "built_up_area" | "total_floor",
