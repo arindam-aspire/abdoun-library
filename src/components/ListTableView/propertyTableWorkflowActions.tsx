@@ -47,6 +47,9 @@ export const STATUS_WORKFLOW_ACTION_MATRIX: Record<
   approved: ["view", "assign", "reassign", "unassign"],
   verified: ["view", "assign", "reassign", "unassign"],
   rejected: ["view", "rejected_reason", "reassign", "unassign"],
+  deal_closure_requested: ["view"],
+  deal_closed: ["view"],
+  deactivated: ["view"],
 };
 
 export type PropertyTableWorkflowActionConfig = {

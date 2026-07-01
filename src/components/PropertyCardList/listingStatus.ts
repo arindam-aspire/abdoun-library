@@ -12,6 +12,9 @@ export const STATUS_COLOR_MAP = {
   approved: "success",
   verified: "success",
   rejected: "danger",
+  deal_closure_requested: "warning",
+  deal_closed: "secondary",
+  deactivated: "secondary",
 } as const;
 
 export type PropertyListingStatusKey = keyof typeof STATUS_COLOR_MAP;
