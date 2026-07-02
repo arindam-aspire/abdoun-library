@@ -36,6 +36,7 @@ export function PropertyView({
   onClickOwnerPhone,
   onClickOwnerWhatsApp,
   locale = "en",
+  statusActionCard,
   buttonSize = "md",
   className,
 }: PropertyViewProps) {
@@ -140,6 +141,7 @@ export function PropertyView({
               ? () => onClickOwnerWhatsApp(propertyDetails.id)
               : undefined
           }
+          statusActionCard={statusActionCard}
           buttonSize={buttonSize}
         />
       ) : null}

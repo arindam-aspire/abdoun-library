@@ -284,12 +284,18 @@ export type DocumentsTabProps = {
   className?: string;
 };
 
+export type PropertyStatusActionCard = {
+  statusLabel?: string;
+  pendingActions?: string[];
+};
+
 export type PropertyInfoProps = {
   propertyDetails: PropertyDetails;
   applicationKey?: ApplicationKey;
   className?: string;
   showAgent?: boolean;
   showOwner?: boolean;
+  statusActionCard?: PropertyStatusActionCard;
   onEmail?: () => void;
   onPhone?: () => void;
   onWhatsApp?: () => void;
@@ -327,6 +333,7 @@ export type PropertyDetailsTabsProps = {
   isLoading?: boolean;
   showAgent?: boolean;
   showOwner?: boolean;
+  statusActionCard?: PropertyStatusActionCard;
   onAgentEmail?: () => void;
   onAgentPhone?: () => void;
   onAgentWhatsApp?: () => void;
@@ -348,6 +355,7 @@ export interface PropertyViewProps {
   features?: PropertyFeatureDefinition[];
   showAgent?: boolean;
   showOwner?: boolean;
+  statusActionCard?: PropertyStatusActionCard;
   onClickAgentEmail?: (id: number) => void;
   onClickAgentPhone?: (id: number) => void;
   onClickAgentWhatsApp?: (id: number) => void;

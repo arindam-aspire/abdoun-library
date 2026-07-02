@@ -88,6 +88,7 @@ export function PropertyDetailsTabs({
   onOwnerEmail,
   onOwnerPhone,
   onOwnerWhatsApp,
+  statusActionCard,
   buttonSize = "md",
 }: PropertyDetailsTabsProps) {
   const options = useMemo(
@@ -170,6 +171,7 @@ export function PropertyDetailsTabs({
             applicationKey={applicationKey}
             showAgent={showAgent}
             showOwner={showOwner}
+            statusActionCard={statusActionCard}
             onEmail={onAgentEmail}
             onPhone={onAgentPhone}
             onWhatsApp={onAgentWhatsApp}

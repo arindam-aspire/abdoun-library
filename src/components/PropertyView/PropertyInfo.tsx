@@ -12,7 +12,12 @@ import {
   propertyViewIconButtonSizeClasses,
 } from "../ui/responsiveSizes";
 import { WhatsAppIcon } from "../ui/WhatsAppIcon";
-import type { PropertyDetails, PropertyInfoProps } from "./types";
+import { PROPERTY_LISTING_STATUS_KEYS, createListingStatus } from "../PropertyCardList/listingStatus";
+import type {
+  PropertyDetails,
+  PropertyInfoProps,
+  PropertyStatusActionCard,
+} from "./types";
 import { hasPropertyDocuments } from "./utils";
 import {
   textAvatarInitialClasses,
@@ -129,6 +134,98 @@ function getDocumentVerificationStatus(propertyDetails: PropertyDetails): {
   }
 
   return { label: "Pending", isReady: false };
+}
+
+function normalizeStatusValue(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/_/g, "-");
+}
+
+function resolveStatusLabel(status: string): string {
+  const normalized = normalizeStatusValue(status);
+  const isKnown = (PROPERTY_LISTING_STATUS_KEYS as readonly string[]).includes(
+    normalized,
+  );
+
+  if (isKnown) {
+    return createListingStatus(
+      normalized as (typeof PROPERTY_LISTING_STATUS_KEYS)[number],
+    ).label;
+  }
+
+  return status
+    .split(/[_\-\s]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function resolvePendingStatusActions(status: string): string[] {
+  const normalized = normalizeStatusValue(status);
+
+  if (normalized.includes("draft")) {
+    return ["Complete required information and resubmit"];
+  }
+
+  if (
+    normalized === "pending-approval" ||
+    normalized === "pending_admin_approval" ||
+    normalized === "submitted" ||
+    normalized === "in-progress" ||
+    normalized === "changes-requested"
+  ) {
+    return ["Review and take action"];
+  }
+
+  if (normalized === "deal-closure-requested") {
+    return ["Process deal closure request"];
+  }
+
+  if (normalized === "rejected") {
+    return ["Make updates and re-submit"];
+  }
+
+  return [];
+}
+
+function StatusActionCard({
+  statusActionCard,
+  showStatusLabelFallback,
+}: {
+  statusActionCard?: PropertyStatusActionCard;
+  showStatusLabelFallback: string;
+}) {
+  const statusLabel = statusActionCard?.statusLabel ?? showStatusLabelFallback;
+  const pendingActions = statusActionCard?.pendingActions ?? [];
+
+  return (
+    <section className="rounded-lg border border-secondary/20 bg-page p-3 sm:p-4">
+      <p className={cn("text-xs uppercase tracking-wide text-muted", textBodySmClasses)}>
+        Property Status
+      </p>
+      <p className={cn("mt-1.5 text-sm font-medium text-text", textMetaMediumClasses)}>
+        {statusLabel}
+      </p>
+
+      <p className={cn("mt-3 text-xs uppercase tracking-wide text-muted", textBodySmClasses)}>
+        Pending Actions
+      </p>
+      {pendingActions.length > 0 ? (
+        <ul className="mt-1.5 list-disc space-y-1 pl-4 text-sm text-text">
+          {pendingActions.map((action) => (
+            <li key={action} className="leading-snug">
+              {action}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-1.5 text-sm text-muted">No pending actions</p>
+      )}
+    </section>
+  );
 }
 
 function PropertyMetrics({
@@ -392,6 +489,7 @@ export function PropertyInfo({
   showAgent = true,
   showOwner = true,
   buttonSize = "md",
+  statusActionCard,
   onEmail,
   onPhone,
   onWhatsApp,
@@ -413,6 +511,8 @@ export function PropertyInfo({
   const displayOwnerSection =
     showOwner && owner != null && !owner.is_private;
   const hasContactColumn = displayAgentSection || displayOwnerSection;
+  const statusLabel = resolveStatusLabel(propertyDetails.status || "Draft");
+  const fallbackPendingActions = resolvePendingStatusActions(propertyDetails.status || "Draft");
 
   return (
     <aside
@@ -453,6 +553,25 @@ export function PropertyInfo({
               {VIEWING_AVAILABILITY_NOTE}
             </p>
           </section>
+
+          <StatusActionCard
+            statusActionCard={
+              statusActionCard
+                ? {
+                    ...statusActionCard,
+                    pendingActions:
+                      statusActionCard.pendingActions?.length
+                        ? statusActionCard.pendingActions
+                        : fallbackPendingActions,
+                    statusLabel: statusActionCard.statusLabel || statusLabel,
+                  }
+                : {
+                    statusLabel,
+                    pendingActions: fallbackPendingActions,
+                  }
+            }
+            showStatusLabelFallback={statusLabel}
+          />
 
           <PropertyMetrics
             averagePerUnit={averagePerUnit}
