@@ -144,8 +144,30 @@ function normalizeStatusValue(value: string): string {
     .replace(/_/g, "-");
 }
 
+function normalizeStatusKey(value: string): string {
+  const normalized = normalizeStatusValue(value);
+
+  if ((PROPERTY_LISTING_STATUS_KEYS as readonly string[]).includes(normalized)) {
+    return normalized;
+  }
+
+  const withUnderscores = normalized.replace(/-/g, "_");
+
+  if ((PROPERTY_LISTING_STATUS_KEYS as readonly string[]).includes(withUnderscores)) {
+    return withUnderscores;
+  }
+
+  const normalizedNoPunctuation = withUnderscores.replace(/[^a-z0-9_]/g, "");
+  const aliasMap: Record<string, string> = {
+    pendingadminapproval: "pending_admin_approval",
+    pendingadminapprovalstatus: "pending_admin_approval",
+  };
+
+  return aliasMap[normalizedNoPunctuation] ?? normalized;
+}
+
 function resolveStatusLabel(status: string): string {
-  const normalized = normalizeStatusValue(status);
+  const normalized = normalizeStatusKey(status);
   const isKnown = (PROPERTY_LISTING_STATUS_KEYS as readonly string[]).includes(
     normalized,
   );
@@ -164,7 +186,7 @@ function resolveStatusLabel(status: string): string {
 }
 
 function resolvePendingStatusActions(status: string): string[] {
-  const normalized = normalizeStatusValue(status);
+  const normalized = normalizeStatusKey(status);
 
   if (normalized.includes("draft")) {
     return ["Complete required information and resubmit"];
