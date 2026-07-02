@@ -284,9 +284,20 @@ export type DocumentsTabProps = {
   className?: string;
 };
 
+export type PropertyStatusActionCardAction = {
+  id: string;
+  label: string;
+  tone?: "default" | "primary" | "danger" | "success";
+  disabled?: boolean;
+  isLoading?: boolean;
+  loadingLabel?: string;
+  onClick?: () => void;
+};
+
 export type PropertyStatusActionCard = {
   statusLabel?: string;
   pendingActions?: string[];
+  actions?: PropertyStatusActionCardAction[];
 };
 
 export type PropertyInfoProps = {

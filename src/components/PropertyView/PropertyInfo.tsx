@@ -216,12 +216,15 @@ function resolvePendingStatusActions(status: string): string[] {
 function StatusActionCard({
   statusActionCard,
   showStatusLabelFallback,
+  buttonSize = "md",
 }: {
   statusActionCard?: PropertyStatusActionCard;
   showStatusLabelFallback: string;
+  buttonSize?: UiControlSize;
 }) {
   const statusLabel = statusActionCard?.statusLabel ?? showStatusLabelFallback;
   const pendingActions = statusActionCard?.pendingActions ?? [];
+  const actions = statusActionCard?.actions ?? [];
 
   return (
     <section className="rounded-lg border border-secondary/20 bg-page p-3 sm:p-4">
@@ -235,7 +238,39 @@ function StatusActionCard({
       <p className={cn("mt-3 text-xs uppercase tracking-wide text-muted", textBodySmClasses)}>
         Pending Actions
       </p>
-      {pendingActions.length > 0 ? (
+      {actions.length > 0 ? (
+        <div className="mt-2 flex flex-col gap-2">
+          {actions.map((action) => {
+            const color =
+              action.tone === "danger"
+                ? "danger"
+                : action.tone === "success"
+                  ? "success"
+                  : action.tone === "primary"
+                    ? "primary"
+                    : "inherit";
+            const variant = action.tone === "default" || !action.tone ? "outline" : "solid";
+
+            return (
+              <Button
+                key={action.id}
+                type="button"
+                color={color}
+                variant={variant}
+                size="md"
+                fullWidth
+                disabled={action.disabled}
+                isLoading={action.isLoading}
+                loadingLabel={action.loadingLabel}
+                onClick={action.onClick}
+                className={propertyViewButtonSizeClasses(buttonSize)}
+              >
+                {action.label}
+              </Button>
+            );
+          })}
+        </div>
+      ) : pendingActions.length > 0 ? (
         <ul className="mt-1.5 list-disc space-y-1 pl-4 text-sm text-text">
           {pendingActions.map((action) => (
             <li key={action} className="leading-snug">
@@ -593,6 +628,7 @@ export function PropertyInfo({
                   }
             }
             showStatusLabelFallback={statusLabel}
+            buttonSize={buttonSize}
           />
 
           <PropertyMetrics
