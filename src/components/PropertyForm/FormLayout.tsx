@@ -37,6 +37,8 @@ export interface FormLayoutProps {
   rejectionReason?: string | null;
   /** When true, disables steppers, fields, and footer actions. */
   isFormLocked?: boolean;
+  /** When true, disables the Next button (e.g. incomplete Owner step). Defaults to `false`. */
+  isNextDisabled?: boolean;
   isSubmitDisabled?: boolean;
   children?: ReactNode;
   className?: string;
@@ -92,6 +94,7 @@ export function FormLayout({
   canEdit = true,
   rejectionReason,
   isFormLocked = false,
+  isNextDisabled = false,
   isSubmitDisabled = false,
   children,
   className,
@@ -219,7 +222,7 @@ export function FormLayout({
                   size="sm"
                   iconEnd={<ArrowRight aria-hidden />}
                   onClick={onNext}
-                  disabled={isFormLocked || !onNext}
+                  disabled={isFormLocked || !onNext || isNextDisabled}
                   className="w-full sm:w-auto"
                 >
                   Next

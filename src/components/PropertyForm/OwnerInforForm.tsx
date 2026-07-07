@@ -23,7 +23,12 @@ import {
   propertyFormStackClasses,
 } from "./propertyFormFieldLayout";
 import { nationalityOptions } from "./ownerInfoFormOptions";
-import type { OwnerInfoItem, SelectedDocument } from "./types";
+import { isOwnerInfoFieldReadOnly } from "./ownerInfoConfig";
+import type {
+  OwnerInfoConfig,
+  OwnerInfoItem,
+  SelectedDocument,
+} from "./types";
 
 const OWNER_INFO_TITLE = "Owner Information";
 const OWNER_INFO_SUBTITLE =
@@ -40,6 +45,7 @@ function dialCodeToIso2(dialCode: string): string {
 
 export interface OwnerInforFormProps {
   form: UseOwnerInfoFormReturn;
+  ownerInfoConfig?: OwnerInfoConfig;
   onUploadOwnerDocument?: (
     file: File,
     context: { ownerIndex: number },
@@ -61,12 +67,15 @@ export interface OwnerInforFormProps {
 
 export function OwnerInforForm({
   form,
+  ownerInfoConfig,
   onUploadOwnerDocument,
   onOwnerDocumentsChange,
   onRemoveOwnerDocument,
   onOwnerDocumentUploadingChange,
   className,
 }: OwnerInforFormProps) {
+  const requireDocuments = ownerInfoConfig?.requireDocuments ?? false;
+  const readOnlyOwnerIndices = ownerInfoConfig?.readOnlyOwnerIndices ?? [];
   const updateOwnerField = (
     index: number,
     patch: Partial<OwnerInfoItem>,
@@ -104,6 +113,20 @@ export function OwnerInforForm({
         {form.values.owners.map((owner, index) => {
           const ownerNumber = index + 1;
           const hasMultipleOwners = form.values.owners.length > 1;
+          const isOwnerRowReadOnly = readOnlyOwnerIndices.includes(index);
+          const isNameReadOnly = isOwnerInfoFieldReadOnly(
+            index,
+            "owner_name",
+            ownerInfoConfig,
+          );
+          const isEmailReadOnly = isOwnerInfoFieldReadOnly(
+            index,
+            "email",
+            ownerInfoConfig,
+          );
+          const isPhoneReadOnly =
+            isOwnerInfoFieldReadOnly(index, "phone_number", ownerInfoConfig) ||
+            isOwnerInfoFieldReadOnly(index, "country_code", ownerInfoConfig);
 
           return (
             <div
@@ -130,6 +153,7 @@ export function OwnerInforForm({
                     variant="ghost"
                     size="sm"
                     onClick={() => form.removeOwner(index)}
+                    disabled={isOwnerRowReadOnly}
                     iconStart={<Trash2 className="size-4" aria-hidden />}
                   >
                     Remove Owner
@@ -149,6 +173,7 @@ export function OwnerInforForm({
                   onBlur={() => form.markOwnerFieldTouched(index, "owner_name")}
                   error={form.getFieldError(index, "owner_name")}
                   isRequired
+                  disabled={isNameReadOnly}
                   fullWidth
                 />
 
@@ -165,6 +190,7 @@ export function OwnerInforForm({
                   onBlur={() => form.markOwnerFieldTouched(index, "phone_number")}
                   error={form.getFieldError(index, "phone_number")}
                   isRequired
+                  disabled={isPhoneReadOnly}
                   showPhoneIcon={false}
                   fullWidth
                 />
@@ -182,6 +208,7 @@ export function OwnerInforForm({
                   onBlur={() => form.markOwnerFieldTouched(index, "email")}
                   error={form.getFieldError(index, "email")}
                   isRequired
+                  disabled={isEmailReadOnly}
                   fullWidth
                 />
 
@@ -236,6 +263,7 @@ export function OwnerInforForm({
                   value={owner.owner_documents}
                   onChange={(documents) => {
                     updateOwnerField(index, { owner_documents: documents });
+                    form.markOwnerFieldTouched(index, "owner_documents");
                     onOwnerDocumentsChange?.(index, documents);
                   }}
                   onRemove={(document) => {
@@ -250,6 +278,8 @@ export function OwnerInforForm({
                   onUploadingChange={(isUploading) => {
                     onOwnerDocumentUploadingChange?.(index, isUploading);
                   }}
+                  isRequired={requireDocuments}
+                  error={form.getFieldError(index, "owner_documents")}
                   multiple
                   className={propertyFormGridSpanClasses}
                 />

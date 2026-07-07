@@ -25,7 +25,7 @@ import {
   useLocationInsertForm,
   validateLocationInsertFormValues,
 } from "../../hooks/useLocationFormHook";
-import { useOwnerInfoForm } from "../../hooks/useOwnerInfoFormHook";
+import { useOwnerInfoForm, validateOwnerInfoFormValues } from "../../hooks/useOwnerInfoFormHook";
 import { useAmenitiesForm } from "../../hooks/useAmenitiesFormHook";
 import { useMediaUploadForm } from "../../hooks/useMediaUploadFormHook";
 import { usePricingDetailsForm } from "../../hooks/usePricingDetailsFormHook";
@@ -206,6 +206,7 @@ export function PropertyForm({
   onStepClick,
   canEdit = true,
   rejectionReason,
+  ownerInfoConfig,
 }: PropertyFormProps) {
   const mergedPropertyDetails = mergePropertyFormValues(propertyDetails);
   const basicInfoForm = useBasicInfoForm(mergedPropertyDetails.basic_info);
@@ -215,7 +216,10 @@ export function PropertyForm({
   const propertyDetailsForm = usePropertyDetailsForm(
     mergedPropertyDetails.property_details,
   );
-  const ownerInfoForm = useOwnerInfoForm(mergedPropertyDetails.owner_info);
+  const ownerInfoForm = useOwnerInfoForm(
+    mergedPropertyDetails.owner_info,
+    ownerInfoConfig,
+  );
   const pricingDetailsForm = usePricingDetailsForm(
     mergedPropertyDetails.pricing_details,
   );
@@ -345,6 +349,24 @@ export function PropertyForm({
   const categoryId = basicInfoForm.values.category_id;
   const propertyTypeId = basicInfoForm.values.type_id;
 
+  const ownerInfoValidationOptions = useMemo(
+    () => ({
+      requireDocuments: ownerInfoConfig?.requireDocuments,
+      validationMessages: ownerInfoConfig?.validationMessages,
+    }),
+    [ownerInfoConfig?.requireDocuments, ownerInfoConfig?.validationMessages],
+  );
+
+  const isOwnerStepComplete = useMemo(
+    () =>
+      validateOwnerInfoFormValues(ownerInfoForm.values, ownerInfoValidationOptions)
+        .isValid,
+    [ownerInfoForm.values, ownerInfoValidationOptions],
+  );
+
+  const isNextDisabled =
+    activeStepIndex === OWNER_INFO_STEP_INDEX && !isOwnerStepComplete;
+
   const isSubmitReady = useMemo(
     () =>
       isPropertyFormSubmittable({
@@ -359,6 +381,7 @@ export function PropertyForm({
         categoryId,
         propertyTypeId,
         featuresAndAmenities,
+        ownerInfoConfig,
       }),
     [
       amenitiesForm.values,
@@ -367,6 +390,7 @@ export function PropertyForm({
       featuresAndAmenities,
       locationInsertForm.values,
       mediaUploadForm.values,
+      ownerInfoConfig,
       ownerInfoForm.values,
       pricingDetailsForm.values,
       propertyDetailsForm.values,
@@ -687,6 +711,7 @@ export function PropertyForm({
     stepContent = (
       <OwnerInforForm
         form={ownerInfoForm}
+        ownerInfoConfig={ownerInfoConfig}
         onUploadOwnerDocument={onUploadOwnerDocument}
         onOwnerDocumentsChange={onOwnerDocumentsChange}
         onRemoveOwnerDocument={onRemoveOwnerDocument}
@@ -756,6 +781,7 @@ export function PropertyForm({
       canEdit={canEdit}
       rejectionReason={rejectionReason}
       isFormLocked={isFormLocked}
+      isNextDisabled={isNextDisabled}
       isSubmitDisabled={isSubmitDisabled}
     >
       {stepContent}
@@ -764,6 +790,8 @@ export function PropertyForm({
 }
 
 export type {
+  OwnerInfoConfig,
+  OwnerInfoValidationMessages,
   PropertyFormProps,
   PropertyFormStep,
   PropertyFormValues,

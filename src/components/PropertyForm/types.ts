@@ -54,6 +54,30 @@ export type FeaturesAndAmenities = {
   property_type_id: number | null;
 };
 
+export type OwnerInfoValidationMessages = {
+  ownerNameRequired?: string;
+  phoneRequired?: string;
+  emailRequired?: string;
+  ownerDocumentRequired?: string;
+};
+
+export type OwnerInfoReadOnlyField =
+  | "owner_name"
+  | "country_code"
+  | "phone_number"
+  | "email";
+
+export type OwnerInfoConfig = {
+  /** When true, each owner must have at least one uploaded document (non-empty `uri`). */
+  requireDocuments?: boolean;
+  /** Host-provided validation copy (e.g. next-intl strings from MLS). */
+  validationMessages?: OwnerInfoValidationMessages;
+  /** Owner row indices whose configured fields are read-only. */
+  readOnlyOwnerIndices?: number[];
+  /** Fields locked on read-only rows. Defaults to name, country code, phone, and email. */
+  readOnlyOwnerFields?: OwnerInfoReadOnlyField[];
+};
+
 export interface PropertyFormProps {
   /** Current step number (1-based). First step is `1`. */
   activeStep: number;
@@ -150,6 +174,8 @@ export interface PropertyFormProps {
     stepConfig: PropertyFormStep,
     propertyDetails: PropertyFormValues,
   ) => void;
+  /** MLS host config for the Owner Information step (documents, read-only rows, i18n messages). */
+  ownerInfoConfig?: OwnerInfoConfig;
 }
 
 
