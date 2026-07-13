@@ -322,7 +322,17 @@ const meta = {
     showOwner: {
       control: "boolean",
       description:
-        "Show owner contact section in PropertyInfo (hidden when owner is private).",
+        "Show owner contact section in PropertyInfo. Uses `propertyDetails.owners` when present, otherwise `propertyDetails.owner`. Private owners are hidden.",
+    },
+    showStatusActionCard: {
+      control: "boolean",
+      description:
+        "When false, hides the property status workflow card in the sidebar.",
+    },
+    showPropertyMetrics: {
+      control: "boolean",
+      description:
+        "When false, hides the avg. per unit and documents metrics block in the sidebar.",
     },
     applicationKey: {
       control: "select",
@@ -389,11 +399,94 @@ export const OwnerOnly: Story = {
   },
 };
 
+const sampleOwners: PropertyViewDetails["owners"] = [
+  {
+    id: 1,
+    name: "Palash Kundu",
+    phone: "+962780000001",
+    email: "owner.one@example.com",
+    is_private: false,
+  },
+  {
+    id: 2,
+    name: "Sara Al-Hassan",
+    phone: "+962780000002",
+    email: "owner.two@example.com",
+    is_private: false,
+  },
+  {
+    id: 3,
+    name: "Omar Nasser",
+    phone: "+962780000003",
+    email: "owner.three@example.com",
+    is_private: false,
+  },
+];
+
+export const MultipleOwners: Story = {
+  name: "Multiple owners",
+  args: {
+    showAgent: true,
+    showOwner: true,
+    propertyDetails: {
+      ...sampleProperty,
+      owner: null,
+      owners: sampleOwners,
+    },
+  },
+};
+
+export const SingleOwnerLegacyField: Story = {
+  name: "Single owner (legacy owner field)",
+  args: {
+    showAgent: false,
+    showOwner: true,
+    propertyDetails: {
+      ...sampleProperty,
+      owners: undefined,
+      owner: sampleProperty.owner ?? null,
+    },
+  },
+};
+
 export const PriceOnly: Story = {
   name: "Price only (no agent or owner)",
   args: {
     showAgent: false,
     showOwner: false,
+  },
+};
+
+export const WithHandover: Story = {
+  name: "With handover badge",
+  args: {
+    propertyDetails: {
+      ...sampleProperty,
+      handover: "immediate",
+    },
+  },
+};
+
+export const WithoutStatusActionCard: Story = {
+  name: "MLS (no status action card)",
+  args: {
+    showStatusActionCard: false,
+    propertyDetails: {
+      ...sampleProperty,
+      handover: "Q4 2026",
+    },
+  },
+};
+
+export const MlsSidebar: Story = {
+  name: "MLS (no status card or metrics)",
+  args: {
+    showStatusActionCard: false,
+    showPropertyMetrics: false,
+    propertyDetails: {
+      ...sampleProperty,
+      handover: "immediate",
+    },
   },
 };
 
@@ -404,8 +497,9 @@ export const PrivateOwner: Story = {
     showOwner: true,
     propertyDetails: {
       ...sampleProperty,
+      owners: undefined,
       owner: {
-        ...sampleProperty.owner,
+        ...(sampleProperty.owner ?? sampleOwners[0]!),
         is_private: true,
       },
     },
@@ -582,6 +676,21 @@ export const LoadingAgentOnly: Story = {
     propertyDetails: undefined,
     showAgent: true,
     showOwner: false,
+    tabs: {
+      tabOptions: storyTabOptions,
+      activeTab: "overview",
+    },
+  },
+};
+
+export const LoadingMultipleOwners: Story = {
+  name: "Loading (multiple owners)",
+  args: {
+    isLoading: true,
+    propertyDetails: undefined,
+    showAgent: true,
+    showOwner: true,
+    ownerSkeletonCount: 3,
     tabs: {
       tabOptions: storyTabOptions,
       activeTab: "overview",

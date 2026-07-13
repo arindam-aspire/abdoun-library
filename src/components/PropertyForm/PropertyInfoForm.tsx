@@ -76,10 +76,21 @@ function syncFieldErrors(
 
 export interface PropertyInfoFormProps {
   form: UsePropertyDetailsFormReturn;
+  measurementUnit?: "SQFT" | "SQM";
   className?: string;
 }
 
-export function PropertyInfoForm({ form, className }: PropertyInfoFormProps) {
+function builtUpAreaLabel(measurementUnit: "SQFT" | "SQM"): string {
+  return measurementUnit === "SQM"
+    ? "Built-up Area (sq. m.)"
+    : "Built-up Area (sq.ft.)";
+}
+
+export function PropertyInfoForm({
+  form,
+  measurementUnit = "SQFT",
+  className,
+}: PropertyInfoFormProps) {
   const markFieldTouched = (field: keyof PropertyDetailsFormValues) => {
     form.setTouched((previous) => ({ ...previous, [field]: true }));
   };
@@ -205,7 +216,7 @@ export function PropertyInfoForm({ form, className }: PropertyInfoFormProps) {
       />
       <Input
         name="built_up_area"
-        label="Built-up Area (sq.ft.)"
+        label={builtUpAreaLabel(measurementUnit)}
         placeholder="Enter built-up area"
         type="text"
         inputMode="numeric"

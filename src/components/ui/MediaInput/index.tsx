@@ -295,6 +295,9 @@ function MediaQueueCardPreview({
             muted
             playsInline
             preload="metadata"
+            onLoadedData={(event) => {
+              event.currentTarget.pause();
+            }}
             onError={handlePreviewError}
             className="size-full max-w-full object-cover"
           />

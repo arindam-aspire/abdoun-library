@@ -262,8 +262,20 @@ export function OwnerInforForm({
                   label="Owner Document"
                   value={owner.owner_documents}
                   onChange={(documents) => {
-                    updateOwnerField(index, { owner_documents: documents });
-                    form.markOwnerFieldTouched(index, "owner_documents");
+                    const nextValues = {
+                      ...form.values,
+                      owners: form.values.owners.map((ownerRow, ownerIndex) =>
+                        ownerIndex === index
+                          ? { ...ownerRow, owner_documents: documents }
+                          : ownerRow,
+                      ),
+                    };
+
+                    updateOwnerField(
+                      index,
+                      { owner_documents: documents },
+                      nextValues,
+                    );
                     onOwnerDocumentsChange?.(index, documents);
                   }}
                   onRemove={(document) => {

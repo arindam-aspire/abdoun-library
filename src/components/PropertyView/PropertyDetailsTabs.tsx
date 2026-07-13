@@ -82,6 +82,9 @@ export function PropertyDetailsTabs({
   isLoading = false,
   showAgent = true,
   showOwner = true,
+  ownerSkeletonCount = 1,
+  showStatusActionCard = true,
+  showPropertyMetrics = true,
   onAgentEmail,
   onAgentPhone,
   onAgentWhatsApp,
@@ -164,13 +167,20 @@ export function PropertyDetailsTabs({
         ) : null}
 
         {isLoading || !propertyDetails ? (
-          <PropertyInfoSkeleton showAgent={showAgent} showOwner={showOwner} />
+          <PropertyInfoSkeleton
+            showAgent={showAgent}
+            showOwner={showOwner}
+            ownerCount={ownerSkeletonCount}
+            showPropertyMetrics={showPropertyMetrics}
+          />
         ) : (
           <PropertyInfo
             propertyDetails={propertyDetails}
             applicationKey={applicationKey}
             showAgent={showAgent}
             showOwner={showOwner}
+            showStatusActionCard={showStatusActionCard}
+            showPropertyMetrics={showPropertyMetrics}
             statusActionCard={statusActionCard}
             onEmail={onAgentEmail}
             onPhone={onAgentPhone}

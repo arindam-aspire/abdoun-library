@@ -27,7 +27,7 @@ import {
 } from "../../hooks/useLocationFormHook";
 import { useOwnerInfoForm, validateOwnerInfoFormValues } from "../../hooks/useOwnerInfoFormHook";
 import { useAmenitiesForm } from "../../hooks/useAmenitiesFormHook";
-import { useMediaUploadForm } from "../../hooks/useMediaUploadFormHook";
+import { useMediaUploadForm, validateMediaUploadFormValues } from "../../hooks/useMediaUploadFormHook";
 import { usePricingDetailsForm } from "../../hooks/usePricingDetailsFormHook";
 import {
   usePropertyDetailsForm,
@@ -207,6 +207,8 @@ export function PropertyForm({
   canEdit = true,
   rejectionReason,
   ownerInfoConfig,
+  pricingCurrency = "JOD",
+  measurementUnit = "SQFT",
 }: PropertyFormProps) {
   const mergedPropertyDetails = mergePropertyFormValues(propertyDetails);
   const basicInfoForm = useBasicInfoForm(mergedPropertyDetails.basic_info);
@@ -364,8 +366,34 @@ export function PropertyForm({
     [ownerInfoForm.values, ownerInfoValidationOptions],
   );
 
+  const isMediaStepComplete = useMemo(
+    () =>
+      Object.keys(validateMediaUploadFormValues(mediaUploadForm.values)).length ===
+      0,
+    [mediaUploadForm.values],
+  );
+
   const isNextDisabled =
-    activeStepIndex === OWNER_INFO_STEP_INDEX && !isOwnerStepComplete;
+    (activeStepIndex === OWNER_INFO_STEP_INDEX && !isOwnerStepComplete) ||
+    (activeStepIndex === MEDIA_STEP_INDEX && !isMediaStepComplete);
+
+  useEffect(() => {
+    if (activeStepIndex !== MEDIA_STEP_INDEX) {
+      return;
+    }
+
+    const formErrors = validateMediaUploadFormValues(mediaUploadForm.values);
+    mediaUploadForm.setErrors(formErrors);
+    mediaUploadForm.setTouched((previous) => ({
+      ...previous,
+      media_files: true,
+    }));
+  }, [
+    activeStepIndex,
+    mediaUploadForm.setErrors,
+    mediaUploadForm.setTouched,
+    mediaUploadForm.values,
+  ]);
 
   const isSubmitReady = useMemo(
     () =>
@@ -706,7 +734,12 @@ export function PropertyForm({
       />
     );
   } else if (currentStep?.value === "details") {
-    stepContent = <PropertyInfoForm form={propertyDetailsForm} />;
+    stepContent = (
+      <PropertyInfoForm
+        form={propertyDetailsForm}
+        measurementUnit={measurementUnit}
+      />
+    );
   } else if (currentStep?.value === "owners") {
     stepContent = (
       <OwnerInforForm
@@ -719,7 +752,9 @@ export function PropertyForm({
       />
     );
   } else if (currentStep?.value === "pricing") {
-    stepContent = <PricingInfoForm form={pricingDetailsForm} />;
+    stepContent = (
+      <PricingInfoForm form={pricingDetailsForm} currency={pricingCurrency} />
+    );
   } else if (currentStep?.value === "amenities") {
     stepContent = (
       <FeatureAndAminitiesSelectionForm
@@ -759,6 +794,8 @@ export function PropertyForm({
         termsAcceptance={termsAcceptance}
         onTermsAcceptanceChange={setTermsAcceptance}
         canEdit={canEdit}
+        pricingCurrency={pricingCurrency}
+        measurementUnit={measurementUnit}
       />
     );
   }

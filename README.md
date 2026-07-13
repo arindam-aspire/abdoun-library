@@ -155,14 +155,17 @@ Detailed props for all exported components. Optional props are marked **optional
 | `tabs` | `object` (see `tabs` below) | — | No | Controlled tab bar: options, active tab, change handler. |
 | `features` | `array` (see `features[]` below) | `[]` | No | Feature/amenity catalog; matched to `propertyDetails.features_list` by `id`. |
 | `showAgent` | `boolean` | `true` | No | Show listing agent block and contact actions in sidebar. |
-| `showOwner` | `boolean` | `true` | No | Show owner block when `propertyDetails.owner.is_private` is `false`. |
+| `showOwner` | `boolean` | `true` | No | Show owner block when visible owners exist (`owners[]` preferred, else `owner`). Private owners are hidden. |
+| `showStatusActionCard` | `boolean` | `true` | No | When `false`, hides the property status workflow card in the sidebar (MLS hosts workflow externally). |
+| `showPropertyMetrics` | `boolean` | `true` | No | When `false`, hides the avg. per unit and documents metrics block in the sidebar. |
+| `ownerSkeletonCount` | `number` | `1` | No | Owner rows in the loading skeleton (sidebar). |
 | `onClickAgentEmail` | `(id: number) => void` | — | No | Agent email button handler. |
 | `onClickAgentPhone` | `(id: number) => void` | — | No | Agent phone button handler. |
 | `onClickAgentWhatsApp` | `(id: number) => void` | — | No | Agent WhatsApp button handler. |
 | `onClickAgent` | `(id: number) => void` | — | No | Generic agent click (e.g. open agent profile). |
-| `onClickOwnerEmail` | `(id: number) => void` | — | No | Owner email button handler. |
-| `onClickOwnerPhone` | `(id: number) => void` | — | No | Owner phone button handler. |
-| `onClickOwnerWhatsApp` | `(id: number) => void` | — | No | Owner WhatsApp button handler. |
+| `onClickOwnerEmail` | `(propertyId: number, ownerId?: number) => void` | — | No | Owner email button handler. `ownerId` is set when multiple owners are shown. |
+| `onClickOwnerPhone` | `(propertyId: number, ownerId?: number) => void` | — | No | Owner phone button handler. `ownerId` is set when multiple owners are shown. |
+| `onClickOwnerWhatsApp` | `(propertyId: number, ownerId?: number) => void` | — | No | Owner WhatsApp button handler. `ownerId` is set when multiple owners are shown. |
 | `onClickOwner` | `(id: number) => void` | — | No | Generic owner click. |
 | `locale` | `"en"` \| `"ar"` \| `"esp"` \| `"fr"` | — | No | Locale for localized fields (`title`, `description`, address, etc.). |
 | `className` | `string` | — | No | Extra CSS classes on the root `<article>`. |
@@ -196,6 +199,7 @@ Detailed props for all exported components. Optional props are marked **optional
 | `category` | `string` | e.g. residential, commercial. |
 | `property_type` | `string` | e.g. apartment, villa. |
 | `status` | `string` | Listing status. |
+| `handover` | `string \| null` | Optional handover chip in sidebar (hidden when empty). |
 | `listing_type` | `string` | `"sale"` or rent-related value. |
 | `selling_price_amount` | `number \| null` | Sale price amount. |
 | `selling_price_currency` | `string \| null` | Sale currency. |
@@ -223,7 +227,8 @@ Detailed props for all exported components. Optional props are marked **optional
 | `sold_at` | `string \| null` | Sold date. |
 | `rented_at` | `string \| null` | Rented date. |
 | `agent` | `object` | `{ id, name, phone, whatsapp, email, photo, license_number }`. |
-| `owner` | `object` | `{ id, name, phone, email, is_private }`. |
+| `owner` | `object` | `{ id, name, phone, email, is_private, phone_country_code? }`. Legacy single-owner field; used when `owners` is absent or has no visible items. |
+| `owners` | `array` | `{ id, name, phone, email, is_private, phone_country_code? }[]`. Preferred when multiple owners exist. Private or empty rows are hidden in the sidebar. |
 | `created_by` | `object` | `{ id, name, role }`. |
 | `agency` | `object \| null` | `{ agency_id, agency_name, email?, phone?, website?, ... }`. |
 

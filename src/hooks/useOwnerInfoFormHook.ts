@@ -124,6 +124,11 @@ export function validateOwnerInfoFormValues(
 
   for (let index = 0; index < formValues.owners.length; index += 1) {
     const owner = formValues.owners[index];
+
+    if (!hasOwnerInfoContent(owner) && formValues.owners.length > 1) {
+      continue;
+    }
+
     const fieldErrors = validateOwnerFieldErrors(owner, options);
 
     if (Object.keys(fieldErrors).length > 0) {
@@ -210,6 +215,7 @@ export function useOwnerInfoForm(
     validate: (values) =>
       validateOwnerInfoFormValues(values, validationOptions).formErrors,
   });
+  const { setValues, setErrors, setTouched } = form;
 
   const valuesRef = useRef(form.values);
   valuesRef.current = form.values;
@@ -222,11 +228,11 @@ export function useOwnerInfoForm(
         nextValues,
         validationOptions,
       );
-      form.setErrors(validation.formErrors);
+      setErrors(validation.formErrors);
       setOwnerFieldErrors(validation.fieldErrorsByOwner);
       return validation;
     },
-    [form, validationOptions],
+    [setErrors, validationOptions],
   );
 
   useEffect(() => {
@@ -248,7 +254,11 @@ export function useOwnerInfoForm(
   );
 
   const markOwnerFieldTouched = useCallback(
-    (ownerIndex: number, field: keyof OwnerInfoItem) => {
+    (
+      ownerIndex: number,
+      field: keyof OwnerInfoItem,
+      valuesOverride?: OwnerInfoFormValues,
+    ) => {
       setOwnerFieldTouched((previous) => ({
         ...previous,
         [ownerIndex]: {
@@ -258,13 +268,13 @@ export function useOwnerInfoForm(
       }));
 
       const validation = validateOwnerInfoFormValues(
-        valuesRef.current,
+        valuesOverride ?? valuesRef.current,
         validationOptions,
       );
-      form.setErrors(validation.formErrors);
+      setErrors(validation.formErrors);
       setOwnerFieldErrors(validation.fieldErrorsByOwner);
     },
-    [form, validationOptions],
+    [setErrors, validationOptions],
   );
 
   const updateOwner = (
@@ -289,8 +299,18 @@ export function useOwnerInfoForm(
       ),
     };
 
-    form.setValues(resolvedValues);
+    setValues(resolvedValues);
     applyValidation(resolvedValues);
+
+    if ("owner_documents" in filteredPatch) {
+      setOwnerFieldTouched((previous) => ({
+        ...previous,
+        [index]: {
+          ...previous[index],
+          owner_documents: true,
+        },
+      }));
+    }
   };
 
   const addOwner = () => {
@@ -299,7 +319,7 @@ export function useOwnerInfoForm(
       owners: [...valuesRef.current.owners, { ...emptyOwnerInfoItem }],
     };
 
-    form.setValues(nextValues);
+    setValues(nextValues);
     applyValidation(nextValues);
   };
 
@@ -345,7 +365,7 @@ export function useOwnerInfoForm(
       return next;
     });
 
-    form.setValues(nextValues);
+    setValues(nextValues);
     applyValidation(nextValues);
   };
 
@@ -354,7 +374,7 @@ export function useOwnerInfoForm(
     setOwnerFieldTouched(
       markAllOwnerFieldsTouched(valuesRef.current.owners, validationOptions),
     );
-    form.setTouched({ owners: true });
+    setTouched({ owners: true });
 
     const validation = applyValidation(valuesRef.current);
 

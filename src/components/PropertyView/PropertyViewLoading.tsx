@@ -12,6 +12,9 @@ export type PropertyViewLoadingProps = {
   className?: string;
   showAgent?: boolean;
   showOwner?: boolean;
+  ownerSkeletonCount?: number;
+  showStatusActionCard?: boolean;
+  showPropertyMetrics?: boolean;
 };
 
 export function PropertyViewLoading({
@@ -21,6 +24,9 @@ export function PropertyViewLoading({
   className,
   showAgent = true,
   showOwner = true,
+  ownerSkeletonCount = 1,
+  showStatusActionCard = true,
+  showPropertyMetrics = true,
 }: PropertyViewLoadingProps) {
   const resolvedTab = tabOptions.some((tab) => tab.value === activeTab)
     ? activeTab
@@ -44,6 +50,9 @@ export function PropertyViewLoading({
         isLoading
         showAgent={showAgent}
         showOwner={showOwner}
+        ownerSkeletonCount={ownerSkeletonCount}
+        showStatusActionCard={showStatusActionCard}
+        showPropertyMetrics={showPropertyMetrics}
       />
     </article>
   );

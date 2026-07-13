@@ -1,4 +1,9 @@
 export { PropertyView } from "./components/PropertyView";
+export type {
+  PropertyDetails,
+  PropertyOwner,
+  PropertyViewProps,
+} from "./components/PropertyView";
 export { PropertyCardList } from "./components/PropertyCardList";
 export {
   AgentListView,

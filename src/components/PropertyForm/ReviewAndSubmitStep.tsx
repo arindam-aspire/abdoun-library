@@ -94,12 +94,18 @@ function optionLabel(
   return match?.label ?? String(value);
 }
 
-function formatPriceField(value: string): string {
+function formatPriceField(value: string, currency: string): string {
   if (!value.trim()) {
     return EMPTY_VALUE;
   }
 
-  return `${formatPriceValue(value)} JOD`;
+  return `${formatPriceValue(value)} ${currency}`;
+}
+
+function builtUpAreaLabel(measurementUnit: "SQFT" | "SQM"): string {
+  return measurementUnit === "SQM"
+    ? "Built-up Area (sq. m.)"
+    : "Built-up Area (sq.ft.)";
 }
 
 function resolveCategoryName(
@@ -184,7 +190,7 @@ function isVideoDocument(document: SelectedDocument): boolean {
     return true;
   }
 
-  return /\.mp4$/i.test(document.name);
+  return /\.(mp4|mov|webm)$/i.test(document.name);
 }
 
 function ReviewField({
@@ -293,9 +299,16 @@ function MediaPreviewGrid({ mediaFiles }: { mediaFiles: SelectedDocument[] }) {
                 className="size-full object-cover"
               />
             ) : isVideoDocument(file) ? (
-              <div className="flex size-full items-center justify-center bg-secondary/5 text-muted">
-                <span className={textMetaMediumClasses}>Video</span>
-              </div>
+              <video
+                src={file.uri}
+                controls
+                playsInline
+                preload="metadata"
+                onLoadedData={(event) => {
+                  event.currentTarget.pause();
+                }}
+                className="size-full object-cover"
+              />
             ) : (
               <div className="flex size-full items-center justify-center bg-secondary/5 text-muted">
                 <span className={textMetaMediumClasses}>Media</span>
@@ -395,6 +408,8 @@ export interface ReviewAndSubmitStepProps {
   onTermsAcceptanceChange: (terms: TermsAcceptanceFormValues) => void;
   /** When false, the terms agreement checkbox is disabled. */
   canEdit?: boolean;
+  pricingCurrency?: string;
+  measurementUnit?: "SQFT" | "SQM";
   className?: string;
 }
 
@@ -412,6 +427,8 @@ export function ReviewAndSubmitStep({
   termsAcceptance,
   onTermsAcceptanceChange,
   canEdit = true,
+  pricingCurrency = "JOD",
+  measurementUnit = "SQFT",
   className,
 }: ReviewAndSubmitStepProps) {
   const allTermsAccepted = areAllTermsAccepted(termsAcceptance);
@@ -530,7 +547,7 @@ export function ReviewAndSubmitStep({
             value={optionLabel(bathroomOptions, propertyDetails.bathrooms)}
           />
           <ReviewField
-            label="Built-up Area (sq.ft.)"
+            label={builtUpAreaLabel(measurementUnit)}
             value={displayValue(propertyDetails.built_up_area)}
           />
           <ReviewField
@@ -592,14 +609,14 @@ export function ReviewAndSubmitStep({
 
       <ReviewSection title="Pricing">
         <dl className={propertyFormGridClasses}>
-          <ReviewField label="Price" value={formatPriceField(pricing.price)} />
+          <ReviewField label="Price" value={formatPriceField(pricing.price, pricingCurrency)} />
           <ReviewField
             label="Service Charge"
-            value={formatPriceField(pricing.service_charge)}
+            value={formatPriceField(pricing.service_charge, pricingCurrency)}
           />
           <ReviewField
             label="Maintenance Fee"
-            value={formatPriceField(pricing.maintenance_fee)}
+            value={formatPriceField(pricing.maintenance_fee, pricingCurrency)}
           />
         </dl>
       </ReviewSection>

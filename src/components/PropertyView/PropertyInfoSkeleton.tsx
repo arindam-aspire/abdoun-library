@@ -5,11 +5,13 @@ export type PropertyInfoSkeletonProps = {
   className?: string;
   showAgent?: boolean;
   showOwner?: boolean;
+  ownerCount?: number;
+  showPropertyMetrics?: boolean;
 };
 
 function ContactActionsSkeleton() {
   return (
-    <div className="flex w-full flex-row justify-end gap-2 md:gap-4">
+    <div className="flex w-full min-w-0 flex-row items-stretch justify-end gap-2 md:gap-4">
       <Skeleton
         className="h-8 min-w-0 flex-1 rounded-lg sm:h-11"
         variant="default"
@@ -28,7 +30,7 @@ function ContactActionsSkeleton() {
 
 function AgentBlockSkeleton() {
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex w-full min-w-0 flex-col gap-4">
       <Skeleton className="h-3 w-24" variant="text" />
       <div className="flex items-center gap-3 rounded-md bg-page p-2">
         <Skeleton className="size-10 shrink-0 rounded-full" variant="default" />
@@ -38,26 +40,41 @@ function AgentBlockSkeleton() {
         </div>
       </div>
       <ContactActionsSkeleton />
-      <Skeleton className="h-4 w-full" variant="text" />
-      <Skeleton className="h-4 w-11/12" variant="text" />
     </section>
   );
 }
 
-function OwnerBlockSkeleton({ showAgentAbove = false }: { showAgentAbove?: boolean }) {
+function OwnerBlockSkeleton({
+  showAgentAbove = false,
+  ownerCount = 1,
+}: {
+  showAgentAbove?: boolean;
+  ownerCount?: number;
+}) {
+  const renderOwnerGroup = (index: number) => (
+    <div
+      className={cn(
+        "flex flex-col gap-2 rounded-md bg-page p-2",
+        index === 0 && showAgentAbove && "sm:pt-4 md:pt-2",
+      )}
+    >
+      <Skeleton className="h-4 w-28" variant="text" />
+      <Skeleton className="h-4 w-36 max-w-full" variant="text" />
+    </div>
+  );
+
   return (
     <section className="flex flex-col gap-4">
       <Skeleton className="h-3 w-24" variant="text" />
-      <div
-        className={cn(
-          "flex flex-col gap-2 rounded-md bg-page p-2",
-          showAgentAbove && "sm:pt-4 md:pt-2",
-        )}
-      >
-        <Skeleton className="h-4 w-28" variant="text" />
-        <Skeleton className="h-4 w-36 max-w-full" variant="text" />
-      </div>
-      <ContactActionsSkeleton />
+      {ownerCount === 1 ? (
+        renderOwnerGroup(0)
+      ) : (
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: ownerCount }).map((_, index) => (
+            <div key={`owner-skeleton-${index}`}>{renderOwnerGroup(index)}</div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
@@ -66,6 +83,8 @@ export function PropertyInfoSkeleton({
   className,
   showAgent = true,
   showOwner = true,
+  ownerCount = 1,
+  showPropertyMetrics = true,
 }: PropertyInfoSkeletonProps) {
   const hasContactColumn = showAgent || showOwner;
 
@@ -93,27 +112,32 @@ export function PropertyInfoSkeleton({
             <Skeleton className="h-4 w-4/5" variant="text" />
           </section>
 
-          <div className="grid grid-cols-2 divide-x divide-secondary/10 rounded-xl bg-page-ghost px-3 py-3.5 sm:px-4 sm:py-4">
-            {Array.from({ length: 2 }).map((_, index) => (
-              <div
-                key={`property-info-kpi-skeleton-${index}`}
-                className={cn(
-                  "min-w-0 space-y-2",
-                  index === 0 ? "pr-3 sm:pr-4" : "pl-3 sm:pl-4",
-                )}
-              >
-                <Skeleton className="h-3 w-20" variant="text" />
-                <Skeleton className="h-5 w-16" variant="text" />
-              </div>
-            ))}
-          </div>
+          {showPropertyMetrics ? (
+            <div className="grid grid-cols-2 divide-x divide-secondary/10 rounded-xl bg-page-ghost px-3 py-3.5 sm:px-4 sm:py-4">
+              {Array.from({ length: 2 }).map((_, index) => (
+                <div
+                  key={`property-info-kpi-skeleton-${index}`}
+                  className={cn(
+                    "min-w-0 space-y-2",
+                    index === 0 ? "pr-3 sm:pr-4" : "pl-3 sm:pl-4",
+                  )}
+                >
+                  <Skeleton className="h-3 w-20" variant="text" />
+                  <Skeleton className="h-5 w-16" variant="text" />
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         {hasContactColumn ? (
           <div className="flex min-w-0 flex-col gap-4">
             {showAgent ? <AgentBlockSkeleton /> : null}
             {showOwner ? (
-              <OwnerBlockSkeleton showAgentAbove={showAgent} />
+              <OwnerBlockSkeleton
+                showAgentAbove={showAgent}
+                ownerCount={ownerCount}
+              />
             ) : null}
           </div>
         ) : null}

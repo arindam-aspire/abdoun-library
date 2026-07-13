@@ -153,14 +153,18 @@ interface PropertyAgent {
   email: string;
   photo: NullableString;
   license_number: NullableString;
+  /** ISO2 (`JO`) or dial code (`+962`) when phone parsing is ambiguous. */
+  phone_country_code?: string;
 }
 
-interface PropertyOwner {
+export interface PropertyOwner {
   id: number;
   name: string;
   phone: string;
   email: string;
   is_private: boolean;
+  /** ISO2 (`JO`) or dial code (`+962`) when phone parsing is ambiguous. */
+  phone_country_code?: string;
 }
 
 interface PropertyCreatedBy {
@@ -181,6 +185,8 @@ export interface PropertyDetails {
   property_type: string;
   status: string;
   listing_type: string;
+  /** Handover label shown as a sidebar badge when non-empty (e.g. immediate, Q4 2026). */
+  handover?: NullableString;
 
   selling_price_amount: NullableNumber;
   selling_price_currency: NullableString;
@@ -225,7 +231,10 @@ export interface PropertyDetails {
 
   agent: PropertyAgent | null;
 
-  owner: PropertyOwner | null;
+  /** @deprecated Prefer `owners` when multiple owners exist. */
+  owner?: PropertyOwner | null;
+
+  owners?: PropertyOwner[];
 
   created_by: PropertyCreatedBy;
 
@@ -306,13 +315,17 @@ export type PropertyInfoProps = {
   className?: string;
   showAgent?: boolean;
   showOwner?: boolean;
+  /** When `false`, hides the property status workflow card in the sidebar. Defaults to `true`. */
+  showStatusActionCard?: boolean;
+  /** When `false`, hides avg. price per unit and documents metrics in the sidebar. Defaults to `true`. */
+  showPropertyMetrics?: boolean;
   statusActionCard?: PropertyStatusActionCard;
   onEmail?: () => void;
   onPhone?: () => void;
   onWhatsApp?: () => void;
-  onOwnerEmail?: () => void;
-  onOwnerPhone?: () => void;
-  onOwnerWhatsApp?: () => void;
+  onOwnerEmail?: (ownerId?: number) => void;
+  onOwnerPhone?: (ownerId?: number) => void;
+  onOwnerWhatsApp?: (ownerId?: number) => void;
   /** Control size from `sm` breakpoint up; below `sm` always uses compact tier. */
   buttonSize?: UiControlSize;
 };
@@ -344,13 +357,19 @@ export type PropertyDetailsTabsProps = {
   isLoading?: boolean;
   showAgent?: boolean;
   showOwner?: boolean;
+  /** Skeleton owner rows while loading; defaults to `1`. */
+  ownerSkeletonCount?: number;
+  /** When `false`, hides the property status workflow card in the sidebar. Defaults to `true`. */
+  showStatusActionCard?: boolean;
+  /** When `false`, hides avg. price per unit and documents metrics in the sidebar. Defaults to `true`. */
+  showPropertyMetrics?: boolean;
   statusActionCard?: PropertyStatusActionCard;
   onAgentEmail?: () => void;
   onAgentPhone?: () => void;
   onAgentWhatsApp?: () => void;
-  onOwnerEmail?: () => void;
-  onOwnerPhone?: () => void;
-  onOwnerWhatsApp?: () => void;
+  onOwnerEmail?: (ownerId?: number) => void;
+  onOwnerPhone?: (ownerId?: number) => void;
+  onOwnerWhatsApp?: (ownerId?: number) => void;
   /** Control size from `sm` breakpoint up; below `sm` always uses compact tier. */
   buttonSize?: UiControlSize;
 };
@@ -366,14 +385,20 @@ export interface PropertyViewProps {
   features?: PropertyFeatureDefinition[];
   showAgent?: boolean;
   showOwner?: boolean;
+  /** Skeleton owner rows while loading; defaults to `1`. */
+  ownerSkeletonCount?: number;
+  /** When `false`, hides the property status workflow card in the sidebar. Defaults to `true`. */
+  showStatusActionCard?: boolean;
+  /** When `false`, hides avg. price per unit and documents metrics in the sidebar. Defaults to `true`. */
+  showPropertyMetrics?: boolean;
   statusActionCard?: PropertyStatusActionCard;
   onClickAgentEmail?: (id: number) => void;
   onClickAgentPhone?: (id: number) => void;
   onClickAgentWhatsApp?: (id: number) => void;
   onClickAgent?: (id: number) => void;
-  onClickOwnerEmail?: (id: number) => void;
-  onClickOwnerPhone?: (id: number) => void;
-  onClickOwnerWhatsApp?: (id: number) => void;
+  onClickOwnerEmail?: (propertyId: number, ownerId?: number) => void;
+  onClickOwnerPhone?: (propertyId: number, ownerId?: number) => void;
+  onClickOwnerWhatsApp?: (propertyId: number, ownerId?: number) => void;
   onClickOwner?: (id: number) => void;
   locale?: Locale;
   /** Action control size from `sm` breakpoint up; below `sm` viewport unchanged. */

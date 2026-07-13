@@ -176,6 +176,10 @@ export interface PropertyFormProps {
   ) => void;
   /** MLS host config for the Owner Information step (documents, read-only rows, i18n messages). */
   ownerInfoConfig?: OwnerInfoConfig;
+  /** Agency currency for pricing display only. Defaults to `"JOD"`. */
+  pricingCurrency?: string;
+  /** Agency measurement unit for built-up area labels. Defaults to `"SQFT"`. */
+  measurementUnit?: "SQFT" | "SQM";
 }
 
 

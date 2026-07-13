@@ -57,6 +57,18 @@ export function matchesFeaturesAndAmenitiesTaxonomy(
     return false;
   }
 
+  if (isAmenityGroup(item.feature_group)) {
+    if (item.category_id != null && item.category_id !== categoryId) {
+      return false;
+    }
+
+    if (item.property_type_id != null && item.property_type_id !== propertyTypeId) {
+      return false;
+    }
+
+    return true;
+  }
+
   return (
     item.category_id === categoryId &&
     item.property_type_id === propertyTypeId

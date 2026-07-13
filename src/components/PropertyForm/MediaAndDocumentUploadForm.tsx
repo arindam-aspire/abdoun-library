@@ -81,6 +81,7 @@ export function MediaAndDocumentUploadForm({
         }}
         onUpload={onUploadPropertyMedia}
         onUploadingChange={onPropertyMediaUploadingChange}
+        error={form.errors.media_files}
         wrapperClassName="w-full min-w-0"
       />
 

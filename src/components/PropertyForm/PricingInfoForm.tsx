@@ -18,14 +18,18 @@ const PRICING_TITLE = "Pricing Details";
 const PRICING_SUBTITLE =
   "Set the listing price and any recurring fees for this property.";
 const PRICING_BADGE_LABEL = "Required";
-const PRICING_CURRENCY = "JOD";
 
 export interface PricingInfoFormProps {
   form: UsePricingDetailsFormReturn;
+  currency?: string;
   className?: string;
 }
 
-export function PricingInfoForm({ form, className }: PricingInfoFormProps) {
+export function PricingInfoForm({
+  form,
+  currency = "JOD",
+  className,
+}: PricingInfoFormProps) {
   const updateField = (
     field: keyof PricingDetailsFormValues,
     value: string,
@@ -74,7 +78,7 @@ export function PricingInfoForm({ form, className }: PricingInfoFormProps) {
         onChange={(value) => updateField("price", value)}
         onBlur={() => markFieldTouched("price")}
         error={form.errors.price}
-        currency={PRICING_CURRENCY}
+        currency={currency}
         currencyPosition="end"
         allowDecimals={false}
         fullWidth
@@ -89,7 +93,7 @@ export function PricingInfoForm({ form, className }: PricingInfoFormProps) {
         onChange={(value) => updateField("service_charge", value)}
         onBlur={() => markFieldTouched("service_charge")}
         error={form.errors.service_charge}
-        currency={PRICING_CURRENCY}
+        currency={currency}
         currencyPosition="end"
         allowDecimals={false}
         fullWidth
@@ -103,7 +107,7 @@ export function PricingInfoForm({ form, className }: PricingInfoFormProps) {
         onChange={(value) => updateField("maintenance_fee", value)}
         onBlur={() => markFieldTouched("maintenance_fee")}
         error={form.errors.maintenance_fee}
-        currency={PRICING_CURRENCY}
+        currency={currency}
         currencyPosition="end"
         allowDecimals={false}
         fullWidth

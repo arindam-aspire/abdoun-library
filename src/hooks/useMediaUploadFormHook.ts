@@ -3,14 +3,31 @@
 import { useCallback, useRef } from "react";
 import type { MediaUploadFormValues } from "../components/PropertyForm/types";
 import type { SelectedDocument } from "../components/ui/FileSelectInput";
+import {
+  isImageMedia,
+  isVideoMedia,
+} from "../components/ui/MediaInput/utils";
 import { useForm } from "./useFormHook";
 
 export type { MediaUploadFormValues };
 
+const MEDIA_FILES_REQUIRED_MESSAGE =
+  "Please upload at least one property image or video.";
+
 export function validateMediaUploadFormValues(
   formValues: MediaUploadFormValues,
 ) {
-  void formValues;
+  const imageCount = formValues.media_files.filter((media) =>
+    isImageMedia(media),
+  ).length;
+  const videoCount = formValues.media_files.filter((media) =>
+    isVideoMedia(media),
+  ).length;
+
+  if (imageCount === 0 && videoCount === 0) {
+    return { media_files: MEDIA_FILES_REQUIRED_MESSAGE };
+  }
+
   return {};
 }
 
