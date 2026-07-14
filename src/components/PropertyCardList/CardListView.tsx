@@ -1,4 +1,4 @@
-import type { CardListProps, PropertyListing } from "./types";
+import type { CardListProps } from "./types";
 import { ListCard } from "../PropertyListCard/ListCard";
 
 export function CardListView({
@@ -14,6 +14,7 @@ export function CardListView({
   canViewDelete,
   onClickDelete,
   buttonSize = "md",
+  locale = "en",
 }: CardListProps) {
   if (data.length === 0) return null;
 
@@ -37,6 +38,7 @@ export function CardListView({
           canViewDelete={canViewDelete}
           onClickDelete={onClickDelete}
           buttonSize={buttonSize}
+          locale={locale}
         />
       ))}
     </div>

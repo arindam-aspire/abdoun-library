@@ -1,10 +1,11 @@
 import type {
   ApplicationKey,
+  ListingLocale,
   PropertyListing,
 } from "../PropertyCardList/types";
 import type { UiControlSize } from "../ui/commonTypes";
 
-export type { ApplicationKey, PropertyListing };
+export type { ApplicationKey, ListingLocale, PropertyListing };
 
 export interface SimilarPropertiesEmptyContent {
   title?: string;
@@ -36,4 +37,6 @@ export interface SimilarPropertiesProps {
   onClickFavourite?: (propertyDetails: PropertyListing) => void;
   /** Card and section control size from `sm` breakpoint up; below `sm` unchanged. */
   buttonSize?: UiControlSize;
+  /** Locale for listing title resolution. Defaults to `"en"`. */
+  locale?: ListingLocale;
 }

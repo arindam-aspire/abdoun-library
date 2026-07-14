@@ -66,6 +66,7 @@ export function SimilarProperties({
   onClickWhatsApp,
   onClickFavourite,
   buttonSize = "md",
+  locale = "en",
 }: SimilarPropertiesProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
@@ -219,6 +220,7 @@ export function SimilarProperties({
                       applicationKey={applicationKey}
                       isFavouriteLoading={property.is_favourite_loading}
                       buttonSize={buttonSize}
+                      locale={locale}
                       onClick={onClick}
                       onClickEmail={onClickEmail}
                       onClickCall={onClickCall}

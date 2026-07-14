@@ -27,15 +27,10 @@ import {
   textPersonDetailClasses,
   textPersonNameClasses,
 } from "../../lib/typography";
-
-function formatPrice(price: string): string {
-  const normalized = price.trim();
-  const match = normalized.match(/^([A-Za-z]{3})\s+(.+)$/);
-  if (!match) return normalized;
-
-  const [, currency, amount] = match;
-  return `${amount} ${currency}`;
-}
+import {
+  formatListingPrice,
+  resolveListingTitle,
+} from "./listingCardDisplay";
 
 function getAgentInitials(name?: string | null): string {
   if (!name) return "A";
@@ -58,6 +53,7 @@ export function GridCard({
   canViewDelete,
   onClickDelete,
   buttonSize = "md",
+  locale = "en",
   onClick,
   onClickEmail,
   onClickCall,
@@ -68,7 +64,11 @@ export function GridCard({
   const isDeleteLoading =
     isDeleteLoadingProp ?? propertyDetails.is_delete_loading;
   const [isLocationLightBoxOpen, setIsLocationLightBoxOpen] = useState(false);
-  const formattedPrice = formatPrice(propertyDetails.price);
+  const title = resolveListingTitle(propertyDetails.title, locale);
+  const formattedPrice = formatListingPrice(
+    propertyDetails.price,
+    propertyDetails.currency,
+  );
   const areaValue = Number(propertyDetails.area);
   const formattedArea =
     propertyDetails.area != null && Number.isFinite(areaValue)
@@ -98,6 +98,7 @@ export function GridCard({
         layoutVariant={layoutVariant}
         canViewAgents={canViewAgents}
         canViewBadges={canViewBadges}
+        locale={locale}
         onClickFavourite={onClickFavourite}
         canViewDelete={canViewDelete}
         onClickDelete={onClickDelete}
@@ -106,20 +107,33 @@ export function GridCard({
         isDeleteLoading={isDeleteLoading}
         applicationKey={applicationKey}
       />
-      <div className="flex flex-col p-4">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col p-4">
         <p className={cn(textCardPriceClasses, "text-secondary")}>
           {formattedPrice}
         </p>
+        {title ? (
+          <h3
+            className={cn(
+              "mt-1 line-clamp-2 min-w-0 text-text",
+              textCardTitleClasses,
+            )}
+            title={title}
+          >
+            {title}
+          </h3>
+        ) : null}
         <div
           className={cn(
-            "mt-1 flex items-center gap-1 text-text/75",
+            "mt-1 flex min-w-0 items-center gap-1 text-text/75",
             textBodyTightClasses,
           )}
         >
-          {formattedArea ? <span>{formattedArea}</span> : null}
+          {formattedArea ? (
+            <span className="truncate">{formattedArea}</span>
+          ) : null}
           {formattedArea && propertyDetails.propertyType ? <span>•</span> : null}
           {propertyDetails.propertyType ? (
-            <span>{propertyDetails.propertyType}</span>
+            <span className="truncate">{propertyDetails.propertyType}</span>
           ) : null}
         </div>
         {hasLocationMapData ? (
@@ -130,7 +144,7 @@ export function GridCard({
               runCardControlAction(event, () => setIsLocationLightBoxOpen(true))
             }
             className={cn(
-              "mt-1 inline-flex items-center gap-1.5 text-left text-inherit transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/30",
+              "mt-1 inline-flex min-w-0 items-center gap-1.5 text-left text-inherit transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/30",
               textBodyTightClasses,
             )}
             aria-label={`Open map for ${locationLabel}`}
@@ -143,7 +157,7 @@ export function GridCard({
         ) : (
           <div
             className={cn(
-              "mt-1 flex items-center gap-1.5 text-text",
+              "mt-1 flex min-w-0 items-center gap-1.5 text-text",
               textBodyTightClasses,
             )}
           >
@@ -189,25 +203,27 @@ export function GridCard({
               Owners
             </h4>
             <div className="grid grid-cols-1 gap-1.5">
-            {owners.map((owner) => (
-              <div
-                key={owner.owner_id}
-                className={cn(
-                  "flex flex-col rounded-md bg-page p-2 text-text/85",
-                  textOwnerChipClasses,
-                )}
-              >
-                <span className="font-medium text-secondary/90">
-                  {owner.full_name || "Owner"}
-                </span>
-                <span className="text-text/65">{owner.email || "No email"}</span>
-              </div>
-            ))}
+              {owners.map((owner) => (
+                <div
+                  key={owner.owner_id}
+                  className={cn(
+                    "flex flex-col rounded-md bg-page p-2 text-text/85",
+                    textOwnerChipClasses,
+                  )}
+                >
+                  <span className="font-medium text-secondary/90">
+                    {owner.full_name || "Owner"}
+                  </span>
+                  <span className="text-text/65">
+                    {owner.email || "No email"}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         ) : null}
 
-        <div className="mt-4 flex w-full flex-row justify-end gap-2 md:gap-4">
+        <div className="mt-auto flex w-full min-w-0 flex-row justify-end gap-2 pt-4 md:gap-4">
           <Button
             color="primary"
             variant="solid"

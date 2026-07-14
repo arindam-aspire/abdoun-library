@@ -28,24 +28,16 @@ import {
   textPersonDetailClasses,
   textPersonNameClasses,
 } from "../../lib/typography";
-
-function resolveTitle(title: PropertyListCardProps["propertyDetails"]["title"]): string {
-  return title.en || title.ar || title.esp || title.fr || "";
-}
+import {
+  formatListingPrice,
+  resolveListingTitle,
+} from "./listingCardDisplay";
 
 function formatArea(area: string | null): string | undefined {
   if (!area) return undefined;
   const areaValue = Number(area);
   if (!Number.isFinite(areaValue)) return undefined;
   return `${areaValue.toLocaleString()} sqft`;
-}
-
-function formatPrice(price: string): string {
-  const normalized = price.trim();
-  const match = normalized.match(/^([A-Za-z]{3})\s+(.+)$/);
-  if (!match) return normalized;
-  const [, currency, amount] = match;
-  return `${amount} ${currency}`;
 }
 
 function getAgentInitials(name?: string | null): string {
@@ -69,6 +61,7 @@ export function ListCard({
   canViewDelete,
   onClickDelete,
   buttonSize = "md",
+  locale = "en",
   onClick,
   onClickEmail,
   onClickCall,
@@ -79,7 +72,7 @@ export function ListCard({
   const isDeleteLoading =
     isDeleteLoadingProp ?? propertyDetails.is_delete_loading;
   const [isLocationLightBoxOpen, setIsLocationLightBoxOpen] = useState(false);
-  const title = resolveTitle(propertyDetails.title);
+  const title = resolveListingTitle(propertyDetails.title, locale);
   const { latitude, longitude, map_embed_url: mapEmbedUrlFromApi } =
     propertyDetails.location_detail;
   const hasLocationMapData =
@@ -89,7 +82,10 @@ export function ListCard({
     .join(", ");
   const highlights = propertyDetails.highlights?.trim();
   const formattedArea = formatArea(propertyDetails.area);
-  const formattedPrice = formatPrice(propertyDetails.price);
+  const formattedPrice = formatListingPrice(
+    propertyDetails.price,
+    propertyDetails.currency,
+  );
   const agent = canViewAgents ? propertyDetails.agent : undefined;
   const hasAgentDetails = Boolean(agent?.name);
   const owners = canViewOwners ? propertyDetails.owners ?? [] : [];
@@ -106,6 +102,7 @@ export function ListCard({
           layoutVariant={layoutVariant}
           canViewAgents={canViewAgents}
           canViewBadges={canViewBadges}
+          locale={locale}
           applicationKey={applicationKey}
           onClickFavourite={onClickFavourite}
           canViewDelete={canViewDelete}
@@ -117,7 +114,7 @@ export function ListCard({
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col p-4 sm:p-5 lg:p-6">
-        <h3 className={cn(textCardTitleSnugClasses, "text-secondary")}>
+        <h3 className={cn(textCardTitleSnugClasses, "text-text")}>
           {title}
         </h3>
         <div className="mt-1 md:hidden lg:block">

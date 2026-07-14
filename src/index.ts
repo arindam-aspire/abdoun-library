@@ -111,6 +111,10 @@ export type {
   PropertyListingStatus,
   PropertyListingStatusKey,
   StatusColorScheme,
+  PropertyListing,
+  ListingLocale,
+  AgencyDetails,
+  AgentDetails,
 } from "./components/PropertyCardList/types";
 export {
   STATUS_COLOR_MAP,

@@ -11,6 +11,10 @@ export function runCardControlAction(event: MouseEvent, action: () => void): voi
   action();
 }
 
+/**
+ * Invokes a listing contact/favourite handler without opening deep links.
+ * Host apps (e.g. ContactModal) own mailto/tel/wa.me behavior.
+ */
 export function runCardListingAction(
   event: MouseEvent,
   handler: ((propertyDetails: PropertyListing) => void) | undefined,

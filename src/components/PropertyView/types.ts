@@ -392,12 +392,27 @@ export interface PropertyViewProps {
   /** When `false`, hides avg. price per unit and documents metrics in the sidebar. Defaults to `true`. */
   showPropertyMetrics?: boolean;
   statusActionCard?: PropertyStatusActionCard;
+  /** Host-owned contact action. Fires the callback only — does not open mailto/tel/wa.me. */
   onClickAgentEmail?: (id: number) => void;
+  /** Host-owned contact action. Fires the callback only — does not open mailto/tel/wa.me. */
   onClickAgentPhone?: (id: number) => void;
+  /** Host-owned contact action. Fires the callback only — does not open mailto/tel/wa.me. */
   onClickAgentWhatsApp?: (id: number) => void;
   onClickAgent?: (id: number) => void;
+  /**
+   * Host-owned contact action. Fires the callback only — does not open mailto/tel/wa.me.
+   * Second argument is set when a specific owner row is targeted.
+   */
   onClickOwnerEmail?: (propertyId: number, ownerId?: number) => void;
+  /**
+   * Host-owned contact action. Fires the callback only — does not open mailto/tel/wa.me.
+   * Second argument is set when a specific owner row is targeted.
+   */
   onClickOwnerPhone?: (propertyId: number, ownerId?: number) => void;
+  /**
+   * Host-owned contact action. Fires the callback only — does not open mailto/tel/wa.me.
+   * Second argument is set when a specific owner row is targeted.
+   */
   onClickOwnerWhatsApp?: (propertyId: number, ownerId?: number) => void;
   onClickOwner?: (id: number) => void;
   locale?: Locale;

@@ -20,6 +20,9 @@ type NullableNumber = number | null;
 
 export type ApplicationKey = "abdoun-web" | "mls-web";
 
+/** Locale keys for listing title/description fields. */
+export type ListingLocale = "en" | "ar" | "esp" | "fr";
+
 /** JSON-serializable row action descriptor on each listing (from API). */
 export type PropertyListingRowActionDescriptor = {
   id: string;
@@ -40,6 +43,8 @@ export interface PropertyListing {
   description: LocalizedNullableText;
 
   price: string;
+  /** ISO-like currency code (e.g. `"JOD"`). Used when `price` has no currency prefix. */
+  currency?: NullableString;
   status: PropertyListingStatus;
   category: string;
 
@@ -197,7 +202,7 @@ interface OwnerDocument {
   file_name?: string;
 }
 
-interface AgencyDetails {
+export interface AgencyDetails {
   agency_id: number | string;
   agency_name: string;
   agency_trade_name?: NullableString;
@@ -206,7 +211,7 @@ interface AgencyDetails {
   website?: NullableString;
 }
 
-interface AgentDetails {
+export interface AgentDetails {
   id: number;
   name: string;
   phone: NullableString;
@@ -224,8 +229,20 @@ export interface CardListProps {
   canViewAgents?: boolean;
   canViewBadges?: boolean;
   onClick?: (propertyDetails: PropertyListing) => void;
+  /**
+   * Host-owned contact action. Receives the full listing (including `agent`,
+   * `agency`, and `owners` when present). Must not open mailto/tel/wa.me in the library.
+   */
   onClickEmail?: (propertyDetails: PropertyListing) => void;
+  /**
+   * Host-owned contact action. Receives the full listing (including `agent`,
+   * `agency`, and `owners` when present). Must not open mailto/tel/wa.me in the library.
+   */
   onClickCall?: (propertyDetails: PropertyListing) => void;
+  /**
+   * Host-owned contact action. Receives the full listing (including `agent`,
+   * `agency`, and `owners` when present). Must not open mailto/tel/wa.me in the library.
+   */
   onClickWhatsApp?: (propertyDetails: PropertyListing) => void;
   onClickFavourite?: (propertyDetails: PropertyListing) => void;
   /** Show delete control on each card when `onClickDelete` is provided. */
@@ -233,6 +250,8 @@ export interface CardListProps {
   onClickDelete?: (propertyDetails: PropertyListing) => void;
   /** Card action control size from `sm` breakpoint up; below `sm` always uses compact `sm` tier. */
   buttonSize?: UiControlSize;
+  /** Locale for listing title resolution. Defaults to `"en"`. */
+  locale?: ListingLocale;
 }
 
 export interface PropertyCardListProps extends CardListProps {

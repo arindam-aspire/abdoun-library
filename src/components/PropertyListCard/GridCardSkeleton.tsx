@@ -11,7 +11,7 @@ export function GridCardSkeleton({
         <Skeleton className="absolute inset-0 rounded-none" variant="default" />
       </div>
 
-      <div className="flex flex-col p-4">
+      <div className="flex min-h-0 flex-1 flex-col p-4">
         <Skeleton variant="text" className="h-6 w-2/5 max-w-[140px]" />
         <Skeleton variant="text" className="mt-2 h-5 w-4/5" />
 
@@ -46,7 +46,7 @@ export function GridCardSkeleton({
           </div>
         ) : null}
 
-        <div className="mt-4 flex w-full flex-row justify-end gap-2 md:gap-4">
+        <div className="mt-auto flex w-full flex-row justify-end gap-2 pt-4 md:gap-4">
           <Skeleton className="h-8 min-w-0 flex-1 rounded-[10px] sm:h-11" />
           <Skeleton className="h-8 min-w-0 flex-1 rounded-[10px] sm:h-11" />
           <Skeleton className="size-8 shrink-0 rounded-[10px] sm:size-11" />

@@ -1,24 +1,25 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, Heart, Trash2 } from "lucide-react";
-import type { MouseEvent } from "react";
+import type { MouseEvent, SyntheticEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   hasListingMediaImages,
-  PROPERTY_FALLBACK_IMAGE,
+  PROPERTY_CARD_SAMPLE_IMAGE,
 } from "../../lib/propertyFallbackImage";
 import {
   resolveListingFullImageUrls,
   resolveListingMediaImages,
 } from "../../lib/resolveListingImageUrls";
 import { preloadImage } from "../../lib/resolvePropertyMediaImages";
-import type { PropertyListing } from "../PropertyCardList/types";
 import { cn } from "../../lib/cn";
 import { Badge } from "../ui/Badge";
 import type { BadgeAppearance, BadgeVariant } from "../ui/Badge/types";
 import { IconButton } from "../ui/IconButton";
 import { ImageLightBox } from "../ui/ImageLightBox";
+import { Skeleton } from "../ui/Skeleton";
 import { stopCardClickPropagation } from "./cardClickHandlers";
+import { resolveListingTitle } from "./listingCardDisplay";
 import type { ImageGallaryProps } from "./types";
 import { textBadgeClasses } from "../../lib/typography";
 import type { UiControlSize } from "../ui/commonTypes";
@@ -28,9 +29,6 @@ import {
 } from "../ui/responsiveSizes";
 
 const TRANSITION_MS = 260;
-
-const fallbackImageClasses =
-  "object-contain bg-black/15 p-6 opacity-70 dark:bg-white/40";
 
 type GalleryBadge = {
   label: string;
@@ -77,11 +75,9 @@ function mapStringBadges(labels: string[] | undefined): GalleryBadge[] {
   }));
 }
 
-function resolveTitle(title: PropertyListing["title"]): string {
-  return title.en || title.ar || title.esp || title.fr || "";
-}
-
-function resolveBadges(propertyDetails: PropertyListing): GalleryBadge[] {
+function resolveBadges(
+  propertyDetails: ImageGallaryProps["propertyDetails"],
+): GalleryBadge[] {
   const mapped = mapStringBadges(propertyDetails.badges);
   if (
     propertyDetails.is_exclusive &&
@@ -129,10 +125,11 @@ export function ImageGallary({
   buttonSize = "md",
   isFavouriteLoading = false,
   isDeleteLoading = false,
+  locale = "en",
 }: ImageGallaryProps) {
   const title = useMemo(
-    () => resolveTitle(propertyDetails.title),
-    [propertyDetails.title],
+    () => resolveListingTitle(propertyDetails.title, locale),
+    [locale, propertyDetails.title],
   );
 
   const mediaImages = useMemo(
@@ -146,7 +143,7 @@ export function ImageGallary({
     () =>
       hasMedia
         ? mediaImages.map((item) => item.displayUrl)
-        : [PROPERTY_FALLBACK_IMAGE],
+        : [PROPERTY_CARD_SAMPLE_IMAGE],
     [hasMedia, mediaImages],
   );
 
@@ -155,8 +152,6 @@ export function ImageGallary({
       hasMedia ? resolveListingFullImageUrls(propertyDetails.media) : [],
     [hasMedia, propertyDetails.media],
   );
-  /** Bundled SVG only when the listing has no `images` or `thumbnail` URLs. */
-  const isFallbackGallery = !hasMedia;
 
   const badges = useMemo(
     () => resolveBadges(propertyDetails),
@@ -173,19 +168,30 @@ export function ImageGallary({
   const [activeIndex, setActiveIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const activeSrc = gallery[activeIndex] ?? PROPERTY_FALLBACK_IMAGE;
-  const showFallbackStyles = isFallbackGallery;
+  const [useSampleOverride, setUseSampleOverride] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(hasMedia);
+
+  const listingSrc = gallery[activeIndex] ?? PROPERTY_CARD_SAMPLE_IMAGE;
+  const isSampleGallery = !hasMedia || useSampleOverride;
+  const activeSrc = isSampleGallery
+    ? PROPERTY_CARD_SAMPLE_IMAGE
+    : listingSrc;
 
   useEffect(() => {
-    if (isFallbackGallery || gallery.length < 2) {
+    setUseSampleOverride(false);
+    setIsImageLoading(hasMedia);
+  }, [activeIndex, listingSrc, hasMedia]);
+
+  useEffect(() => {
+    if (isSampleGallery || gallery.length < 2) {
       return;
     }
 
     const nextIndex = (activeIndex + 1) % gallery.length;
     preloadImage(gallery[nextIndex]!);
-  }, [activeIndex, gallery, isFallbackGallery]);
+  }, [activeIndex, gallery, isSampleGallery]);
 
-  const carouselEnabled = gallery.length > 1;
+  const carouselEnabled = hasMedia && gallery.length > 1;
   const visibleDots = getVisibleDotIndices(gallery.length, activeIndex);
 
   const goToSlide = useCallback(
@@ -226,6 +232,18 @@ export function ImageGallary({
     [isDeleteLoading, onClickDelete, propertyDetails],
   );
 
+  const handleImageLoad = useCallback(() => {
+    setIsImageLoading(false);
+  }, []);
+
+  const handleImageError = useCallback(
+    (_event: SyntheticEvent<HTMLImageElement>) => {
+      setUseSampleOverride(true);
+      setIsImageLoading(false);
+    },
+    [],
+  );
+
   const showDelete = Boolean(canViewDelete && onClickDelete);
 
   const openLightbox = useCallback((index: number) => {
@@ -240,37 +258,52 @@ export function ImageGallary({
   const imageClasses = cn(
     "absolute inset-0 h-full w-full object-cover transition-all duration-[260ms]",
     isTransitioning && "opacity-85 blur-[1px]",
+    isImageLoading && hasMedia && !useSampleOverride && "opacity-0",
+    isSampleGallery && "scale-105 blur-md",
   );
+
+  const showLoadingSkeleton = hasMedia && isImageLoading && !useSampleOverride;
 
   return (
     <div
       className={cn("relative overflow-hidden", className)}
       onClick={stopCardClickPropagation}
     >
+      {showLoadingSkeleton ? (
+        <Skeleton
+          variant="default"
+          className="absolute inset-0 z-[4] rounded-none"
+          aria-hidden
+        />
+      ) : null}
+
       <button
         suppressHydrationWarning
         type="button"
         onClick={(event) => {
           stopCardClickPropagation(event);
-          if (!isFallbackGallery) {
+          if (!isSampleGallery) {
             openLightbox(activeIndex);
           }
         }}
         className={cn(
           // Keep the "click anywhere to zoom" layer below floating UI so it doesn't block them.
           "absolute inset-0 z-[5] border-0 bg-transparent p-0",
-          isFallbackGallery ? "cursor-default" : "cursor-zoom-in",
+          isSampleGallery ? "cursor-default" : "cursor-zoom-in",
         )}
         aria-label={`View full-size image for ${title}`}
       >
         <img
+          key={activeSrc}
           src={activeSrc}
           alt={title}
           sizes={imageSizes}
           loading="lazy"
           decoding="async"
           fetchPriority="low"
-          className={cn(imageClasses, showFallbackStyles && fallbackImageClasses)}
+          onLoad={handleImageLoad}
+          onError={handleImageError}
+          className={imageClasses}
         />
       </button>
 
@@ -429,7 +462,7 @@ export function ImageGallary({
         </>
       ) : null}
 
-      {!isFallbackGallery && lightboxImages.length > 0 ? (
+      {!isSampleGallery && lightboxImages.length > 0 ? (
         <ImageLightBox
           isOpen={isLightboxOpen}
           onClose={closeLightbox}

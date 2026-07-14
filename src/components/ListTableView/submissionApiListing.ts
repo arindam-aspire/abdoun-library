@@ -130,6 +130,7 @@ export function mapSubmissionApiListingToPropertyListing(
     title: localizedTitle(item.title),
     description: { en: null, ar: null, esp: null, fr: null },
     price: formatApiPrice(item.price, item.currency),
+    currency: item.currency || null,
     status: resolveListingStatus(item),
     category: item.category_name,
     searchPropertyType: item.type_slug,

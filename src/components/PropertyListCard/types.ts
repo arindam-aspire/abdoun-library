@@ -1,11 +1,12 @@
 import type {
   ApplicationKey,
   CardLayoutVariant,
+  ListingLocale,
   PropertyListing,
 } from "../PropertyCardList/types";
 import type { UiControlSize } from "../ui/commonTypes";
 
-export type { ApplicationKey, CardLayoutVariant, PropertyListing };
+export type { ApplicationKey, CardLayoutVariant, ListingLocale, PropertyListing };
 
 export interface PropertyListCardCoreProps {
   propertyDetails: PropertyListing;
@@ -21,6 +22,8 @@ export interface PropertyListCardCoreProps {
   onClickDelete?: (propertyDetails: PropertyListing) => void;
   /** Card action control size from `sm` breakpoint up; below `sm` always uses compact `sm` tier. */
   buttonSize?: UiControlSize;
+  /** Locale for listing title resolution. Defaults to `"en"`. */
+  locale?: ListingLocale;
 }
 
 export interface PropertyListCardProps extends PropertyListCardCoreProps {
@@ -33,7 +36,7 @@ export interface PropertyListCardProps extends PropertyListCardCoreProps {
 export interface ImageGallaryProps
   extends Pick<
     PropertyListCardCoreProps,
-    "propertyDetails" | "canViewAgents" | "canViewBadges"
+    "propertyDetails" | "canViewAgents" | "canViewBadges" | "locale"
   > {
   layoutVariant: CardLayoutVariant;
   applicationKey?: ApplicationKey;

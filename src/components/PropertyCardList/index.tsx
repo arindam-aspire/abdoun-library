@@ -27,6 +27,7 @@ export function PropertyCardList({
   buttonSize = "md",
   pagination,
   className,
+  locale = "en",
 }: PropertyCardListProps) {
   const loadingCount = pagination?.pageSize ?? (layoutVariant === "list" ? 4 : 6);
 
@@ -78,6 +79,7 @@ export function PropertyCardList({
           canViewDelete={canViewDelete}
           onClickDelete={onClickDelete}
           buttonSize={buttonSize}
+          locale={locale}
         />
       ) : (
         <CardGridView
@@ -93,6 +95,7 @@ export function PropertyCardList({
           canViewDelete={canViewDelete}
           onClickDelete={onClickDelete}
           buttonSize={buttonSize}
+          locale={locale}
         />
       )}
       {pagination && !showNoData ? (
