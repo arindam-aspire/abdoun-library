@@ -18,7 +18,6 @@ import {
   cardListIconButtonSizeClasses,
 } from "../ui/responsiveSizes";
 import {
-  textAvatarInitialClasses,
   textBodySmClasses,
   textBodyTightClasses,
   textCardPriceClasses,
@@ -46,14 +45,6 @@ function formatPrice(price: string): string {
   if (!match) return normalized;
   const [, currency, amount] = match;
   return `${amount} ${currency}`;
-}
-
-function getAgentInitials(name?: string | null): string {
-  if (!name) return "A";
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return "A";
-  if (words.length === 1) return words[0]!.charAt(0).toUpperCase();
-  return `${words[0]!.charAt(0)}${words[1]!.charAt(0)}`.toUpperCase();
 }
 
 export function ListCard({
@@ -92,6 +83,10 @@ export function ListCard({
   const formattedPrice = formatPrice(propertyDetails.price);
   const agent = canViewAgents ? propertyDetails.agent : undefined;
   const hasAgentDetails = Boolean(agent?.name);
+  const agencyName = canViewAgents
+    ? propertyDetails.agency?.agency_name || propertyDetails.brokerName
+    : undefined;
+  const hasAgencyOrAgentDetails = Boolean(agencyName || hasAgentDetails);
   const owners = canViewOwners ? propertyDetails.owners ?? [] : [];
 
   return (
@@ -116,10 +111,11 @@ export function ListCard({
         />
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col p-4 sm:p-5 lg:p-6">
-        <h3 className={cn(textCardTitleSnugClasses, "text-secondary")}>
-          {title}
-        </h3>
+      <div className="flex min-w-0 flex-1 flex-col p-4 sm:p-5 lg:grid lg:grid-cols-[minmax(12rem,1fr)_auto] lg:items-center lg:gap-x-6 lg:p-6">
+        <div className="min-w-0">
+          <h3 className={cn(textCardTitleSnugClasses, "text-secondary")}>
+            {title}
+          </h3>
         <div className="mt-1 md:hidden lg:block">
           <div className="min-w-0">
             {highlights ? (
@@ -157,7 +153,7 @@ export function ListCard({
           </div>
         </div>
 
-        <div className="mt-1 hidden min-w-0 md:flex md:items-end md:justify-between md:gap-6 lg:hidden">
+        <div className="mt-1 hidden min-w-0 md:block lg:hidden">
           <div className="min-w-0">
             {highlights ? (
               <p className={cn(textBodySmClasses, "text-text/70")}>{highlights}</p>
@@ -192,13 +188,10 @@ export function ListCard({
               </div>
             )}
           </div>
-          <p className={cn(textCardPriceClasses, "text-secondary md:shrink-0")}>
-            {formattedPrice}
-          </p>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-3 sm:gap-x-6">
-          <ul className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-x-6">
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-3 sm:gap-x-6">
+            <ul className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-x-6">
             {propertyDetails.beds != null ? (
               <li
                 className={cn(
@@ -237,19 +230,12 @@ export function ListCard({
                 <span>{formattedArea}</span>
               </li>
             ) : null}
-          </ul>
-          <p
-            className={cn(
-              "w-full text-secondary sm:ms-auto sm:w-auto md:hidden lg:block",
-              textCardPriceClasses,
-            )}
-          >
-            {formattedPrice}
-          </p>
+            </ul>
+          </div>
         </div>
 
-        <div className="mt-auto pt-4">
-          {canViewOwners && owners.length > 0 ? (
+        {canViewOwners && owners.length > 0 ? (
+          <div className="mt-auto pt-4 lg:col-span-2 lg:row-start-2">
             <div className="mb-4">
               <h4 className={cn("mb-1.5 text-muted", textEyebrowClasses)}>
                 Owners
@@ -271,43 +257,30 @@ export function ListCard({
               ))}
               </div>
             </div>
-          ) : null}
+          </div>
+        ) : null}
 
-          <div className="flex flex-col gap-3 border-t-0 pt-0 md:border-t md:border-secondary/15 md:pt-5 sm:flex-row sm:items-center">
-            {hasAgentDetails ? (
-              <div className="flex min-w-0 flex-1 items-center gap-3 rounded-md bg-page p-2 md:max-w-[70%] lg:max-w-none lg:flex-none">
-                {agent?.photo ? (
-                  <img
-                    src={agent.photo}
-                    alt={agent.name}
-                    className="size-10 shrink-0 rounded-full object-cover"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                ) : (
-                  <div
-                    className={cn(
-                      "inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary/15 text-secondary",
-                      textAvatarInitialClasses,
-                    )}
-                  >
-                    {getAgentInitials(agent?.name)}
-                  </div>
-                )}
-                <div className="min-w-0">
-                  <p
-                    className={cn("truncate text-secondary", textPersonNameClasses)}
-                  >
+          <div className="mt-auto flex flex-col gap-3 pt-4 sm:flex-row sm:flex-nowrap sm:items-center sm:justify-end sm:gap-4 md:border-t md:border-secondary/15 md:gap-6 md:pt-5 lg:col-start-2 lg:row-start-1 lg:mt-0 lg:min-w-[20rem] lg:flex-col lg:items-stretch lg:gap-2 lg:border-t-0 lg:pt-0">
+            <p className={cn(textCardPriceClasses, "shrink-0 text-secondary")}>
+              {formattedPrice}
+            </p>
+
+            {hasAgencyOrAgentDetails ? (
+              <div className="min-w-0 shrink sm:max-w-[12rem] md:max-w-[14rem] lg:max-w-none">
+                {agencyName ? (
+                  <p className={cn("truncate text-text/70", textPersonDetailClasses)}>
+                    {agencyName}
+                  </p>
+                ) : null}
+                {hasAgentDetails ? (
+                  <p className={cn("truncate text-secondary", textPersonNameClasses)}>
                     {agent?.name}
                   </p>
-                  <p className={cn("truncate", textPersonDetailClasses)}>
-                    {agent?.phone || agent?.email || "No contact info"}
-                  </p>
-                </div>
+                ) : null}
               </div>
             ) : null}
 
-            <div className="flex w-full shrink-0 flex-row justify-end gap-2 sm:ms-auto sm:w-auto md:gap-4">
+            <div className="flex w-full shrink-0 flex-row justify-end gap-2 sm:w-auto md:gap-4">
               <Button
                 color="primary"
                 variant="solid"
@@ -355,7 +328,6 @@ export function ListCard({
               />
             </div>
           </div>
-        </div>
       </div>
 
       <LocationLightBox

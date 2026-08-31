@@ -5,11 +5,22 @@ import type {
   LocationInsertFormValues,
   MediaUploadFormValues,
   OwnerInfoFormValues,
+  PricingCurrency,
   PricingDetailsFormValues,
   PropertyDetailsFormValues,
   PropertyFormValues,
   TermsAcceptanceFormValues,
 } from "./types";
+
+const PRICING_CURRENCIES = ["JOD", "USD", "GBP", "INR"] as const satisfies readonly PricingCurrency[];
+
+function normalizePricingCurrency(
+  value: string | undefined,
+): PricingCurrency {
+  return PRICING_CURRENCIES.includes(value as PricingCurrency)
+    ? (value as PricingCurrency)
+    : "JOD";
+}
 
 export const emptyTermsAcceptanceFormValues: TermsAcceptanceFormValues = {
   terms_accepted: false,
@@ -60,6 +71,7 @@ export const emptyPropertyDetailsFormValues: PropertyDetailsFormValues = {
   bedrooms: null,
   bathrooms: null,
   built_up_area: "",
+  built_up_area_unit: "SQM",
   parking_spaces: null,
   property_age: null,
   completion_status: null,
@@ -69,6 +81,9 @@ export const emptyPropertyDetailsFormValues: PropertyDetailsFormValues = {
   reference_number: "",
   permit_dld_number: "",
   orientation: null,
+  guard_name: "",
+  guard_country_code: "+962",
+  guard_phone_number: "",
 };
 
 export const emptyOwnerInfoFormValues: OwnerInfoFormValues = {
@@ -77,8 +92,11 @@ export const emptyOwnerInfoFormValues: OwnerInfoFormValues = {
 
 export const emptyPricingDetailsFormValues: PricingDetailsFormValues = {
   price: "",
+  price_currency: "JOD",
   service_charge: "",
+  service_charge_currency: "JOD",
   maintenance_fee: "",
+  maintenance_fee_currency: "JOD",
 };
 
 export const emptyAmenitiesFormValues: AmenitiesFormValues = {
@@ -95,7 +113,12 @@ export const emptyMediaUploadFormValues: MediaUploadFormValues = {
 
 export function mergePropertyFormValues(
   propertyDetails: PropertyFormValues,
-): Required<Omit<PropertyFormValues, "active_step" | "max_reached_step">> {
+): Omit<
+  Required<Omit<PropertyFormValues, "active_step" | "max_reached_step">>,
+  "property_details"
+> & {
+  property_details: PropertyDetailsFormValues;
+} {
   const {
     active_step: _activeStep,
     max_reached_step: _maxReachedStep,
@@ -114,6 +137,10 @@ export function mergePropertyFormValues(
     property_details: {
       ...emptyPropertyDetailsFormValues,
       ...formSections.property_details,
+      built_up_area_unit:
+        formSections.property_details?.built_up_area_unit === "SQFT"
+          ? "SQFT"
+          : "SQM",
     },
     owner_info: {
       owners:
@@ -125,6 +152,15 @@ export function mergePropertyFormValues(
     pricing_details: {
       ...emptyPricingDetailsFormValues,
       ...formSections.pricing_details,
+      price_currency: normalizePricingCurrency(
+        formSections.pricing_details?.price_currency,
+      ),
+      service_charge_currency: normalizePricingCurrency(
+        formSections.pricing_details?.service_charge_currency,
+      ),
+      maintenance_fee_currency: normalizePricingCurrency(
+        formSections.pricing_details?.maintenance_fee_currency,
+      ),
     },
     amenities: {
       ...emptyAmenitiesFormValues,

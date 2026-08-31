@@ -50,7 +50,6 @@ export const emptyOwnerInfoItem: OwnerInfoItem = {
   email: "",
   social_security_id: "",
   nationality: "",
-  owner_address: "",
   owner_documents: [],
 };
 
@@ -78,7 +77,6 @@ export function hasOwnerInfoContent(owner: OwnerInfoItem): boolean {
     owner.email.trim() !== "" ||
     owner.social_security_id.trim() !== "" ||
     owner.nationality.trim() !== "" ||
-    owner.owner_address.trim() !== "" ||
     (owner.country_code.trim() !== "" &&
       owner.country_code !== DEFAULT_OWNER_COUNTRY_CODE)
   );

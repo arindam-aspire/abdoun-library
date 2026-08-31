@@ -176,9 +176,15 @@ export interface PropertyFormProps {
   ) => void;
   /** MLS host config for the Owner Information step (documents, read-only rows, i18n messages). */
   ownerInfoConfig?: OwnerInfoConfig;
-  /** Agency currency for pricing display only. Defaults to `"JOD"`. */
+  /**
+   * @deprecated Set `pricing_details.price_currency` (and fee currencies) instead.
+   * Retained so existing consumers can migrate without a PropertyForm prop change.
+   */
   pricingCurrency?: string;
-  /** Agency measurement unit for built-up area labels. Defaults to `"SQFT"`. */
+  /**
+   * @deprecated Set `property_details.built_up_area_unit` instead.
+   * Retained so existing consumers can migrate without a PropertyForm prop change.
+   */
   measurementUnit?: "SQFT" | "SQM";
 }
 
@@ -190,7 +196,12 @@ export interface PropertyFormValues {
   max_reached_step?: number;
   basic_info?: BasicInfoFormValues;
   location_insert?: LocationInsertFormValues;
-  property_details?: PropertyDetailsFormValues;
+  property_details?:
+    | PropertyDetailsFormValues
+    | (Omit<PropertyDetailsFormValues, "built_up_area_unit"> & {
+        /** Backward-compatible input; omitted units are normalized to `"SQM"`. */
+        built_up_area_unit?: never;
+      });
   owner_info?: OwnerInfoFormValues;
   pricing_details?: PricingDetailsFormValues;
   amenities?: AmenitiesFormValues;
@@ -220,10 +231,13 @@ export type LocationInsertFormValues = {
   address: string;
 };
 
+export type BuiltUpAreaUnit = "SQM" | "SQFT";
+
 export type PropertyDetailsFormValues = {
   bedrooms: number | null;
   bathrooms: number | null;
   built_up_area: string;
+  built_up_area_unit: BuiltUpAreaUnit;
   parking_spaces: number | null;
   property_age: string | null;
   completion_status: string | null;
@@ -233,6 +247,9 @@ export type PropertyDetailsFormValues = {
   reference_number: string;
   permit_dld_number: string;
   orientation: string | null;
+  guard_name: string;
+  guard_country_code: string;
+  guard_phone_number: string;
 };
 
 
@@ -245,7 +262,6 @@ export type OwnerInfoItem = {
   email: string;
   social_security_id: string;
   nationality: string;
-  owner_address: string;
   owner_documents: SelectedDocument[];
 };
 
@@ -253,10 +269,15 @@ export type OwnerInfoFormValues = {
   owners: OwnerInfoItem[];
 };
 
+export type PricingCurrency = "JOD" | "USD" | "GBP" | "INR";
+
 export type PricingDetailsFormValues = {
   price: string;
+  price_currency: PricingCurrency;
   service_charge: string;
+  service_charge_currency: PricingCurrency;
   maintenance_fee: string;
+  maintenance_fee_currency: PricingCurrency;
 };
 
 

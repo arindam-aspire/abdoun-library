@@ -8,6 +8,7 @@ import { cn } from "../../lib/cn";
 import { textBodySmClasses, textPageTitleClasses } from "../../lib/typography";
 import { Badge } from "../ui/Badge";
 import { Input } from "../ui/Input";
+import { PHONE_INPUT_COUNTRIES, PhoneInput } from "../ui/PhoneInput";
 import { SelectDropdown } from "../ui/SelectDropdown";
 import { SELECT_DROPDOWN_EMPTY_VALUE } from "../ui/SelectDropdown/types";
 import {
@@ -24,12 +25,28 @@ import {
   propertyFormGridClasses,
   propertyFormGridSpanClasses,
 } from "./propertyFormFieldLayout";
-import type { PropertyDetailsFormValues } from "./types";
+import type {
+  BuiltUpAreaUnit,
+  PropertyDetailsFormValues,
+} from "./types";
 
 const PROPERTY_DETAILS_TITLE = "Property Information";
 const PROPERTY_DETAILS_SUBTITLE =
   "Enter the primary legal property details for this property record. This information will be used for official ledger entries and contract generation.";
 const PROPERTY_DETAILS_BADGE_LABEL = "Required";
+
+function dialCodeToIso2(dialCode: string): string {
+  const match = PHONE_INPUT_COUNTRIES.find(
+    (country) => country.dialCode === dialCode,
+  );
+
+  return match?.iso2 ?? "JO";
+}
+
+const builtUpAreaUnitOptions = [
+  { value: "SQM", label: "sq. m." },
+  { value: "SQFT", label: "sq. ft." },
+];
 
 function parseSelectNumber(value: string): number | null {
   if (value === SELECT_DROPDOWN_EMPTY_VALUE || value === "") {
@@ -76,19 +93,11 @@ function syncFieldErrors(
 
 export interface PropertyInfoFormProps {
   form: UsePropertyDetailsFormReturn;
-  measurementUnit?: "SQFT" | "SQM";
   className?: string;
-}
-
-function builtUpAreaLabel(measurementUnit: "SQFT" | "SQM"): string {
-  return measurementUnit === "SQM"
-    ? "Built-up Area (sq. m.)"
-    : "Built-up Area (sq.ft.)";
 }
 
 export function PropertyInfoForm({
   form,
-  measurementUnit = "SQFT",
   className,
 }: PropertyInfoFormProps) {
   const markFieldTouched = (field: keyof PropertyDetailsFormValues) => {
@@ -148,7 +157,7 @@ export function PropertyInfoForm({
     value == null ? SELECT_DROPDOWN_EMPTY_VALUE : String(value);
 
   const updateNonNegativeIntegerField = (
-    field: "built_up_area" | "total_floor",
+    field: "total_floor",
     value: string,
   ) => {
     const nextValues = {
@@ -161,6 +170,30 @@ export function PropertyInfoForm({
     if (form.touched[field]) {
       syncFieldErrors(form, nextValues, [field]);
     }
+  };
+
+  const updateBuiltUpArea = (value: string) => {
+    const nextValues = {
+      ...form.values,
+      built_up_area: value,
+    };
+
+    form.setValues(nextValues);
+
+    if (form.touched.built_up_area) {
+      syncFieldErrors(form, nextValues, ["built_up_area"]);
+    }
+  };
+
+  const updateBuiltUpAreaUnit = (value: string) => {
+    if (value !== "SQM" && value !== "SQFT") {
+      return;
+    }
+
+    form.setValues({
+      ...form.values,
+      built_up_area_unit: value as BuiltUpAreaUnit,
+    });
   };
 
   return (
@@ -214,22 +247,32 @@ export function PropertyInfoForm({
         isRequired
         fullWidth
       />
-      <Input
-        name="built_up_area"
-        label={builtUpAreaLabel(measurementUnit)}
-        placeholder="Enter built-up area"
-        type="text"
-        inputMode="numeric"
-        pattern="[0-9]*"
-        value={form.values.built_up_area}
-        onChange={(event) =>
-          updateNonNegativeIntegerField("built_up_area", event.target.value)
-        }
-        onBlur={() => validateField("built_up_area")}
-        error={form.errors.built_up_area}
-        isRequired
-        fullWidth
-      />
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(7.5rem,0.45fr)] sm:gap-3">
+        <Input
+          name="built_up_area"
+          label="Built-up Area"
+          placeholder="Enter built-up area"
+          type="number"
+          inputMode="decimal"
+          min="0"
+          step="any"
+          value={form.values.built_up_area}
+          onChange={(event) => updateBuiltUpArea(event.target.value)}
+          onBlur={() => validateField("built_up_area")}
+          error={form.errors.built_up_area}
+          isRequired
+          fullWidth
+        />
+        <SelectDropdown
+          name="built_up_area_unit"
+          label="Unit"
+          placeholder="Select unit"
+          options={builtUpAreaUnitOptions}
+          value={form.values.built_up_area_unit}
+          onChange={updateBuiltUpAreaUnit}
+          fullWidth
+        />
+      </div>
       <SelectDropdown
         name="parking_spaces"
         label="Parking Spaces"
@@ -358,6 +401,47 @@ export function PropertyInfoForm({
         onBlur={() => validateField("permit_dld_number")}
         error={form.errors.permit_dld_number}
         isRequired
+        fullWidth
+      />
+      <Input
+        name="guard_name"
+        label="Guard Name"
+        placeholder="Enter guard name"
+        value={form.values.guard_name}
+        onChange={(event) => {
+          const nextValues = {
+            ...form.values,
+            guard_name: event.target.value,
+          };
+          form.setValues(nextValues);
+
+          if (form.touched.guard_name) {
+            syncFieldErrors(form, nextValues, ["guard_name"]);
+          }
+        }}
+        onBlur={() => validateField("guard_name")}
+        error={form.errors.guard_name}
+        fullWidth
+      />
+      <PhoneInput
+        label="Guard Phone Number"
+        countryCode={dialCodeToIso2(form.values.guard_country_code)}
+        nationalNumber={form.values.guard_phone_number}
+        onChange={({ country, nationalNumber }) => {
+          const nextValues = {
+            ...form.values,
+            guard_country_code: country.dialCode,
+            guard_phone_number: nationalNumber,
+          };
+          form.setValues(nextValues);
+
+          if (form.touched.guard_phone_number) {
+            syncFieldErrors(form, nextValues, ["guard_phone_number"]);
+          }
+        }}
+        onBlur={() => validateField("guard_phone_number")}
+        error={form.errors.guard_phone_number}
+        showPhoneIcon={false}
         fullWidth
       />
     </form>

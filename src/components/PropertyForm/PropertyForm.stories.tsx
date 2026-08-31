@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { fn } from "storybook/test";
+import { expect, fn, userEvent, within } from "storybook/test";
 import { useState } from "react";
 import { PropertyForm, propertyFormSteps } from "./index";
 import {
@@ -156,6 +156,33 @@ function InteractiveDemo() {
 
 export const Interactive: Story = {
   render: () => <InteractiveDemo />,
+};
+
+/** Decimal built-up area with its independently stored SQFT unit. */
+export const BuiltUpAreaWithUnit: Story = {
+  args: {
+    activeStep: 3,
+    maxReachedStep: 3,
+    propertyDetails: propertyFormFilledValues,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const builtUpAreaInput = canvas.getByLabelText("Built-up Area");
+    const unitSelect = canvas.getByLabelText("Unit");
+
+    expect(builtUpAreaInput).toHaveValue(125.5);
+    expect(unitSelect).toHaveTextContent("sq. ft.");
+
+    await userEvent.clear(builtUpAreaInput);
+    await userEvent.type(builtUpAreaInput, "200.75");
+    await userEvent.click(unitSelect);
+    await userEvent.click(
+      within(document.body).getByRole("option", { name: "sq. m." }),
+    );
+
+    expect(builtUpAreaInput).toHaveValue(200.75);
+    expect(unitSelect).toHaveTextContent("sq. m.");
+  },
 };
 
 const uploadHandler = async (file: File, context?: { ownerIndex: number }) => {

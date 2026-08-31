@@ -207,8 +207,6 @@ export function PropertyForm({
   canEdit = true,
   rejectionReason,
   ownerInfoConfig,
-  pricingCurrency = "JOD",
-  measurementUnit = "SQFT",
 }: PropertyFormProps) {
   const mergedPropertyDetails = mergePropertyFormValues(propertyDetails);
   const basicInfoForm = useBasicInfoForm(mergedPropertyDetails.basic_info);
@@ -735,10 +733,7 @@ export function PropertyForm({
     );
   } else if (currentStep?.value === "details") {
     stepContent = (
-      <PropertyInfoForm
-        form={propertyDetailsForm}
-        measurementUnit={measurementUnit}
-      />
+      <PropertyInfoForm form={propertyDetailsForm} />
     );
   } else if (currentStep?.value === "owners") {
     stepContent = (
@@ -753,7 +748,7 @@ export function PropertyForm({
     );
   } else if (currentStep?.value === "pricing") {
     stepContent = (
-      <PricingInfoForm form={pricingDetailsForm} currency={pricingCurrency} />
+      <PricingInfoForm form={pricingDetailsForm} />
     );
   } else if (currentStep?.value === "amenities") {
     stepContent = (
@@ -783,7 +778,7 @@ export function PropertyForm({
       <ReviewAndSubmitStep
         basicInfo={reviewPropertyDetails.basic_info!}
         location={reviewPropertyDetails.location_insert!}
-        propertyDetails={reviewPropertyDetails.property_details!}
+        propertyDetails={propertyDetailsForm.values}
         ownerInfo={reviewPropertyDetails.owner_info!}
         pricing={reviewPropertyDetails.pricing_details!}
         amenities={reviewPropertyDetails.amenities!}
@@ -794,8 +789,6 @@ export function PropertyForm({
         termsAcceptance={termsAcceptance}
         onTermsAcceptanceChange={setTermsAcceptance}
         canEdit={canEdit}
-        pricingCurrency={pricingCurrency}
-        measurementUnit={measurementUnit}
       />
     );
   }
@@ -827,8 +820,12 @@ export function PropertyForm({
 }
 
 export type {
+  BuiltUpAreaUnit,
   OwnerInfoConfig,
   OwnerInfoValidationMessages,
+  PricingCurrency,
+  PricingDetailsFormValues,
+  PropertyDetailsFormValues,
   PropertyFormProps,
   PropertyFormStep,
   PropertyFormValues,
