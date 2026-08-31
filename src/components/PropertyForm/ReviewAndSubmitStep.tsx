@@ -102,10 +102,10 @@ function formatPriceField(value: string, currency: string): string {
   return `${formatPriceValue(value)} ${currency}`;
 }
 
-function builtUpAreaLabel(measurementUnit: "SQFT" | "SQM"): string {
-  return measurementUnit === "SQM"
+function builtUpAreaLabel(unit: "SQFT" | "SQM"): string {
+  return unit === "SQM"
     ? "Built-up Area (sq. m.)"
-    : "Built-up Area (sq.ft.)";
+    : "Built-up Area (sq. ft.)";
 }
 
 function resolveCategoryName(
@@ -377,11 +377,6 @@ function OwnerReviewFields({
           value={displayValue(owner.social_security_id)}
           className="md:col-span-2"
         />
-        <ReviewField
-          label="Owner Address"
-          value={displayValue(owner.owner_address)}
-          className="md:col-span-2"
-        />
         <div className="md:col-span-2">
           <ReviewField
             label="Owner Documents"
@@ -408,7 +403,15 @@ export interface ReviewAndSubmitStepProps {
   onTermsAcceptanceChange: (terms: TermsAcceptanceFormValues) => void;
   /** When false, the terms agreement checkbox is disabled. */
   canEdit?: boolean;
+  /**
+   * @deprecated Use `pricing.price_currency` and fee currency fields instead.
+   * Retained so existing consumers can migrate without a prop change.
+   */
   pricingCurrency?: string;
+  /**
+   * @deprecated Use `propertyDetails.built_up_area_unit` instead.
+   * Retained so existing consumers can migrate without a prop change.
+   */
   measurementUnit?: "SQFT" | "SQM";
   className?: string;
 }
@@ -427,8 +430,6 @@ export function ReviewAndSubmitStep({
   termsAcceptance,
   onTermsAcceptanceChange,
   canEdit = true,
-  pricingCurrency = "JOD",
-  measurementUnit = "SQFT",
   className,
 }: ReviewAndSubmitStepProps) {
   const allTermsAccepted = areAllTermsAccepted(termsAcceptance);
@@ -547,7 +548,7 @@ export function ReviewAndSubmitStep({
             value={optionLabel(bathroomOptions, propertyDetails.bathrooms)}
           />
           <ReviewField
-            label={builtUpAreaLabel(measurementUnit)}
+            label={builtUpAreaLabel(propertyDetails.built_up_area_unit)}
             value={displayValue(propertyDetails.built_up_area)}
           />
           <ReviewField
@@ -589,6 +590,18 @@ export function ReviewAndSubmitStep({
             label="Permit / DLD Number"
             value={displayValue(propertyDetails.permit_dld_number)}
           />
+          <ReviewField
+            label="Guard Name"
+            value={displayValue(propertyDetails.guard_name)}
+          />
+          <ReviewField
+            label="Guard Phone Number"
+            value={displayValue(
+              propertyDetails.guard_phone_number
+                ? `${propertyDetails.guard_country_code} ${propertyDetails.guard_phone_number}`.trim()
+                : "",
+            )}
+          />
         </dl>
       </ReviewSection>
 
@@ -609,14 +622,23 @@ export function ReviewAndSubmitStep({
 
       <ReviewSection title="Pricing">
         <dl className={propertyFormGridClasses}>
-          <ReviewField label="Price" value={formatPriceField(pricing.price, pricingCurrency)} />
+          <ReviewField
+            label="Price"
+            value={formatPriceField(pricing.price, pricing.price_currency)}
+          />
           <ReviewField
             label="Service Charge"
-            value={formatPriceField(pricing.service_charge, pricingCurrency)}
+            value={formatPriceField(
+              pricing.service_charge,
+              pricing.service_charge_currency,
+            )}
           />
           <ReviewField
             label="Maintenance Fee"
-            value={formatPriceField(pricing.maintenance_fee, pricingCurrency)}
+            value={formatPriceField(
+              pricing.maintenance_fee,
+              pricing.maintenance_fee_currency,
+            )}
           />
         </dl>
       </ReviewSection>

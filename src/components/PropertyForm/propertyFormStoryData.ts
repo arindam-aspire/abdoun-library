@@ -130,7 +130,8 @@ export const propertyFormFilledValues: PropertyFormValues = {
   property_details: {
     bedrooms: 4,
     bathrooms: 3,
-    built_up_area: "3200",
+    built_up_area: "125.5",
+    built_up_area_unit: "SQFT",
     parking_spaces: 2,
     property_age: "1-5",
     completion_status: "ready",
@@ -140,6 +141,9 @@ export const propertyFormFilledValues: PropertyFormValues = {
     reference_number: "REF-2026-001",
     permit_dld_number: "DLD-88421",
     orientation: "north",
+    guard_name: "Ahmad Hassan",
+    guard_country_code: "+962",
+    guard_phone_number: "791112233",
   },
   owner_info: {
     owners: [
@@ -150,7 +154,6 @@ export const propertyFormFilledValues: PropertyFormValues = {
         email: "sara.khatib@example.com",
         social_security_id: "9988776655",
         nationality: "jordanian",
-        owner_address: "12 Rainbow Street, Abdoun, Amman",
         owner_documents: [
           {
             name: "owner-id.pdf",
@@ -164,8 +167,11 @@ export const propertyFormFilledValues: PropertyFormValues = {
   },
   pricing_details: {
     price: "850000",
+    price_currency: "JOD",
     service_charge: "1200",
+    service_charge_currency: "USD",
     maintenance_fee: "450",
+    maintenance_fee_currency: "GBP",
   },
   amenities: {
     selected_amenities: [

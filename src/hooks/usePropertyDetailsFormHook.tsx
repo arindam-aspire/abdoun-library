@@ -9,6 +9,8 @@ function hasTrimmedValue(value: string | number | null | undefined): boolean {
   return String(value ?? "").trim().length > 0;
 }
 
+const POSITIVE_DECIMAL_PATTERN = /^(?:\d+(?:\.\d+)?|\.\d+)$/;
+
 export function validatePropertyDetailsFormValues(
   formValues: PropertyDetailsFormValues,
 ) {
@@ -21,10 +23,15 @@ export function validatePropertyDetailsFormValues(
   if (formValues.bathrooms == null) {
     nextErrors.bathrooms = "Bathrooms is required.";
   }
-  if (!formValues.built_up_area.trim()) {
+  const builtUpArea = formValues.built_up_area.trim();
+  if (!builtUpArea) {
     nextErrors.built_up_area = "Built-up area is required.";
-  } else if (Number(formValues.built_up_area) < 0) {
-    nextErrors.built_up_area = "Built-up area cannot be negative.";
+  } else if (
+    !POSITIVE_DECIMAL_PATTERN.test(builtUpArea) ||
+    !Number.isFinite(Number(builtUpArea)) ||
+    Number(builtUpArea) <= 0
+  ) {
+    nextErrors.built_up_area = "Enter a valid positive built-up area.";
   }
   if (formValues.parking_spaces == null) {
     nextErrors.parking_spaces = "Parking spaces is required.";
@@ -67,6 +74,7 @@ export function usePropertyDetailsForm(
       bedrooms: null,
       bathrooms: null,
       built_up_area: "",
+      built_up_area_unit: "SQM",
       parking_spaces: null,
       property_age: null,
       completion_status: null,
@@ -76,6 +84,9 @@ export function usePropertyDetailsForm(
       reference_number: "",
       permit_dld_number: "",
       orientation: null,
+      guard_name: "",
+      guard_country_code: "+962",
+      guard_phone_number: "",
       ...initialValues,
     },
     validate: validatePropertyDetailsFormValues,

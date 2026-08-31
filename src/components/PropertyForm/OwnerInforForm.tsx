@@ -16,7 +16,6 @@ import { Input } from "../ui/Input";
 import { PHONE_INPUT_COUNTRIES, PhoneInput } from "../ui/PhoneInput";
 import { SelectDropdown } from "../ui/SelectDropdown";
 import { SELECT_DROPDOWN_EMPTY_VALUE } from "../ui/SelectDropdown/types";
-import { Textarea } from "../ui/Textarea";
 import {
   propertyFormGridClasses,
   propertyFormGridSpanClasses,
@@ -240,21 +239,6 @@ export function OwnerInforForm({
                   }}
                   fullWidth
                   className={propertyFormGridSpanClasses}
-                />
-
-                <Textarea
-                  name={`owner_address-${index}`}
-                  label="Owner Address"
-                  placeholder="Enter owner address"
-                  value={owner.owner_address}
-                  onChange={(event) => {
-                    updateOwnerField(index, {
-                      owner_address: event.target.value,
-                    });
-                  }}
-                  fullWidth
-                  className={propertyFormGridSpanClasses}
-                  rows={3}
                 />
 
                 <FileSelectInput

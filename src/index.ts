@@ -147,8 +147,11 @@ export { ProgressBar } from "./components/ui/ProgressBar";
 export type { ProgressBarProps, ProgressBarSize } from "./components/ui/ProgressBar";
 export { PropertyForm, propertyFormSteps } from "./components/PropertyForm";
 export type {
+  BuiltUpAreaUnit,
   OwnerInfoConfig,
   OwnerInfoValidationMessages,
+  PricingCurrency,
+  PricingDetailsFormValues,
   PropertyFormProps,
   PropertyFormStep,
   PropertyFormValues,

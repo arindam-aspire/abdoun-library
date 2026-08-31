@@ -18,8 +18,11 @@ export function usePricingDetailsForm(
   const form = useForm<PricingDetailsFormValues>({
     initialValues: {
       price: "",
+      price_currency: "JOD",
       service_charge: "",
+      service_charge_currency: "JOD",
       maintenance_fee: "",
+      maintenance_fee_currency: "JOD",
       ...initialValues,
     },
     validate: validatePricingDetailsFormValues,
@@ -28,8 +31,11 @@ export function usePricingDetailsForm(
   const submit = (onValid?: (values: PricingDetailsFormValues) => void) => {
     const allTouched = {
       price: true,
+      price_currency: true,
       service_charge: true,
+      service_charge_currency: true,
       maintenance_fee: true,
+      maintenance_fee_currency: true,
     };
 
     form.setTouched(allTouched);

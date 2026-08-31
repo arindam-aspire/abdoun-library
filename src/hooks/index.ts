@@ -26,6 +26,7 @@ export type {
   PropertyDetailsFormValues,
   UsePropertyDetailsFormReturn,
 } from "./usePropertyDetailsFormHook";
+export type { BuiltUpAreaUnit } from "../components/PropertyForm/types";
 export {
   DEFAULT_OWNER_COUNTRY_CODE,
   emptyOwnerInfoItem,
@@ -47,6 +48,7 @@ export type {
   PricingDetailsFormValues,
   UsePricingDetailsFormReturn,
 } from "./usePricingDetailsFormHook";
+export type { PricingCurrency } from "../components/PropertyForm/types";
 export {
   useAmenitiesForm,
   validateAmenitiesFormValues,
