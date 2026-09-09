@@ -1,4 +1,4 @@
-import type { PropertyDetails, PropertyMediaItem } from "./types";
+import type { PropertyDetails, PropertyMediaItem, PropertyOwner } from "./types";
 import {
   pickDisplayUrls,
   pickFullUrls,
@@ -234,4 +234,35 @@ export function getMediaItemLabel(
   }
 
   return fallback;
+}
+
+function hasVisibleOwnerContent(owner: PropertyOwner): boolean {
+  return (
+    owner.name.trim() !== "" ||
+    owner.phone.trim() !== "" ||
+    owner.email.trim() !== ""
+  );
+}
+
+function filterVisibleOwners(owners: PropertyOwner[]): PropertyOwner[] {
+  return owners.filter(
+    (owner) => !owner.is_private && hasVisibleOwnerContent(owner),
+  );
+}
+
+export function resolvePropertyOwners(
+  propertyDetails: Pick<PropertyDetails, "owner" | "owners">,
+): PropertyOwner[] {
+  if (propertyDetails.owners != null && propertyDetails.owners.length > 0) {
+    const visibleOwners = filterVisibleOwners(propertyDetails.owners);
+    if (visibleOwners.length > 0) {
+      return visibleOwners;
+    }
+  }
+
+  if (propertyDetails.owner != null) {
+    return filterVisibleOwners([propertyDetails.owner]);
+  }
+
+  return [];
 }

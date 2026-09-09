@@ -17,7 +17,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof OwnerInforForm>;
+} satisfies Meta;
 
 export default meta;
 

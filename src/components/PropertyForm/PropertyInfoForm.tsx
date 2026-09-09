@@ -8,28 +8,50 @@ import { cn } from "../../lib/cn";
 import { textBodySmClasses, textPageTitleClasses } from "../../lib/typography";
 import { Badge } from "../ui/Badge";
 import { Input } from "../ui/Input";
+import { PHONE_INPUT_COUNTRIES, PhoneInput } from "../ui/PhoneInput";
 import { SelectDropdown } from "../ui/SelectDropdown";
 import { SELECT_DROPDOWN_EMPTY_VALUE } from "../ui/SelectDropdown/types";
 import {
   bathroomOptions,
   bedroomOptions,
-  completionStatusOptions,
   occupancyOptions,
-  orientationOptions,
   ownershipTypeOptions,
   parkingSpaceOptions,
-  propertyAgeOptions,
 } from "./propertyDetailsFormOptions";
+import { resolvePropertyFormConfig } from "./propertyFormConfig";
+import {
+  getExternalFieldError,
+  mergeFieldError,
+  propertyFormFieldProps,
+} from "./propertyFormErrors";
 import {
   propertyFormGridClasses,
   propertyFormGridSpanClasses,
 } from "./propertyFormFieldLayout";
-import type { PropertyDetailsFormValues } from "./types";
+import type {
+  BuiltUpAreaUnit,
+  PropertyDetailsFormValues,
+  PropertyFormFieldErrors,
+  PropertyFormOption,
+} from "./types";
 
 const PROPERTY_DETAILS_TITLE = "Property Information";
 const PROPERTY_DETAILS_SUBTITLE =
   "Enter the primary legal property details for this property record. This information will be used for official ledger entries and contract generation.";
 const PROPERTY_DETAILS_BADGE_LABEL = "Required";
+
+function dialCodeToIso2(dialCode: string): string {
+  const match = PHONE_INPUT_COUNTRIES.find(
+    (country) => country.dialCode === dialCode,
+  );
+
+  return match?.iso2 ?? "JO";
+}
+
+const builtUpAreaUnitOptions = [
+  { value: "SQM", label: "sq. m." },
+  { value: "SQFT", label: "sq. ft." },
+];
 
 function parseSelectNumber(value: string): number | null {
   if (value === SELECT_DROPDOWN_EMPTY_VALUE || value === "") {
@@ -50,6 +72,16 @@ function parseSelectString(value: string): string | null {
 
 function sanitizeNonNegativeInteger(value: string): string {
   return value.replace(/\D/g, "");
+}
+
+function parseYearBuilt(value: string): number | null {
+  const digits = sanitizeNonNegativeInteger(value);
+  if (!digits) {
+    return null;
+  }
+
+  const parsed = Number(digits);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function syncFieldErrors(
@@ -76,10 +108,51 @@ function syncFieldErrors(
 
 export interface PropertyInfoFormProps {
   form: UsePropertyDetailsFormReturn;
+  completionStatusOptions?: PropertyFormOption[];
+  orientationOptions?: PropertyFormOption[];
+  furnishingStatusOptions?: PropertyFormOption[];
+  floorLevelOptions?: PropertyFormOption[];
+  yearBuiltLabel?: string;
+  yearBuiltPlaceholder?: string;
+  floorLevelLabel?: string;
+  furnishingStatusLabel?: string;
+  enableLegacyPermitDld?: boolean;
+  fieldErrors?: PropertyFormFieldErrors;
   className?: string;
 }
 
-export function PropertyInfoForm({ form, className }: PropertyInfoFormProps) {
+export function PropertyInfoForm({
+  form,
+  completionStatusOptions,
+  orientationOptions,
+  furnishingStatusOptions,
+  floorLevelOptions,
+  yearBuiltLabel,
+  yearBuiltPlaceholder,
+  floorLevelLabel,
+  furnishingStatusLabel,
+  enableLegacyPermitDld = false,
+  fieldErrors,
+  className,
+}: PropertyInfoFormProps) {
+  const resolved = resolvePropertyFormConfig({
+    completionStatusOptions,
+    orientationOptions,
+    furnishingStatusOptions,
+    floorLevelOptions,
+    yearBuiltLabel,
+    yearBuiltPlaceholder,
+    floorLevelLabel,
+    furnishingStatusLabel,
+  });
+  const nextCompletionStatusOptions = resolved.completionStatusOptions;
+  const nextOrientationOptions = resolved.orientationOptions;
+  const nextFurnishingStatusOptions = resolved.furnishingStatusOptions;
+  const nextFloorLevelOptions = resolved.floorLevelOptions;
+  const nextYearBuiltLabel = resolved.yearBuiltLabel;
+  const nextYearBuiltPlaceholder = resolved.yearBuiltPlaceholder;
+  const nextFloorLevelLabel = resolved.floorLevelLabel;
+  const nextFurnishingStatusLabel = resolved.furnishingStatusLabel;
   const markFieldTouched = (field: keyof PropertyDetailsFormValues) => {
     form.setTouched((previous) => ({ ...previous, [field]: true }));
   };
@@ -114,11 +187,12 @@ export function PropertyInfoForm({ form, className }: PropertyInfoFormProps) {
 
   const updateStringSelect = (
     field:
-      | "property_age"
       | "completion_status"
       | "occupancy"
       | "ownership_type"
-      | "orientation",
+      | "orientation"
+      | "furnishing_status"
+      | "floor_level",
     value: string,
   ) => {
     const nextValues = {
@@ -133,11 +207,11 @@ export function PropertyInfoForm({ form, className }: PropertyInfoFormProps) {
   const numberSelectValue = (value: number | null) =>
     value != null ? String(value) : SELECT_DROPDOWN_EMPTY_VALUE;
 
-  const stringSelectValue = (value: string | null) =>
-    value ?? SELECT_DROPDOWN_EMPTY_VALUE;
+  const stringSelectValue = (value: string | number | null | undefined) =>
+    value == null ? SELECT_DROPDOWN_EMPTY_VALUE : String(value);
 
   const updateNonNegativeIntegerField = (
-    field: "built_up_area" | "total_floor",
+    field: "total_floor",
     value: string,
   ) => {
     const nextValues = {
@@ -150,6 +224,30 @@ export function PropertyInfoForm({ form, className }: PropertyInfoFormProps) {
     if (form.touched[field]) {
       syncFieldErrors(form, nextValues, [field]);
     }
+  };
+
+  const updateBuiltUpArea = (value: string) => {
+    const nextValues = {
+      ...form.values,
+      built_up_area: value,
+    };
+
+    form.setValues(nextValues);
+
+    if (form.touched.built_up_area) {
+      syncFieldErrors(form, nextValues, ["built_up_area"]);
+    }
+  };
+
+  const updateBuiltUpAreaUnit = (value: string) => {
+    if (value !== "SQM" && value !== "SQFT") {
+      return;
+    }
+
+    form.setValues({
+      ...form.values,
+      built_up_area_unit: value as BuiltUpAreaUnit,
+    });
   };
 
   return (
@@ -203,22 +301,32 @@ export function PropertyInfoForm({ form, className }: PropertyInfoFormProps) {
         isRequired
         fullWidth
       />
-      <Input
-        name="built_up_area"
-        label="Built-up Area (sq.ft.)"
-        placeholder="Enter built-up area"
-        type="text"
-        inputMode="numeric"
-        pattern="[0-9]*"
-        value={form.values.built_up_area}
-        onChange={(event) =>
-          updateNonNegativeIntegerField("built_up_area", event.target.value)
-        }
-        onBlur={() => validateField("built_up_area")}
-        error={form.errors.built_up_area}
-        isRequired
-        fullWidth
-      />
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(7.5rem,0.45fr)] sm:gap-3">
+        <Input
+          name="built_up_area"
+          label="Built-up Area"
+          placeholder="Enter built-up area"
+          type="number"
+          inputMode="decimal"
+          min="0"
+          step="any"
+          value={form.values.built_up_area}
+          onChange={(event) => updateBuiltUpArea(event.target.value)}
+          onBlur={() => validateField("built_up_area")}
+          error={form.errors.built_up_area}
+          isRequired
+          fullWidth
+        />
+        <SelectDropdown
+          name="built_up_area_unit"
+          label="Unit"
+          placeholder="Select unit"
+          options={builtUpAreaUnitOptions}
+          value={form.values.built_up_area_unit}
+          onChange={updateBuiltUpAreaUnit}
+          fullWidth
+        />
+      </div>
       <SelectDropdown
         name="parking_spaces"
         label="Parking Spaces"
@@ -231,23 +339,53 @@ export function PropertyInfoForm({ form, className }: PropertyInfoFormProps) {
         isRequired
         fullWidth
       />
-      <SelectDropdown
-        name="property_age"
-        label="Property Age"
-        placeholder="Select property age"
-        options={propertyAgeOptions}
-        value={stringSelectValue(form.values.property_age)}
-        onChange={(value) => updateStringSelect("property_age", value)}
-        onBlur={() => validateSelectField("property_age")}
-        error={form.errors.property_age}
-        isRequired
-        fullWidth
-      />
+      <div {...propertyFormFieldProps("property_details.year_built")}>
+        <Input
+          name="year_built"
+          label={nextYearBuiltLabel}
+          placeholder={nextYearBuiltPlaceholder}
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          value={form.values.year_built == null ? "" : String(form.values.year_built)}
+          onChange={(event) => {
+            const nextValues = {
+              ...form.values,
+              year_built: parseYearBuilt(event.target.value),
+            };
+            form.setValues(nextValues);
+            if (form.touched.year_built) {
+              syncFieldErrors(form, nextValues, ["year_built"]);
+            }
+          }}
+          onBlur={() => validateField("year_built")}
+          error={mergeFieldError(
+            form.errors.year_built,
+            getExternalFieldError(fieldErrors, "property_details.year_built"),
+          )}
+          isRequired
+          fullWidth
+        />
+      </div>
+      {nextFurnishingStatusOptions.length > 0 ? (
+        <SelectDropdown
+          name="furnishing_status"
+          label={nextFurnishingStatusLabel}
+          placeholder={`Select ${nextFurnishingStatusLabel.toLowerCase()}`}
+          options={nextFurnishingStatusOptions}
+          value={stringSelectValue(form.values.furnishing_status)}
+          onChange={(value) => updateStringSelect("furnishing_status", value)}
+          onBlur={() => validateSelectField("furnishing_status")}
+          error={form.errors.furnishing_status}
+          isRequired
+          fullWidth
+        />
+      ) : null}
       <SelectDropdown
         name="completion_status"
         label="Completion Status"
         placeholder="Select completion status"
-        options={completionStatusOptions}
+        options={nextCompletionStatusOptions}
         value={stringSelectValue(form.values.completion_status)}
         onChange={(value) => updateStringSelect("completion_status", value)}
         onBlur={() => validateSelectField("completion_status")}
@@ -255,6 +393,20 @@ export function PropertyInfoForm({ form, className }: PropertyInfoFormProps) {
         isRequired
         fullWidth
       />
+      {nextFloorLevelOptions.length > 0 ? (
+        <SelectDropdown
+          name="floor_level"
+          label={nextFloorLevelLabel}
+          placeholder={`Select ${nextFloorLevelLabel.toLowerCase()}`}
+          options={nextFloorLevelOptions}
+          value={stringSelectValue(form.values.floor_level)}
+          onChange={(value) => updateStringSelect("floor_level", value)}
+          onBlur={() => validateSelectField("floor_level")}
+          error={form.errors.floor_level}
+          isRequired
+          fullWidth
+        />
+      ) : null}
       <Input
         name="total_floor"
         label="Total Floor"
@@ -299,7 +451,7 @@ export function PropertyInfoForm({ form, className }: PropertyInfoFormProps) {
         name="orientation"
         label="Orientation"
         placeholder="Select orientation"
-        options={orientationOptions}
+        options={nextOrientationOptions}
         value={stringSelectValue(form.values.orientation)}
         onChange={(value) => updateStringSelect("orientation", value)}
         onBlur={() => validateSelectField("orientation")}
@@ -328,25 +480,67 @@ export function PropertyInfoForm({ form, className }: PropertyInfoFormProps) {
         isRequired
         fullWidth
       />
+      {enableLegacyPermitDld ? (
+        <Input
+          name="permit_dld_number"
+          label="Permit / DLD Number"
+          placeholder="Enter permit / DLD number"
+          value={form.values.permit_dld_number ?? ""}
+          onChange={(event) => {
+            const nextValues = {
+              ...form.values,
+              permit_dld_number: event.target.value,
+            };
+            form.setValues(nextValues);
+
+            if (form.touched.permit_dld_number) {
+              syncFieldErrors(form, nextValues, ["permit_dld_number"]);
+            }
+          }}
+          onBlur={() => validateField("permit_dld_number")}
+          error={form.errors.permit_dld_number}
+          fullWidth
+        />
+      ) : null}
       <Input
-        name="permit_dld_number"
-        label="Permit / DLD Number"
-        placeholder="Enter permit / DLD number"
-        value={form.values.permit_dld_number}
+        name="guard_name"
+        label="Guard Name"
+        placeholder="Enter guard name"
+        value={form.values.guard_name}
         onChange={(event) => {
           const nextValues = {
             ...form.values,
-            permit_dld_number: event.target.value,
+            guard_name: event.target.value,
           };
           form.setValues(nextValues);
 
-          if (form.touched.permit_dld_number) {
-            syncFieldErrors(form, nextValues, ["permit_dld_number"]);
+          if (form.touched.guard_name) {
+            syncFieldErrors(form, nextValues, ["guard_name"]);
           }
         }}
-        onBlur={() => validateField("permit_dld_number")}
-        error={form.errors.permit_dld_number}
-        isRequired
+        onBlur={() => validateField("guard_name")}
+        error={form.errors.guard_name}
+        fullWidth
+      />
+      <PhoneInput
+        label="Guard Phone Number"
+        countryCode={dialCodeToIso2(form.values.guard_country_code)}
+        nationalNumber={form.values.guard_phone_number}
+        onChange={({ country, nationalNumber }) => {
+          const nextValues = {
+            ...form.values,
+            guard_country_code: country.dialCode,
+            guard_phone_number: nationalNumber,
+          };
+          form.setValues(nextValues);
+
+          if (form.touched.guard_phone_number) {
+            syncFieldErrors(form, nextValues, ["guard_phone_number"]);
+          }
+        }}
+        onBlur={() => validateField("guard_phone_number")}
+        error={form.errors.guard_phone_number}
+        showPhoneIcon={false}
         fullWidth
       />
     </form>

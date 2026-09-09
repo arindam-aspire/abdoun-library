@@ -17,6 +17,7 @@ import type {
   FeaturesAndAmenities,
   LocationInsertFormValues,
   MediaUploadFormValues,
+  OwnerInfoConfig,
   OwnerInfoFormValues,
   PricingDetailsFormValues,
   PropertyDetailsFormValues,
@@ -35,6 +36,12 @@ export type PropertyFormSubmissionState = {
   categoryId: number | null;
   propertyTypeId: number | null;
   featuresAndAmenities: FeaturesAndAmenities[];
+  ownerInfoConfig?: OwnerInfoConfig;
+  propertyDetailsValidationOptions?: {
+    requireFurnishing?: boolean;
+    requireFloorLevel?: boolean;
+    requirePermitDld?: boolean;
+  };
 };
 
 export function isPropertyFormSubmittable({
@@ -49,6 +56,8 @@ export function isPropertyFormSubmittable({
   categoryId,
   propertyTypeId,
   featuresAndAmenities,
+  ownerInfoConfig,
+  propertyDetailsValidationOptions,
 }: PropertyFormSubmissionState): boolean {
   if (!areAllTermsAccepted(termsAcceptance)) {
     return false;
@@ -62,11 +71,16 @@ export function isPropertyFormSubmittable({
     return false;
   }
 
-  if (Object.keys(validatePropertyDetailsFormValues(propertyDetails)).length > 0) {
+  if (Object.keys(validatePropertyDetailsFormValues(propertyDetails, propertyDetailsValidationOptions)).length > 0) {
     return false;
   }
 
-  if (!validateOwnerInfoFormValues(ownerInfo).isValid) {
+  if (
+    !validateOwnerInfoFormValues(ownerInfo, {
+      requireDocuments: ownerInfoConfig?.requireDocuments,
+      validationMessages: ownerInfoConfig?.validationMessages,
+    }).isValid
+  ) {
     return false;
   }
 

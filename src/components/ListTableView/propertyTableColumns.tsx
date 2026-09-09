@@ -70,8 +70,9 @@ const EMPTY_CELL_VALUE = "—";
 function SubmissionMetaCell({ listing }: { listing: PropertyListing }) {
   const submittedBy = resolveListingSubmittedBy(listing);
   const submittedOn = formatListingSubmissionDate(listing.submitted_on);
+  const assignedAgent = listing.agent?.name?.trim();
 
-  if (!submittedOn && !submittedBy) {
+  if (!submittedOn && !submittedBy && !assignedAgent) {
     return <span className={textMetaClasses}>{EMPTY_CELL_VALUE}</span>;
   }
 
@@ -87,6 +88,11 @@ function SubmissionMetaCell({ listing }: { listing: PropertyListing }) {
       </span>
       {submittedOn ? (
         <span className={cn("truncate", textMetaClasses)}>{submittedOn}</span>
+      ) : null}
+      {assignedAgent ? (
+        <span className={cn("truncate", textMetaClasses)}>
+          Assigned: {assignedAgent}
+        </span>
       ) : null}
     </div>
   );

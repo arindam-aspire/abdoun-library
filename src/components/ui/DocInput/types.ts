@@ -6,6 +6,8 @@ export type DocInputDocument = {
   uri: string;
   mimeType?: string;
   size?: number;
+  is_primary?: boolean;
+  display_order?: number;
 };
 
 export const DOC_INPUT_SIZES = ["sm", "md", "lg"] as const;

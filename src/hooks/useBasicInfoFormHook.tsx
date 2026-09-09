@@ -11,8 +11,8 @@ export function validateBasicInfoFormValues(formValues: BasicInfoFormValues) {
   if (!formValues.title.trim()) {
     nextErrors.title = "Please enter property title.";
   }
-  if (!formValues.listing_purpose) {
-    nextErrors.listing_purpose = "Please select listing purpose.";
+  if (!formValues.listing_purposes?.length) {
+    nextErrors.listing_purposes = "Please select listing purpose.";
   }
   if (formValues.category_id == null) {
     nextErrors.category_id = "Please select category.";
@@ -29,6 +29,7 @@ export function useBasicInfoForm(initialValues?: Partial<BasicInfoFormValues>) {
     initialValues: {
       title: "",
       description: "",
+      listing_purposes: ["sale"],
       listing_purpose: "sale",
       category_id: null,
       type_id: null,

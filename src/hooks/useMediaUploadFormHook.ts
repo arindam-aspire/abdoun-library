@@ -1,16 +1,40 @@
 "use client";
 
 import { useCallback, useRef } from "react";
-import type { MediaUploadFormValues } from "../components/PropertyForm/types";
+import {
+  normalizePropertyMediaFiles,
+  setPrimaryPropertyMedia,
+} from "../components/PropertyForm/propertyFormMedia";
+import type {
+  MediaUploadFormValues,
+  PropertyMediaFile,
+} from "../components/PropertyForm/types";
 import type { SelectedDocument } from "../components/ui/FileSelectInput";
+import {
+  isImageMedia,
+  isVideoMedia,
+} from "../components/ui/MediaInput/utils";
 import { useForm } from "./useFormHook";
 
 export type { MediaUploadFormValues };
 
+const MEDIA_FILES_REQUIRED_MESSAGE =
+  "Please upload at least one property image or video.";
+
 export function validateMediaUploadFormValues(
   formValues: MediaUploadFormValues,
 ) {
-  void formValues;
+  const imageCount = formValues.media_files.filter((media) =>
+    isImageMedia(media),
+  ).length;
+  const videoCount = formValues.media_files.filter((media) =>
+    isVideoMedia(media),
+  ).length;
+
+  if (imageCount === 0 && videoCount === 0) {
+    return { media_files: MEDIA_FILES_REQUIRED_MESSAGE };
+  }
+
   return {};
 }
 
@@ -31,10 +55,17 @@ export function useMediaUploadForm(
   const valuesRef = useRef(form.values);
   valuesRef.current = form.values;
 
-  const setMediaFiles = useCallback((mediaFiles: SelectedDocument[]) => {
+  const setMediaFiles = useCallback((mediaFiles: PropertyMediaFile[]) => {
     form.setValues({
       ...valuesRef.current,
-      media_files: mediaFiles,
+      media_files: normalizePropertyMediaFiles(mediaFiles),
+    });
+  }, [form]);
+
+  const setPrimaryMedia = useCallback((media: PropertyMediaFile) => {
+    form.setValues({
+      ...valuesRef.current,
+      media_files: setPrimaryPropertyMedia(valuesRef.current.media_files, media),
     });
   }, [form]);
 
@@ -67,6 +98,7 @@ export function useMediaUploadForm(
   return {
     ...form,
     setMediaFiles,
+    setPrimaryMedia,
     setDocuments,
     submit,
   };

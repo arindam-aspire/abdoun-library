@@ -17,7 +17,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof MediaAndDocumentUploadForm>;
+} satisfies Meta;
 
 export default meta;
 

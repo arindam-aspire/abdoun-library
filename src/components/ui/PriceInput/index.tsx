@@ -232,6 +232,7 @@ export const PriceInput = forwardRef<HTMLInputElement, PriceInputProps>(
             ) : null}
 
             <input
+              suppressHydrationWarning
               ref={ref}
               id={inputId}
               name={name}

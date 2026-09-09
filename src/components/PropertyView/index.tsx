@@ -29,6 +29,9 @@ export function PropertyView({
   features = [],
   showAgent = true,
   showOwner = true,
+  ownerSkeletonCount = 1,
+  showStatusActionCard = true,
+  showPropertyMetrics = true,
   onClickAgentEmail,
   onClickAgentPhone,
   onClickAgentWhatsApp,
@@ -36,6 +39,7 @@ export function PropertyView({
   onClickOwnerPhone,
   onClickOwnerWhatsApp,
   locale = "en",
+  statusActionCard,
   buttonSize = "md",
   className,
 }: PropertyViewProps) {
@@ -62,6 +66,9 @@ export function PropertyView({
         onTabChange={handleTabChange}
         showAgent={showAgent}
         showOwner={showOwner}
+        ownerSkeletonCount={ownerSkeletonCount}
+        showStatusActionCard={showStatusActionCard}
+        showPropertyMetrics={showPropertyMetrics}
       />
     );
   }
@@ -110,6 +117,8 @@ export function PropertyView({
           features={features}
           showAgent={showAgent}
           showOwner={showOwner}
+          showStatusActionCard={showStatusActionCard}
+          showPropertyMetrics={showPropertyMetrics}
           onAgentEmail={
             onClickAgentEmail
               ? () => onClickAgentEmail(propertyDetails.id)
@@ -127,19 +136,20 @@ export function PropertyView({
           }
           onOwnerEmail={
             onClickOwnerEmail
-              ? () => onClickOwnerEmail(propertyDetails.id)
+              ? (ownerId) => onClickOwnerEmail(propertyDetails.id, ownerId)
               : undefined
           }
           onOwnerPhone={
             onClickOwnerPhone
-              ? () => onClickOwnerPhone(propertyDetails.id)
+              ? (ownerId) => onClickOwnerPhone(propertyDetails.id, ownerId)
               : undefined
           }
           onOwnerWhatsApp={
             onClickOwnerWhatsApp
-              ? () => onClickOwnerWhatsApp(propertyDetails.id)
+              ? (ownerId) => onClickOwnerWhatsApp(propertyDetails.id, ownerId)
               : undefined
           }
+          statusActionCard={statusActionCard}
           buttonSize={buttonSize}
         />
       ) : null}
@@ -157,6 +167,7 @@ export type {
   PropertyFeatureListItem,
   PropertyFeatureType,
   PropertyMediaItem,
+  PropertyOwner,
   PropertyViewProps,
   PropertyViewTabOption,
   PropertyViewTabs,

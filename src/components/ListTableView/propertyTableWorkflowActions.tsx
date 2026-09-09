@@ -39,12 +39,17 @@ export const STATUS_WORKFLOW_ACTION_MATRIX: Record<
   draft: ["view", "continue", "reassign", "unassign"],
   in_progress: ["view", "continue", "reassign", "unassign"],
   submitted: ["view", "approve", "reject", "assign", "reassign", "unassign"],
+  "pending-approval": ["view", "approve", "reject", "assign", "reassign", "unassign"],
   pending_approval: ["view", "reassign", "unassign"],
   pending_admin_approval: ["view", "reassign", "unassign"],
   changes_requested: ["view", "reassign", "unassign"],
+  active: ["view", "assign", "reassign", "unassign"],
   approved: ["view", "assign", "reassign", "unassign"],
   verified: ["view", "assign", "reassign", "unassign"],
   rejected: ["view", "rejected_reason", "reassign", "unassign"],
+  deal_closure_requested: ["view"],
+  deal_closed: ["view"],
+  deactivated: ["view"],
 };
 
 export type PropertyTableWorkflowActionConfig = {

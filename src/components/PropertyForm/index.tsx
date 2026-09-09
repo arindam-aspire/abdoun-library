@@ -12,9 +12,11 @@ import {
 import {
   useCallback,
   useEffect,
+  useImperativeHandle,
   useMemo,
   useRef,
   useState,
+  forwardRef,
   type ReactNode,
 } from "react";
 import {
@@ -25,9 +27,9 @@ import {
   useLocationInsertForm,
   validateLocationInsertFormValues,
 } from "../../hooks/useLocationFormHook";
-import { useOwnerInfoForm } from "../../hooks/useOwnerInfoFormHook";
+import { useOwnerInfoForm, validateOwnerInfoFormValues } from "../../hooks/useOwnerInfoFormHook";
 import { useAmenitiesForm } from "../../hooks/useAmenitiesFormHook";
-import { useMediaUploadForm } from "../../hooks/useMediaUploadFormHook";
+import { useMediaUploadForm, validateMediaUploadFormValues } from "../../hooks/useMediaUploadFormHook";
 import { usePricingDetailsForm } from "../../hooks/usePricingDetailsFormHook";
 import {
   usePropertyDetailsForm,
@@ -51,6 +53,12 @@ import {
   mergePropertyFormValues,
   serializePropertyFormValues,
 } from "./propertyFormDefaults";
+import { resolvePropertyFormConfig } from "./propertyFormConfig";
+import {
+  focusPropertyFormField,
+  getFirstExternalErrorPath,
+} from "./propertyFormErrors";
+import { getVisiblePricingFields } from "./propertyFormPricing";
 import { isPropertyFormSubmittable } from "./propertyFormValidation";
 import { PricingInfoForm } from "./PricingInfoForm";
 import { PropertyInfoForm } from "./PropertyInfoForm";
@@ -59,10 +67,12 @@ import type {
   BasicInfoFormValues,
   LocationInsertFormValues,
   PropertyDetailsFormValues,
+  PropertyFormHandle,
   PropertyFormProps,
   PropertyFormStep,
   PropertyFormValues,
   TermsAcceptanceFormValues,
+  NormalizedPropertyFormValues,
 } from "./types";
 
 export const propertyFormSteps: PropertyFormStep[] = [
@@ -172,42 +182,75 @@ function isLocationInsertValid(values: LocationInsertFormValues) {
   return Object.keys(validateLocationInsertFormValues(values)).length === 0;
 }
 
-function isPropertyDetailsValid(values: PropertyDetailsFormValues) {
-  return Object.keys(validatePropertyDetailsFormValues(values)).length === 0;
+function isPropertyDetailsValid(
+  values: PropertyDetailsFormValues,
+  options?: {
+    requireFurnishing?: boolean;
+    requireFloorLevel?: boolean;
+    requirePermitDld?: boolean;
+  },
+) {
+  return Object.keys(validatePropertyDetailsFormValues(values, options)).length === 0;
 }
 
-export function PropertyForm({
-  activeStep,
-  maxReachedStep,
-  categoryTaxonomy,
-  locationTaxonomy,
-  featuresAndAmenities,
-  propertyDetails,
-  title,
-  stickyLayout,
-  stickyTopOffset,
-  draftId,
-  onPrevious,
-  onNext,
-  onSubmit,
-  onDraft,
-  isDraftLoading = false,
-  isSubmitting,
-  isSubmitLoading = false,
-  onUploadOwnerDocument,
-  onOwnerDocumentsChange,
-  onRemoveOwnerDocument,
-  onUploadPropertyMedia,
-  onPropertyMediaChange,
-  onRemovePropertyMedia,
-  onUploadPropertyDocument,
-  onPropertyDocumentsChange,
-  onRemovePropertyDocument,
-  onStepClick,
-  canEdit = true,
-  rejectionReason,
-}: PropertyFormProps) {
-  const mergedPropertyDetails = mergePropertyFormValues(propertyDetails);
+export const PropertyForm = forwardRef<PropertyFormHandle, PropertyFormProps>(
+  function PropertyForm(
+    {
+      activeStep,
+      maxReachedStep,
+      categoryTaxonomy,
+      locationTaxonomy,
+      featuresAndAmenities,
+      propertyDetails,
+      title,
+      stickyLayout,
+      stickyTopOffset,
+      draftId,
+      onPrevious,
+      onNext,
+      onSubmit,
+      onDraft,
+      isDraftLoading = false,
+      isSubmitting,
+      isSubmitLoading = false,
+      onUploadOwnerDocument,
+      onOwnerDocumentsChange,
+      onRemoveOwnerDocument,
+      onUploadPropertyMedia,
+      onPropertyMediaChange,
+      onRemovePropertyMedia,
+      onUploadPropertyDocument,
+      onPropertyDocumentsChange,
+      onRemovePropertyDocument,
+      onStepClick,
+      canEdit = true,
+      rejectionReason,
+      ownerInfoConfig,
+      config,
+      onSearchOwners,
+      onSelectOwner,
+      onCreateOwner,
+      ownerSearchResults,
+      ownerSearchLoading,
+      ownerSearchError,
+      ownerDuplicateError,
+      renderLocationMap,
+      locationMap,
+      fieldErrors,
+      stepErrors,
+      submitError,
+      onRequestStepChange,
+    },
+    ref,
+  ) {
+  const resolvedConfig = useMemo(
+    () =>
+      resolvePropertyFormConfig(config, ownerInfoConfig?.nationalityOptions),
+    [config, ownerInfoConfig?.nationalityOptions],
+  );
+  const mergedPropertyDetails = mergePropertyFormValues(propertyDetails, {
+    enableLegacyPermitDld: resolvedConfig.enableLegacyPermitDld,
+  });
   const basicInfoForm = useBasicInfoForm(mergedPropertyDetails.basic_info);
   const locationInsertForm = useLocationInsertForm(
     mergedPropertyDetails.location_insert,
@@ -215,7 +258,10 @@ export function PropertyForm({
   const propertyDetailsForm = usePropertyDetailsForm(
     mergedPropertyDetails.property_details,
   );
-  const ownerInfoForm = useOwnerInfoForm(mergedPropertyDetails.owner_info);
+  const ownerInfoForm = useOwnerInfoForm(
+    mergedPropertyDetails.owner_info,
+    ownerInfoConfig,
+  );
   const pricingDetailsForm = usePricingDetailsForm(
     mergedPropertyDetails.pricing_details,
   );
@@ -298,7 +344,9 @@ export function PropertyForm({
   const localPayloadRef = useRef<PropertyFormValues>(propertyDetails);
 
   const applyFormsFromProps = (details: PropertyFormValues) => {
-    const nextValues = mergePropertyFormValues(details);
+    const nextValues = mergePropertyFormValues(details, {
+      enableLegacyPermitDld: resolvedConfig.enableLegacyPermitDld,
+    });
     basicInfoForm.setValues(nextValues.basic_info);
     locationInsertForm.setValues(nextValues.location_insert);
     propertyDetailsForm.setValues(nextValues.property_details);
@@ -345,6 +393,173 @@ export function PropertyForm({
   const categoryId = basicInfoForm.values.category_id;
   const propertyTypeId = basicInfoForm.values.type_id;
 
+  const propertyDetailsValidationOptions = useMemo(
+    () => ({
+      requireFurnishing: resolvedConfig.furnishingStatusOptions.length > 0,
+      requireFloorLevel: resolvedConfig.floorLevelOptions.length > 0,
+      requirePermitDld: resolvedConfig.enableLegacyPermitDld,
+    }),
+    [
+      resolvedConfig.enableLegacyPermitDld,
+      resolvedConfig.floorLevelOptions.length,
+      resolvedConfig.furnishingStatusOptions.length,
+    ],
+  );
+
+  const visiblePricingFields = useMemo(
+    () =>
+      getVisiblePricingFields({
+        pricingFields: resolvedConfig.pricingFields,
+        listingPurposes: basicInfoForm.values.listing_purposes ?? [],
+        furnishingStatusOptions: resolvedConfig.furnishingStatusOptions,
+      }),
+    [
+      basicInfoForm.values.listing_purposes,
+      resolvedConfig.furnishingStatusOptions,
+      resolvedConfig.pricingFields,
+    ],
+  );
+
+  const mapRenderProps = {
+    latitude: locationInsertForm.values.latitude ?? null,
+    longitude: locationInsertForm.values.longitude ?? null,
+    onCoordinatesChange: ({
+      latitude,
+      longitude,
+    }: {
+      latitude: number | null;
+      longitude: number | null;
+    }) => {
+      locationInsertForm.setValues({
+        ...locationInsertForm.values,
+        latitude,
+        longitude,
+      });
+    },
+    labels: resolvedConfig.mapLocationLabels,
+  };
+
+  const locationMapSlot =
+    renderLocationMap?.(mapRenderProps) ??
+    (typeof locationMap === "function"
+      ? locationMap(mapRenderProps)
+      : locationMap);
+
+  const ownerInfoValidationOptions = useMemo(
+    () => ({
+      requireDocuments: ownerInfoConfig?.requireDocuments,
+      validationMessages: ownerInfoConfig?.validationMessages,
+    }),
+    [ownerInfoConfig?.requireDocuments, ownerInfoConfig?.validationMessages],
+  );
+
+  const isOwnerStepComplete = useMemo(
+    () =>
+      validateOwnerInfoFormValues(ownerInfoForm.values, ownerInfoValidationOptions)
+        .isValid,
+    [ownerInfoForm.values, ownerInfoValidationOptions],
+  );
+
+  const isMediaStepComplete = useMemo(
+    () =>
+      Object.keys(validateMediaUploadFormValues(mediaUploadForm.values)).length ===
+      0,
+    [mediaUploadForm.values],
+  );
+
+  const isNextDisabled =
+    (activeStepIndex === OWNER_INFO_STEP_INDEX &&
+      (!isOwnerStepComplete || Boolean(ownerDuplicateError))) ||
+    (activeStepIndex === MEDIA_STEP_INDEX && !isMediaStepComplete);
+
+  const requestStepChange = useCallback(
+    (
+      step: number,
+      meta?: { fieldPath?: string; reason?: "external-error" | "field-focus" | "imperative" },
+    ) => {
+      onRequestStepChange?.(step, meta);
+    },
+    [onRequestStepChange],
+  );
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      goToStep: (step, meta) => {
+        requestStepChange(step, {
+          fieldPath: meta?.fieldPath,
+          reason: "imperative",
+        });
+        window.setTimeout(() => {
+          focusPropertyFormField(meta?.fieldPath);
+        }, 50);
+      },
+      goToField: (fieldPath) => {
+        const target = getFirstExternalErrorPath({ [fieldPath]: " " });
+        requestStepChange(target?.step ?? activeStep, {
+          fieldPath,
+          reason: "field-focus",
+        });
+        window.setTimeout(() => {
+          focusPropertyFormField(fieldPath);
+        }, 50);
+      },
+      focusFirstInvalidField: () => {
+        const target = getFirstExternalErrorPath(fieldErrors, stepErrors);
+        if (target) {
+          requestStepChange(target.step, {
+            fieldPath: target.fieldPath,
+            reason: "external-error",
+          });
+          window.setTimeout(() => {
+            focusPropertyFormField(target.fieldPath);
+          }, 50);
+          return true;
+        }
+        return focusPropertyFormField();
+      },
+    }),
+    [activeStep, fieldErrors, requestStepChange, stepErrors],
+  );
+
+  useEffect(() => {
+    const target = getFirstExternalErrorPath(fieldErrors, stepErrors);
+    if (!target) {
+      return;
+    }
+
+    if (target.step !== clampStepNumber(activeStep)) {
+      onRequestStepChange?.(target.step, {
+        fieldPath: target.fieldPath,
+        reason: "external-error",
+      });
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      focusPropertyFormField(target.fieldPath);
+    }, 80);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [activeStep, fieldErrors, onRequestStepChange, stepErrors]);
+
+  useEffect(() => {
+    if (activeStepIndex !== MEDIA_STEP_INDEX) {
+      return;
+    }
+
+    const formErrors = validateMediaUploadFormValues(mediaUploadForm.values);
+    mediaUploadForm.setErrors(formErrors);
+    mediaUploadForm.setTouched((previous) => ({
+      ...previous,
+      media_files: true,
+    }));
+  }, [
+    activeStepIndex,
+    mediaUploadForm.setErrors,
+    mediaUploadForm.setTouched,
+    mediaUploadForm.values,
+  ]);
+
   const isSubmitReady = useMemo(
     () =>
       isPropertyFormSubmittable({
@@ -359,6 +574,8 @@ export function PropertyForm({
         categoryId,
         propertyTypeId,
         featuresAndAmenities,
+        ownerInfoConfig,
+        propertyDetailsValidationOptions,
       }),
     [
       amenitiesForm.values,
@@ -367,9 +584,11 @@ export function PropertyForm({
       featuresAndAmenities,
       locationInsertForm.values,
       mediaUploadForm.values,
+      ownerInfoConfig,
       ownerInfoForm.values,
       pricingDetailsForm.values,
       propertyDetailsForm.values,
+      propertyDetailsValidationOptions,
       propertyTypeId,
       termsAcceptance,
     ],
@@ -377,7 +596,7 @@ export function PropertyForm({
 
   const isSubmitDisabled = !canEdit || !isSubmitReady;
 
-  const buildFormValues = (): PropertyFormValues => {
+  const buildFormValues = (): NormalizedPropertyFormValues => {
     const amenitiesCatalog = getFilteredFeaturesAndAmenitiesCatalog(
       featuresAndAmenities,
       categoryId,
@@ -391,10 +610,39 @@ export function PropertyForm({
       amenitiesForm.values.feature_ids,
     );
 
-    return {
-      basic_info: basicInfoForm.values,
-      location_insert: locationInsertForm.values,
-      property_details: propertyDetailsForm.values,
+    const payload: NormalizedPropertyFormValues = {
+      basic_info: {
+        ...basicInfoForm.values,
+        listing_purpose: resolvedConfig.emitLegacyListingPurpose
+          ? basicInfoForm.values.listing_purpose ??
+            basicInfoForm.values.listing_purposes?.[0] ??
+            null
+          : undefined,
+      },
+      location_insert: {
+        ...locationInsertForm.values,
+        area_ids: resolvedConfig.emitLegacyAreaIds
+          ? locationInsertForm.values.area_id != null
+            ? [locationInsertForm.values.area_id]
+            : []
+          : undefined,
+      },
+      property_details: resolvedConfig.enableLegacyPermitDld
+        ? propertyDetailsForm.values
+        : (() => {
+            const {
+              permit_dld_number: _omitPermit,
+              ...nextPropertyDetails
+            } = propertyDetailsForm.values;
+            if (propertyDetails.property_details?.permit_dld_number) {
+              return {
+                ...nextPropertyDetails,
+                permit_dld_number:
+                  propertyDetails.property_details.permit_dld_number,
+              };
+            }
+            return nextPropertyDetails;
+          })(),
       owner_info: ownerInfoForm.values,
       pricing_details: pricingDetailsForm.values,
       amenities: {
@@ -407,6 +655,8 @@ export function PropertyForm({
       media_upload: mediaUploadForm.values,
       terms_acceptance: termsAcceptance,
     };
+
+    return payload;
   };
 
   const buildPropertyFormPayload = (): PropertyFormValues => {
@@ -434,6 +684,45 @@ export function PropertyForm({
 
   localPayloadRef.current = buildPropertyFormPayload();
 
+  useEffect(() => {
+    if (!canEdit || typeof window === "undefined") {
+      return;
+    }
+
+    const hasUnsavedChanges = () =>
+      serializePropertyFormValues(localPayloadRef.current) !==
+      syncedPropertyDetailsRef.current;
+    const message = "You have unsaved property draft changes. Leave without saving?";
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!hasUnsavedChanges()) {
+        return;
+      }
+
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    const handlePopState = () => {
+      if (!hasUnsavedChanges()) {
+        return;
+      }
+
+      if (!window.confirm(message)) {
+        window.history.pushState(null, "", window.location.href);
+      }
+    };
+
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [canEdit]);
+
   const validateBasicInfoStep = () => {
     const formErrors = validateBasicInfoFormValues(basicInfoForm.values);
     basicInfoForm.setErrors(formErrors);
@@ -453,14 +742,25 @@ export function PropertyForm({
   const validatePropertyDetailsStep = () => {
     const formErrors = validatePropertyDetailsFormValues(
       propertyDetailsForm.values,
+      propertyDetailsValidationOptions,
     );
     propertyDetailsForm.setErrors(formErrors);
     propertyDetailsForm.setTouched(markAllTouched(propertyDetailsForm.values));
-    return isPropertyDetailsValid(propertyDetailsForm.values);
+    return isPropertyDetailsValid(
+      propertyDetailsForm.values,
+      propertyDetailsValidationOptions,
+    );
   };
 
   const validateOwnerInfoStep = () => {
-    return ownerInfoForm.submit();
+    const isValid = ownerInfoForm.submit();
+    if (isValid && ownerInfoForm.values.owner_mode === "create") {
+      const createdOwner = ownerInfoForm.values.owners[0];
+      if (createdOwner && !createdOwner.owner_id) {
+        void onCreateOwner?.(createdOwner);
+      }
+    }
+    return isValid && !ownerDuplicateError;
   };
 
   const validatePricingDetailsStep = () => {
@@ -633,6 +933,10 @@ export function PropertyForm({
       <BasicInfoForm
         categoryTaxonomy={categoryTaxonomy}
         form={basicInfoForm}
+        listingPurposeOptions={resolvedConfig.listingPurposeOptions}
+        listingPurposeLabel={resolvedConfig.listingPurposeLabel}
+        listingPurposePlaceholder={resolvedConfig.listingPurposePlaceholder}
+        fieldErrors={fieldErrors}
       />
     );
   } else if (currentStep?.value === "location") {
@@ -640,22 +944,63 @@ export function PropertyForm({
       <LocationInfoForm
         locationTaxonomy={locationTaxonomy.data}
         form={locationInsertForm}
+        areaLabel={resolvedConfig.areaLabel}
+        areaPlaceholder={resolvedConfig.areaPlaceholder}
+        identificationFields={resolvedConfig.identificationFields}
+        mapLabels={resolvedConfig.mapLocationLabels}
+        mapSlot={locationMapSlot}
+        fieldErrors={fieldErrors}
       />
     );
   } else if (currentStep?.value === "details") {
-    stepContent = <PropertyInfoForm form={propertyDetailsForm} />;
+    stepContent = (
+      <PropertyInfoForm
+        form={propertyDetailsForm}
+        completionStatusOptions={resolvedConfig.completionStatusOptions}
+        orientationOptions={resolvedConfig.orientationOptions}
+        furnishingStatusOptions={resolvedConfig.furnishingStatusOptions}
+        floorLevelOptions={resolvedConfig.floorLevelOptions}
+        yearBuiltLabel={resolvedConfig.yearBuiltLabel}
+        yearBuiltPlaceholder={resolvedConfig.yearBuiltPlaceholder}
+        floorLevelLabel={resolvedConfig.floorLevelLabel}
+        furnishingStatusLabel={resolvedConfig.furnishingStatusLabel}
+        enableLegacyPermitDld={resolvedConfig.enableLegacyPermitDld}
+        fieldErrors={fieldErrors}
+      />
+    );
   } else if (currentStep?.value === "owners") {
     stepContent = (
       <OwnerInforForm
         form={ownerInfoForm}
+        ownerInfoConfig={ownerInfoConfig}
+        ownerModeLabels={resolvedConfig.ownerModeLabels}
+        nationalityOptions={resolvedConfig.nationalityOptions}
+        enableOwnerSearch={Boolean(onSearchOwners)}
+        onSearchOwners={onSearchOwners}
+        onSelectOwner={onSelectOwner}
+        ownerSearchResults={ownerSearchResults}
+        ownerSearchLoading={ownerSearchLoading}
+        ownerSearchError={ownerSearchError}
+        ownerDuplicateError={ownerDuplicateError}
+        ownerSearchDebounceMs={resolvedConfig.ownerSearchDebounceMs}
+        duplicateIdentityFields={resolvedConfig.duplicateIdentityFields}
         onUploadOwnerDocument={onUploadOwnerDocument}
         onOwnerDocumentsChange={onOwnerDocumentsChange}
         onRemoveOwnerDocument={onRemoveOwnerDocument}
         onOwnerDocumentUploadingChange={handleOwnerDocumentUploadingChange}
+        fieldErrors={fieldErrors}
       />
     );
   } else if (currentStep?.value === "pricing") {
-    stepContent = <PricingInfoForm form={pricingDetailsForm} />;
+    stepContent = (
+      <PricingInfoForm
+        form={pricingDetailsForm}
+        visiblePricingFields={visiblePricingFields}
+        pricingFieldLabels={resolvedConfig.pricingFieldLabels}
+        showLegacyPrice={visiblePricingFields.length === 0}
+        fieldErrors={fieldErrors}
+      />
+    );
   } else if (currentStep?.value === "amenities") {
     stepContent = (
       <FeatureAndAminitiesSelectionForm
@@ -669,6 +1014,7 @@ export function PropertyForm({
     stepContent = (
       <MediaAndDocumentUploadForm
         form={mediaUploadForm}
+        setAsPrimaryImageLabel={resolvedConfig.setAsPrimaryImageLabel}
         onUploadPropertyMedia={onUploadPropertyMedia}
         onPropertyMediaChange={onPropertyMediaChange}
         onRemovePropertyMedia={onRemovePropertyMedia}
@@ -677,6 +1023,7 @@ export function PropertyForm({
         onPropertyDocumentsChange={onPropertyDocumentsChange}
         onRemovePropertyDocument={onRemovePropertyDocument}
         onPropertyDocumentUploadingChange={handlePropertyDocumentUploadingChange}
+        fieldErrors={fieldErrors}
       />
     );
   } else if (currentStep?.value === "finalize") {
@@ -684,7 +1031,7 @@ export function PropertyForm({
       <ReviewAndSubmitStep
         basicInfo={reviewPropertyDetails.basic_info!}
         location={reviewPropertyDetails.location_insert!}
-        propertyDetails={reviewPropertyDetails.property_details!}
+        propertyDetails={propertyDetailsForm.values}
         ownerInfo={reviewPropertyDetails.owner_info!}
         pricing={reviewPropertyDetails.pricing_details!}
         amenities={reviewPropertyDetails.amenities!}
@@ -694,6 +1041,8 @@ export function PropertyForm({
         featuresAndAmenities={featuresAndAmenities}
         termsAcceptance={termsAcceptance}
         onTermsAcceptanceChange={setTermsAcceptance}
+        resolvedConfig={resolvedConfig}
+        visiblePricingFields={visiblePricingFields}
         canEdit={canEdit}
       />
     );
@@ -717,16 +1066,58 @@ export function PropertyForm({
       canEdit={canEdit}
       rejectionReason={rejectionReason}
       isFormLocked={isFormLocked}
+      isNextDisabled={isNextDisabled}
       isSubmitDisabled={isSubmitDisabled}
+      submitError={submitError}
     >
       {stepContent}
     </FormLayout>
   );
-}
+});
 
 export type {
+  AmenitiesFormValues,
+  BasicInfoFormValues,
+  BuiltUpAreaUnit,
+  FeaturesAndAmenities,
+  LocationInsertFormValues,
+  LocationTaxonomyResponse,
+  MediaUploadFormValues,
+  NormalizedPropertyFormValues,
+  OwnerInfoConfig,
+  OwnerInfoFormValues,
+  OwnerInfoItem,
+  OwnerInfoValidationMessages,
+  PricingCurrency,
+  PricingDetailsFormValues,
+  PropertyDetailsFormValues,
+  PropertyFormConfig,
+  PropertyFormExternalErrors,
+  PropertyFormFieldErrors,
+  PropertyFormHandle,
+  PropertyFormIdentificationFieldLabels,
+  PropertyFormLegacyFieldsConfig,
+  PropertyFormMapLocationLabels,
+  PropertyFormNavigateReason,
+  PropertyFormOption,
+  PropertyFormOwnerDuplicateIdentityField,
+  PropertyOwnerDuplicateIdentityField,
+  PropertyFormOwnerMode,
+  PropertyFormOwnerModeLabels,
+  PropertyFormPricingFieldLabels,
   PropertyFormProps,
+  PropertyFormSectionKey,
   PropertyFormStep,
+  PropertyFormStepErrors,
   PropertyFormValues,
+  PropertyIdentificationFieldDefinition,
+  PropertyIdentificationFieldKey,
+  PropertyLocationCoordinates,
+  PropertyLocationMapRenderProps,
+  PropertyMediaFile,
+  PropertyOwnerSearchResult,
+  PropertyPricingFieldDefinition,
+  PropertyPricingFieldPurpose,
+  PropertyTaxonomyCategory,
   TermsAcceptanceFormValues,
 } from "./types";

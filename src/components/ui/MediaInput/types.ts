@@ -8,6 +8,8 @@ export type SelectedMedia = {
   previewUri?: string;
   mimeType?: string;
   size?: number;
+  is_primary?: boolean;
+  display_order?: number;
 };
 
 export const MEDIA_INPUT_SIZES = ["sm", "md", "lg"] as const;
@@ -73,6 +75,9 @@ export interface MediaInputProps {
   readyStatusLabel?: string;
   generatingPreviewLabel?: string;
   processingFooterLabel?: string;
+  showPrimaryAction?: boolean;
+  primaryActionLabel?: string;
+  onSetPrimary?: (media: SelectedMedia) => void;
 }
 
 export type { UiSizeTier };

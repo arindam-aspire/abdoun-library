@@ -130,6 +130,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           <InputIcon icon={iconStart} size={size} className={iconClassName} />
         )}
         <input
+          suppressHydrationWarning
           ref={ref}
           id={inputId}
           disabled={disabled}

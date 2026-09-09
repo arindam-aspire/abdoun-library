@@ -4,12 +4,17 @@ export const STATUS_COLOR_MAP = {
   draft: "inherit",
   in_progress: "info",
   submitted: "secondary",
+  "pending-approval": "warning",
   pending_approval: "warning",
   pending_admin_approval: "warning",
   changes_requested: "accent",
+  active: "success",
   approved: "success",
   verified: "success",
   rejected: "danger",
+  deal_closure_requested: "warning",
+  deal_closed: "secondary",
+  deactivated: "secondary",
 } as const;
 
 export type PropertyListingStatusKey = keyof typeof STATUS_COLOR_MAP;
@@ -28,7 +33,7 @@ export interface PropertyListingStatus {
 
 function formatStatusKeyAsLabel(key: string): string {
   return key
-    .split("_")
+    .split(/[_-]/)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
 }

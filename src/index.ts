@@ -1,4 +1,9 @@
 export { PropertyView } from "./components/PropertyView";
+export type {
+  PropertyDetails,
+  PropertyOwner,
+  PropertyViewProps,
+} from "./components/PropertyView";
 export { PropertyCardList } from "./components/PropertyCardList";
 export {
   AgentListView,
@@ -142,9 +147,50 @@ export { ProgressBar } from "./components/ui/ProgressBar";
 export type { ProgressBarProps, ProgressBarSize } from "./components/ui/ProgressBar";
 export { PropertyForm, propertyFormSteps } from "./components/PropertyForm";
 export type {
+  AmenitiesFormValues,
+  BasicInfoFormValues,
+  BuiltUpAreaUnit,
+  FeaturesAndAmenities,
+  LocationInsertFormValues,
+  LocationTaxonomyResponse,
+  MediaUploadFormValues,
+  NormalizedPropertyFormValues,
+  OwnerInfoConfig,
+  OwnerInfoFormValues,
+  OwnerInfoItem,
+  OwnerInfoValidationMessages,
+  PricingCurrency,
+  PricingDetailsFormValues,
+  PropertyDetailsFormValues,
+  PropertyFormConfig,
+  PropertyFormExternalErrors,
+  PropertyFormFieldErrors,
+  PropertyFormHandle,
+  PropertyFormIdentificationFieldLabels,
+  PropertyFormLegacyFieldsConfig,
+  PropertyFormMapLocationLabels,
+  PropertyFormNavigateReason,
+  PropertyFormOption,
+  PropertyFormOwnerDuplicateIdentityField,
+  PropertyOwnerDuplicateIdentityField,
+  PropertyFormOwnerMode,
+  PropertyFormOwnerModeLabels,
+  PropertyFormPricingFieldLabels,
   PropertyFormProps,
+  PropertyFormSectionKey,
   PropertyFormStep,
+  PropertyFormStepErrors,
   PropertyFormValues,
+  PropertyIdentificationFieldDefinition,
+  PropertyIdentificationFieldKey,
+  PropertyLocationCoordinates,
+  PropertyLocationMapRenderProps,
+  PropertyMediaFile,
+  PropertyOwnerSearchResult,
+  PropertyPricingFieldDefinition,
+  PropertyPricingFieldPurpose,
+  PropertyTaxonomyCategory,
+  TermsAcceptanceFormValues,
 } from "./components/PropertyForm";
 export {
   Table,

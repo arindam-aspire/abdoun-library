@@ -14,8 +14,8 @@ export function validateLocationInsertFormValues(
   if (!formValues.city_id) {
     nextErrors.city_id = "Please select city.";
   }
-  if (!formValues.area_ids.length) {
-    nextErrors.area_ids = "Please select at least one area.";
+  if (formValues.area_id == null) {
+    nextErrors.area_id = "Please select an area.";
   }
 
   return nextErrors;
@@ -27,8 +27,17 @@ export function useLocationInsertForm(
   return useForm<LocationInsertFormValues>({
     initialValues: {
       city_id: null,
+      area_id: null,
       area_ids: [],
       address: "",
+      latitude: null,
+      longitude: null,
+      apartment_number: "",
+      plot_number: "",
+      basin_number: "",
+      parcel_number: "",
+      building_number: "",
+      identification_fields: {},
       ...initialValues,
     },
     validate: validateLocationInsertFormValues,

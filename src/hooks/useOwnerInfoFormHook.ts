@@ -1,9 +1,13 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { isOwnerInfoFieldReadOnly } from "../components/PropertyForm/ownerInfoConfig";
 import type {
+  OwnerInfoConfig,
   OwnerInfoFormValues,
   OwnerInfoItem,
+  OwnerInfoReadOnlyField,
+  OwnerInfoValidationMessages,
 } from "../components/PropertyForm/types";
 import { useForm } from "./useFormHook";
 
@@ -11,6 +15,11 @@ export type { OwnerInfoFormValues, OwnerInfoItem };
 
 export type OwnerFieldErrors = Partial<Record<keyof OwnerInfoItem, string>>;
 export type OwnerFieldTouched = Partial<Record<keyof OwnerInfoItem, boolean>>;
+
+export type OwnerInfoValidationOptions = Pick<
+  OwnerInfoConfig,
+  "requireDocuments" | "validationMessages"
+>;
 
 export const DEFAULT_OWNER_COUNTRY_CODE = "+962";
 
@@ -20,16 +29,45 @@ export const OWNER_INFO_REQUIRED_FIELDS = [
   "email",
 ] as const satisfies readonly (keyof OwnerInfoItem)[];
 
+const DEFAULT_VALIDATION_MESSAGES: Required<OwnerInfoValidationMessages> = {
+  ownerNameRequired: "Owner name is required.",
+  phoneRequired: "Phone number is required.",
+  emailRequired: "Email address is required.",
+  ownerDocumentRequired: "At least one owner document is required.",
+};
+
+const OWNER_INFO_READ_ONLY_PATCH_FIELDS: OwnerInfoReadOnlyField[] = [
+  "owner_name",
+  "country_code",
+  "phone_number",
+  "email",
+];
+
 export const emptyOwnerInfoItem: OwnerInfoItem = {
+  owner_id: undefined,
   owner_name: "",
+  full_name: "",
   country_code: DEFAULT_OWNER_COUNTRY_CODE,
   phone_number: "",
   email: "",
   social_security_id: "",
+  ssi: "",
   nationality: "",
-  owner_address: "",
   owner_documents: [],
 };
+
+export function resolveOwnerInfoValidationMessages(
+  messages?: OwnerInfoValidationMessages,
+): Required<OwnerInfoValidationMessages> {
+  return {
+    ...DEFAULT_VALIDATION_MESSAGES,
+    ...messages,
+  };
+}
+
+export function hasUploadedOwnerDocument(owner: OwnerInfoItem): boolean {
+  return owner.owner_documents.some((document) => Boolean(document.uri?.trim()));
+}
 
 export function hasOwnerInfoContent(owner: OwnerInfoItem): boolean {
   if (owner.owner_documents.length > 0) {
@@ -37,12 +75,14 @@ export function hasOwnerInfoContent(owner: OwnerInfoItem): boolean {
   }
 
   return (
+    Boolean(owner.owner_id) ||
     owner.owner_name.trim() !== "" ||
+    (owner.full_name ?? "").trim() !== "" ||
     owner.phone_number.trim() !== "" ||
     owner.email.trim() !== "" ||
     owner.social_security_id.trim() !== "" ||
+    (owner.ssi ?? "").trim() !== "" ||
     owner.nationality.trim() !== "" ||
-    owner.owner_address.trim() !== "" ||
     (owner.country_code.trim() !== "" &&
       owner.country_code !== DEFAULT_OWNER_COUNTRY_CODE)
   );
@@ -56,30 +96,56 @@ export function filterOwnersWithContent(
 
 export function validateOwnerFieldErrors(
   owner: OwnerInfoItem,
+  options?: OwnerInfoValidationOptions,
 ): OwnerFieldErrors {
+  const messages = resolveOwnerInfoValidationMessages(options?.validationMessages);
   const fieldErrors: OwnerFieldErrors = {};
 
-  if (!owner.owner_name.trim()) {
-    fieldErrors.owner_name = "Owner name is required.";
+  if (!owner.owner_name.trim() && !(owner.full_name ?? "").trim()) {
+    fieldErrors.owner_name = messages.ownerNameRequired;
   }
 
   if (!owner.phone_number.trim()) {
-    fieldErrors.phone_number = "Phone number is required.";
+    fieldErrors.phone_number = messages.phoneRequired;
   }
 
   if (!owner.email.trim()) {
-    fieldErrors.email = "Email address is required.";
+    fieldErrors.email = messages.emailRequired;
+  }
+
+  if (options?.requireDocuments && !hasUploadedOwnerDocument(owner)) {
+    fieldErrors.owner_documents = messages.ownerDocumentRequired;
   }
 
   return fieldErrors;
 }
 
-export function validateOwnerInfoFormValues(formValues: OwnerInfoFormValues) {
+export function validateOwnerInfoFormValues(
+  formValues: OwnerInfoFormValues,
+  options?: OwnerInfoValidationOptions,
+) {
   const fieldErrorsByOwner: Record<number, OwnerFieldErrors> = {};
+
+  if (formValues.owner_mode === "search" && !formValues.owner_id) {
+    return {
+      formErrors: { owners: " " },
+      fieldErrorsByOwner,
+      isValid: false,
+    };
+  }
 
   for (let index = 0; index < formValues.owners.length; index += 1) {
     const owner = formValues.owners[index];
-    const fieldErrors = validateOwnerFieldErrors(owner);
+
+    if (owner.owner_id) {
+      continue;
+    }
+
+    if (!hasOwnerInfoContent(owner) && formValues.owners.length > 1) {
+      continue;
+    }
+
+    const fieldErrors = validateOwnerFieldErrors(owner, options);
 
     if (Object.keys(fieldErrors).length > 0) {
       fieldErrorsByOwner[index] = fieldErrors;
@@ -97,6 +163,7 @@ export function validateOwnerInfoFormValues(formValues: OwnerInfoFormValues) {
 
 function markAllOwnerFieldsTouched(
   owners: OwnerInfoItem[],
+  options?: Pick<OwnerInfoValidationOptions, "requireDocuments">,
 ): Record<number, OwnerFieldTouched> {
   return owners.reduce<Record<number, OwnerFieldTouched>>(
     (accumulator, _, index) => {
@@ -104,6 +171,7 @@ function markAllOwnerFieldsTouched(
         owner_name: true,
         phone_number: true,
         email: true,
+        ...(options?.requireDocuments ? { owner_documents: true } : {}),
       };
       return accumulator;
     },
@@ -111,7 +179,42 @@ function markAllOwnerFieldsTouched(
   );
 }
 
-export function useOwnerInfoForm(initialValues?: Partial<OwnerInfoFormValues>) {
+function filterReadOnlyOwnerPatch(
+  ownerIndex: number,
+  patch: Partial<OwnerInfoItem>,
+  config?: OwnerInfoConfig,
+): Partial<OwnerInfoItem> {
+  return Object.fromEntries(
+    Object.entries(patch).filter(([field]) => {
+      if (
+        !(OWNER_INFO_READ_ONLY_PATCH_FIELDS as readonly string[]).includes(
+          field,
+        )
+      ) {
+        return true;
+      }
+
+      return !isOwnerInfoFieldReadOnly(
+        ownerIndex,
+        field as OwnerInfoReadOnlyField,
+        config,
+      );
+    }),
+  ) as Partial<OwnerInfoItem>;
+}
+
+export function useOwnerInfoForm(
+  initialValues?: Partial<OwnerInfoFormValues>,
+  config?: OwnerInfoConfig,
+) {
+  const validationOptions = useMemo<OwnerInfoValidationOptions>(
+    () => ({
+      requireDocuments: config?.requireDocuments,
+      validationMessages: config?.validationMessages,
+    }),
+    [config?.requireDocuments, config?.validationMessages],
+  );
+
   const [ownerFieldErrors, setOwnerFieldErrors] = useState<
     Record<number, OwnerFieldErrors>
   >({});
@@ -122,21 +225,37 @@ export function useOwnerInfoForm(initialValues?: Partial<OwnerInfoFormValues>) {
 
   const form = useForm<OwnerInfoFormValues>({
     initialValues: {
+      owner_mode: "create",
+      owner_id: null,
       owners: [{ ...emptyOwnerInfoItem }],
       ...initialValues,
     },
-    validate: (values) => validateOwnerInfoFormValues(values).formErrors,
+    validate: (values) =>
+      validateOwnerInfoFormValues(values, validationOptions).formErrors,
   });
+  const { setValues, setErrors, setTouched } = form;
 
   const valuesRef = useRef(form.values);
   valuesRef.current = form.values;
+  const configRef = useRef(config);
+  configRef.current = config;
 
-  const applyValidation = useCallback((nextValues: OwnerInfoFormValues) => {
-    const validation = validateOwnerInfoFormValues(nextValues);
-    form.setErrors(validation.formErrors);
-    setOwnerFieldErrors(validation.fieldErrorsByOwner);
-    return validation;
-  }, [form]);
+  const applyValidation = useCallback(
+    (nextValues: OwnerInfoFormValues) => {
+      const validation = validateOwnerInfoFormValues(
+        nextValues,
+        validationOptions,
+      );
+      setErrors(validation.formErrors);
+      setOwnerFieldErrors(validation.fieldErrorsByOwner);
+      return validation;
+    },
+    [setErrors, validationOptions],
+  );
+
+  useEffect(() => {
+    applyValidation(valuesRef.current);
+  }, [applyValidation]);
 
   const getFieldError = useCallback(
     (ownerIndex: number, field: keyof OwnerInfoItem) => {
@@ -153,7 +272,11 @@ export function useOwnerInfoForm(initialValues?: Partial<OwnerInfoFormValues>) {
   );
 
   const markOwnerFieldTouched = useCallback(
-    (ownerIndex: number, field: keyof OwnerInfoItem) => {
+    (
+      ownerIndex: number,
+      field: keyof OwnerInfoItem,
+      valuesOverride?: OwnerInfoFormValues,
+    ) => {
       setOwnerFieldTouched((previous) => ({
         ...previous,
         [ownerIndex]: {
@@ -162,11 +285,14 @@ export function useOwnerInfoForm(initialValues?: Partial<OwnerInfoFormValues>) {
         },
       }));
 
-      const validation = validateOwnerInfoFormValues(valuesRef.current);
-      form.setErrors(validation.formErrors);
+      const validation = validateOwnerInfoFormValues(
+        valuesOverride ?? valuesRef.current,
+        validationOptions,
+      );
+      setErrors(validation.formErrors);
       setOwnerFieldErrors(validation.fieldErrorsByOwner);
     },
-    [form],
+    [setErrors, validationOptions],
   );
 
   const updateOwner = (
@@ -174,15 +300,35 @@ export function useOwnerInfoForm(initialValues?: Partial<OwnerInfoFormValues>) {
     patch: Partial<OwnerInfoItem>,
     nextValues?: OwnerInfoFormValues,
   ) => {
+    const filteredPatch = filterReadOnlyOwnerPatch(
+      index,
+      patch,
+      configRef.current,
+    );
+
+    if (Object.keys(filteredPatch).length === 0) {
+      return;
+    }
+
     const resolvedValues = nextValues ?? {
       ...valuesRef.current,
       owners: valuesRef.current.owners.map((owner, ownerIndex) =>
-        ownerIndex === index ? { ...owner, ...patch } : owner,
+        ownerIndex === index ? { ...owner, ...filteredPatch } : owner,
       ),
     };
 
-    form.setValues(resolvedValues);
+    setValues(resolvedValues);
     applyValidation(resolvedValues);
+
+    if ("owner_documents" in filteredPatch) {
+      setOwnerFieldTouched((previous) => ({
+        ...previous,
+        [index]: {
+          ...previous[index],
+          owner_documents: true,
+        },
+      }));
+    }
   };
 
   const addOwner = () => {
@@ -191,11 +337,17 @@ export function useOwnerInfoForm(initialValues?: Partial<OwnerInfoFormValues>) {
       owners: [...valuesRef.current.owners, { ...emptyOwnerInfoItem }],
     };
 
-    form.setValues(nextValues);
+    setValues(nextValues);
     applyValidation(nextValues);
   };
 
   const removeOwner = (index: number) => {
+    const readOnlyIndices = configRef.current?.readOnlyOwnerIndices ?? [];
+
+    if (readOnlyIndices.includes(index)) {
+      return;
+    }
+
     if (valuesRef.current.owners.length <= 1) {
       return;
     }
@@ -231,14 +383,16 @@ export function useOwnerInfoForm(initialValues?: Partial<OwnerInfoFormValues>) {
       return next;
     });
 
-    form.setValues(nextValues);
+    setValues(nextValues);
     applyValidation(nextValues);
   };
 
   const submit = (onValid?: (values: OwnerInfoFormValues) => void) => {
     setSubmitAttempted(true);
-    setOwnerFieldTouched(markAllOwnerFieldsTouched(valuesRef.current.owners));
-    form.setTouched({ owners: true });
+    setOwnerFieldTouched(
+      markAllOwnerFieldsTouched(valuesRef.current.owners, validationOptions),
+    );
+    setTouched({ owners: true });
 
     const validation = applyValidation(valuesRef.current);
 

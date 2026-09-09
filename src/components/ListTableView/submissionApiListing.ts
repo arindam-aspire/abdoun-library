@@ -58,6 +58,7 @@ export type SubmissionApiListing = {
   can_edit_submission: boolean;
   can_delete_submission: boolean;
   agency: PropertyListing["agency"] | null;
+  agent?: PropertyListing["agent"] | null;
   /** Per-row actions returned by the API (visibility and state). */
   actions?: SubmissionApiListingAction[];
 };
@@ -150,6 +151,7 @@ export function mapSubmissionApiListingToPropertyListing(
     brokerName: item.agency?.agency_name ?? "",
     brokerLogo: null,
     agency: item.agency ?? undefined,
+    agent: item.agent ?? undefined,
     owners: [],
     is_exclusive: false,
     is_favourite: false,
