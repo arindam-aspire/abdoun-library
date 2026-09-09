@@ -44,11 +44,14 @@ const OWNER_INFO_READ_ONLY_PATCH_FIELDS: OwnerInfoReadOnlyField[] = [
 ];
 
 export const emptyOwnerInfoItem: OwnerInfoItem = {
+  owner_id: undefined,
   owner_name: "",
+  full_name: "",
   country_code: DEFAULT_OWNER_COUNTRY_CODE,
   phone_number: "",
   email: "",
   social_security_id: "",
+  ssi: "",
   nationality: "",
   owner_documents: [],
 };
@@ -72,10 +75,13 @@ export function hasOwnerInfoContent(owner: OwnerInfoItem): boolean {
   }
 
   return (
+    Boolean(owner.owner_id) ||
     owner.owner_name.trim() !== "" ||
+    (owner.full_name ?? "").trim() !== "" ||
     owner.phone_number.trim() !== "" ||
     owner.email.trim() !== "" ||
     owner.social_security_id.trim() !== "" ||
+    (owner.ssi ?? "").trim() !== "" ||
     owner.nationality.trim() !== "" ||
     (owner.country_code.trim() !== "" &&
       owner.country_code !== DEFAULT_OWNER_COUNTRY_CODE)
@@ -95,7 +101,7 @@ export function validateOwnerFieldErrors(
   const messages = resolveOwnerInfoValidationMessages(options?.validationMessages);
   const fieldErrors: OwnerFieldErrors = {};
 
-  if (!owner.owner_name.trim()) {
+  if (!owner.owner_name.trim() && !(owner.full_name ?? "").trim()) {
     fieldErrors.owner_name = messages.ownerNameRequired;
   }
 
@@ -120,8 +126,20 @@ export function validateOwnerInfoFormValues(
 ) {
   const fieldErrorsByOwner: Record<number, OwnerFieldErrors> = {};
 
+  if (formValues.owner_mode === "search" && !formValues.owner_id) {
+    return {
+      formErrors: { owners: " " },
+      fieldErrorsByOwner,
+      isValid: false,
+    };
+  }
+
   for (let index = 0; index < formValues.owners.length; index += 1) {
     const owner = formValues.owners[index];
+
+    if (owner.owner_id) {
+      continue;
+    }
 
     if (!hasOwnerInfoContent(owner) && formValues.owners.length > 1) {
       continue;
@@ -207,6 +225,8 @@ export function useOwnerInfoForm(
 
   const form = useForm<OwnerInfoFormValues>({
     initialValues: {
+      owner_mode: "create",
+      owner_id: null,
       owners: [{ ...emptyOwnerInfoItem }],
       ...initialValues,
     },

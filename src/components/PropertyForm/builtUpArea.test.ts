@@ -13,13 +13,15 @@ const validPropertyDetails: PropertyDetailsFormValues = {
   built_up_area: "125.5",
   built_up_area_unit: "SQFT",
   parking_spaces: 1,
+  year_built: 2019,
   property_age: "1-5",
+  furnishing_status: "furnished",
+  floor_level: "2",
   completion_status: "ready",
   total_floor: "3",
   occupancy: "vacant",
   ownership_type: "freehold",
   reference_number: "REF-1",
-  permit_dld_number: "DLD-1",
   orientation: "north",
 };
 

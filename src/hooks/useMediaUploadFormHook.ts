@@ -1,7 +1,14 @@
 "use client";
 
 import { useCallback, useRef } from "react";
-import type { MediaUploadFormValues } from "../components/PropertyForm/types";
+import {
+  normalizePropertyMediaFiles,
+  setPrimaryPropertyMedia,
+} from "../components/PropertyForm/propertyFormMedia";
+import type {
+  MediaUploadFormValues,
+  PropertyMediaFile,
+} from "../components/PropertyForm/types";
 import type { SelectedDocument } from "../components/ui/FileSelectInput";
 import {
   isImageMedia,
@@ -48,10 +55,17 @@ export function useMediaUploadForm(
   const valuesRef = useRef(form.values);
   valuesRef.current = form.values;
 
-  const setMediaFiles = useCallback((mediaFiles: SelectedDocument[]) => {
+  const setMediaFiles = useCallback((mediaFiles: PropertyMediaFile[]) => {
     form.setValues({
       ...valuesRef.current,
-      media_files: mediaFiles,
+      media_files: normalizePropertyMediaFiles(mediaFiles),
+    });
+  }, [form]);
+
+  const setPrimaryMedia = useCallback((media: PropertyMediaFile) => {
+    form.setValues({
+      ...valuesRef.current,
+      media_files: setPrimaryPropertyMedia(valuesRef.current.media_files, media),
     });
   }, [form]);
 
@@ -84,6 +98,7 @@ export function useMediaUploadForm(
   return {
     ...form,
     setMediaFiles,
+    setPrimaryMedia,
     setDocuments,
     submit,
   };

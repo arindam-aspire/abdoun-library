@@ -311,3 +311,119 @@ export const WithRejectionReason: Story = {
     },
   },
 };
+
+export const HostConfiguredAddProperty: Story = {
+  args: {
+    activeStep: 1,
+    maxReachedStep: 5,
+    propertyDetails: {
+      ...propertyFormFilledValues,
+      basic_info: {
+        ...propertyFormFilledValues.basic_info!,
+        listing_purposes: ["sale", "rent"],
+      },
+    },
+    config: {
+      listingPurposeOptions: [
+        { value: "sale", label: "Sale" },
+        { value: "rent", label: "Rent" },
+      ],
+      furnishingStatusOptions: [
+        { value: "furnished", label: "Furnished" },
+        { value: "unfurnished", label: "Unfurnished" },
+        { value: "semi_furnished", label: "Semi-Furnished" },
+      ],
+      completionStatusOptions: [
+        { value: "ready", label: "Ready" },
+        { value: "secondary", label: "Secondary" },
+      ],
+      orientationOptions: [
+        { value: "northeast", label: "Northeast" },
+        { value: "northwest", label: "Northwest" },
+      ],
+      yearBuiltLabel: "Year of Construction",
+      setAsPrimaryImageLabel: "Set as Primary Image",
+    },
+    onSearchOwners: async () => [
+      {
+        owner_id: "own-1",
+        full_name: "Sara Al-Khatib",
+        email: "sara.khatib@example.com",
+        phone_number: "791234567",
+        country_code: "+962",
+      },
+    ],
+    renderLocationMap: ({ latitude, longitude, onCoordinatesChange }) => (
+      <button
+        type="button"
+        className="flex h-40 w-full items-center justify-center bg-page-ghost text-sm text-muted"
+        onClick={() =>
+          onCoordinatesChange({
+            latitude: 31.95,
+            longitude: 35.91,
+          })
+        }
+      >
+        Map slot {latitude ?? "—"}, {longitude ?? "—"}
+      </button>
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const purpose = canvas.getByLabelText("Listing purpose");
+    expect(purpose).toHaveTextContent("Sale, Rent");
+  },
+};
+
+export const ExternalFieldErrors: Story = {
+  args: {
+    activeStep: 5,
+    maxReachedStep: 5,
+    propertyDetails: propertyFormFilledValues,
+    fieldErrors: {
+      "pricing.furnished_sale_price": "Furnished sale price is too low.",
+    },
+    submitError: "The backend rejected this listing. Review the highlighted fields.",
+  },
+};
+
+export const MobileAddProperty: Story = {
+  args: {
+    activeStep: 1,
+    maxReachedStep: 1,
+    propertyDetails: {},
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: "mobile1",
+    },
+  },
+};
+
+export const DesktopAddProperty: Story = {
+  args: {
+    activeStep: 1,
+    maxReachedStep: 1,
+    propertyDetails: {},
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: "desktop",
+    },
+  },
+};
+
+export const DetailsWithoutDld: Story = {
+  args: {
+    activeStep: 3,
+    maxReachedStep: 3,
+    propertyDetails: propertyFormFilledValues,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.queryByLabelText("Permit / DLD Number")).toBeNull();
+    expect(canvas.getByLabelText("Year Built")).toBeInTheDocument();
+    expect(canvas.getByLabelText("Floor Level")).toBeInTheDocument();
+    expect(canvas.getByLabelText("Total Floor")).toBeInTheDocument();
+  },
+};

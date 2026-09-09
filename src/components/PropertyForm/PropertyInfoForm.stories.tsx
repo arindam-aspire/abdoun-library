@@ -18,7 +18,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof PropertyInfoForm>;
+} satisfies Meta;
 
 export default meta;
 

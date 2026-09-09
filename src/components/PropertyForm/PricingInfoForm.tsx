@@ -10,10 +10,29 @@ import { Badge } from "../ui/Badge";
 import { PriceInput } from "../ui/PriceInput";
 import { SelectDropdown } from "../ui/SelectDropdown";
 import {
+  resolvePropertyFormConfig,
+} from "./propertyFormConfig";
+import {
+  getPricingFieldValue,
+  setPricingFieldValue,
+} from "./propertyFormDefaults";
+import { getVisiblePricingFields } from "./propertyFormPricing";
+import {
+  getExternalFieldError,
+  mergeFieldError,
+  propertyFormFieldProps,
+} from "./propertyFormErrors";
+import {
   propertyFormGridClasses,
   propertyFormGridSpanClasses,
 } from "./propertyFormFieldLayout";
-import type { PricingCurrency, PricingDetailsFormValues } from "./types";
+import type {
+  PricingCurrency,
+  PricingDetailsFormValues,
+  PropertyFormFieldErrors,
+  PropertyFormPricingFieldLabels,
+  PropertyPricingFieldDefinition,
+} from "./types";
 
 const PRICING_TITLE = "Pricing Details";
 const PRICING_SUBTITLE =
@@ -33,10 +52,36 @@ function isPricingCurrency(value: string): value is PricingCurrency {
 
 export interface PricingInfoFormProps {
   form: UsePricingDetailsFormReturn;
+  visiblePricingFields?: PropertyPricingFieldDefinition[];
+  pricingFieldLabels?: Required<PropertyFormPricingFieldLabels>;
+  showLegacyPrice?: boolean;
+  fieldErrors?: PropertyFormFieldErrors;
+  listingPurposes?: string[];
   className?: string;
 }
 
-export function PricingInfoForm({ form, className }: PricingInfoFormProps) {
+export function PricingInfoForm({
+  form,
+  visiblePricingFields,
+  pricingFieldLabels,
+  showLegacyPrice,
+  fieldErrors,
+  listingPurposes = ["sale"],
+  className,
+}: PricingInfoFormProps) {
+  const resolved = resolvePropertyFormConfig({
+    pricingFieldLabels,
+  });
+  const nextLabels = pricingFieldLabels ?? resolved.pricingFieldLabels;
+  const nextVisibleFields =
+    visiblePricingFields ??
+    getVisiblePricingFields({
+      pricingFields: resolved.pricingFields,
+      listingPurposes,
+      furnishingStatusOptions: resolved.furnishingStatusOptions,
+    });
+  const nextShowLegacyPrice =
+    showLegacyPrice ?? nextVisibleFields.length === 0;
   const updateField = (
     field: keyof PricingDetailsFormValues,
     value: string,
@@ -45,6 +90,10 @@ export function PricingInfoForm({ form, className }: PricingInfoFormProps) {
       ...form.values,
       [field]: value,
     });
+  };
+
+  const updateDynamicField = (key: string, value: string) => {
+    form.setValues(setPricingFieldValue(form.values, key, value));
   };
 
   const updatePriceCurrency = (value: string) => {
@@ -107,34 +156,101 @@ export function PricingInfoForm({ form, className }: PricingInfoFormProps) {
         <p className={cn("text-muted", textBodySmClasses)}>{PRICING_SUBTITLE}</p>
       </header>
 
-      <div className={cn(propertyFormGridSpanClasses, pricingFieldRowClasses)}>
-        <PriceInput
-          name="price"
-          label="Price"
-          placeholder="0"
-          value={form.values.price}
-          onChange={(value) => updateField("price", value)}
-          onBlur={() => markFieldTouched("price")}
-          error={form.errors.price}
-          showCurrency={false}
-          allowDecimals={false}
-          fullWidth
-        />
-        <SelectDropdown
-          name="price_currency"
-          label="Currency"
-          placeholder="Select currency"
-          options={[...pricingCurrencyOptions]}
-          value={form.values.price_currency}
-          onChange={updatePriceCurrency}
-          fullWidth
-        />
-      </div>
+      {nextShowLegacyPrice ? (
+        <div className={cn(propertyFormGridSpanClasses, pricingFieldRowClasses)}>
+          <PriceInput
+            name="price"
+            label={nextLabels.price}
+            placeholder="0"
+            value={form.values.price}
+            onChange={(value) => updateField("price", value)}
+            onBlur={() => markFieldTouched("price")}
+            error={form.errors.price}
+            showCurrency={false}
+            allowDecimals={false}
+            fullWidth
+          />
+          <SelectDropdown
+            name="price_currency"
+            label={nextLabels.currency}
+            placeholder="Select currency"
+            options={[...pricingCurrencyOptions]}
+            value={form.values.price_currency}
+            onChange={updatePriceCurrency}
+            fullWidth
+          />
+        </div>
+      ) : null}
+
+      {nextVisibleFields.map((field, index) => (
+        <div
+          key={field.key}
+          className={cn(
+            propertyFormGridSpanClasses,
+            index === 0 && !nextShowLegacyPrice
+              ? pricingFieldRowClasses
+              : undefined,
+          )}
+          {...propertyFormFieldProps(`pricing_details.${field.key}`)}
+        >
+          {index === 0 && !nextShowLegacyPrice ? (
+            <>
+              <PriceInput
+                name={field.key}
+                label={field.label}
+                placeholder={field.placeholder ?? "0"}
+                value={getPricingFieldValue(form.values, field.key)}
+                onChange={(value) => updateDynamicField(field.key, value)}
+                error={mergeFieldError(
+                  undefined,
+                  getExternalFieldError(
+                    fieldErrors,
+                    `pricing_details.${field.key}`,
+                    `pricing.${field.key}`,
+                  ),
+                )}
+                showCurrency={false}
+                allowDecimals={false}
+                fullWidth
+              />
+              <SelectDropdown
+                name="price_currency"
+                label={nextLabels.currency}
+                placeholder="Select currency"
+                options={[...pricingCurrencyOptions]}
+                value={form.values.price_currency}
+                onChange={updatePriceCurrency}
+                fullWidth
+              />
+            </>
+          ) : (
+            <PriceInput
+              name={field.key}
+              label={field.label}
+              placeholder={field.placeholder ?? "0"}
+              value={getPricingFieldValue(form.values, field.key)}
+              onChange={(value) => updateDynamicField(field.key, value)}
+              error={mergeFieldError(
+                undefined,
+                getExternalFieldError(
+                  fieldErrors,
+                  `pricing_details.${field.key}`,
+                  `pricing.${field.key}`,
+                ),
+              )}
+              showCurrency={false}
+              allowDecimals={false}
+              fullWidth
+              className={propertyFormGridSpanClasses}
+            />
+          )}
+        </div>
+      ))}
 
       <div className={cn(propertyFormGridSpanClasses, pricingFieldRowClasses)}>
         <PriceInput
           name="service_charge"
-          label="Service Charge"
+          label={nextLabels.serviceCharge}
           placeholder="0"
           value={form.values.service_charge}
           onChange={(value) => updateField("service_charge", value)}
@@ -146,7 +262,7 @@ export function PricingInfoForm({ form, className }: PricingInfoFormProps) {
         />
         <SelectDropdown
           name="service_charge_currency"
-          label="Currency"
+          label={nextLabels.currency}
           placeholder="Select currency"
           options={[...pricingCurrencyOptions]}
           value={form.values.service_charge_currency}
@@ -160,7 +276,7 @@ export function PricingInfoForm({ form, className }: PricingInfoFormProps) {
       <div className={cn(propertyFormGridSpanClasses, pricingFieldRowClasses)}>
         <PriceInput
           name="maintenance_fee"
-          label="Maintenance Fee"
+          label={nextLabels.maintenanceFee}
           placeholder="0"
           value={form.values.maintenance_fee}
           onChange={(value) => updateField("maintenance_fee", value)}
@@ -172,7 +288,7 @@ export function PricingInfoForm({ form, className }: PricingInfoFormProps) {
         />
         <SelectDropdown
           name="maintenance_fee_currency"
-          label="Currency"
+          label={nextLabels.currency}
           placeholder="Select currency"
           options={[...pricingCurrencyOptions]}
           value={form.values.maintenance_fee_currency}

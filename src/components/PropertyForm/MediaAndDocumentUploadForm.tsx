@@ -9,9 +9,16 @@ import type { SelectedDocument } from "../ui/FileSelectInput";
 import { Input } from "../ui/Input";
 import { MediaInput } from "../ui/MediaInput";
 import {
+  getExternalFieldError,
+  mergeFieldError,
+  propertyFormFieldProps,
+} from "./propertyFormErrors";
+import { setPrimaryPropertyMedia } from "./propertyFormMedia";
+import {
   propertyFormGridClasses,
   propertyFormStackClasses,
 } from "./propertyFormFieldLayout";
+import type { PropertyFormFieldErrors, PropertyMediaFile } from "./types";
 
 const MEDIA_UPLOAD_TITLE = "Media & Documents";
 const MEDIA_UPLOAD_SUBTITLE =
@@ -20,6 +27,7 @@ const MEDIA_UPLOAD_BADGE_LABEL = "Required";
 
 export interface MediaAndDocumentUploadFormProps {
   form: UseMediaUploadFormReturn;
+  setAsPrimaryImageLabel?: string;
   onUploadPropertyMedia?: (file: File) => Promise<string | null>;
   onPropertyMediaChange?: (media: SelectedDocument[]) => void;
   onRemovePropertyMedia?: (media: SelectedDocument) => void;
@@ -28,11 +36,13 @@ export interface MediaAndDocumentUploadFormProps {
   onPropertyDocumentsChange?: (documents: SelectedDocument[]) => void;
   onRemovePropertyDocument?: (document: SelectedDocument) => void;
   onPropertyDocumentUploadingChange?: (isUploading: boolean) => void;
+  fieldErrors?: PropertyFormFieldErrors;
   className?: string;
 }
 
 export function MediaAndDocumentUploadForm({
   form,
+  setAsPrimaryImageLabel = "Set as Primary Image",
   onUploadPropertyMedia,
   onPropertyMediaChange,
   onRemovePropertyMedia,
@@ -41,6 +51,7 @@ export function MediaAndDocumentUploadForm({
   onPropertyDocumentsChange,
   onRemovePropertyDocument,
   onPropertyDocumentUploadingChange,
+  fieldErrors,
   className,
 }: MediaAndDocumentUploadFormProps) {
   return (
@@ -68,22 +79,41 @@ export function MediaAndDocumentUploadForm({
         </p>
       </header>
 
-      <MediaInput
-        name="media_files"
-        label="Media"
-        value={form.values.media_files}
-        onChange={(media) => {
-          form.setMediaFiles(media);
-          onPropertyMediaChange?.(media);
-        }}
-        onRemove={(media) => {
-          onRemovePropertyMedia?.(media);
-        }}
-        onUpload={onUploadPropertyMedia}
-        onUploadingChange={onPropertyMediaUploadingChange}
-        error={form.errors.media_files}
-        wrapperClassName="w-full min-w-0"
-      />
+      <div {...propertyFormFieldProps("media_upload.media_files")}>
+        <MediaInput
+          name="media_files"
+          label="Media"
+          value={form.values.media_files}
+          onChange={(media) => {
+            form.setMediaFiles(media);
+            onPropertyMediaChange?.(media);
+          }}
+          onRemove={(media) => {
+            onRemovePropertyMedia?.(media);
+          }}
+          onUpload={onUploadPropertyMedia}
+          onUploadingChange={onPropertyMediaUploadingChange}
+          onSetPrimary={(media) => {
+            const nextMedia = setPrimaryPropertyMedia(
+              form.values.media_files,
+              media,
+            );
+            form.setMediaFiles(nextMedia);
+            onPropertyMediaChange?.(nextMedia);
+          }}
+          showPrimaryAction
+          primaryActionLabel={setAsPrimaryImageLabel}
+          error={mergeFieldError(
+            form.errors.media_files,
+            getExternalFieldError(
+              fieldErrors,
+              "media_upload.media_files",
+              "media_documents.images",
+            ),
+          )}
+          wrapperClassName="w-full min-w-0"
+        />
+      </div>
 
       <div className={propertyFormGridClasses}>
         <Input
@@ -130,3 +160,5 @@ export function MediaAndDocumentUploadForm({
     </form>
   );
 }
+
+export type { PropertyMediaFile };

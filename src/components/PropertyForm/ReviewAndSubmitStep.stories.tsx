@@ -6,6 +6,8 @@ import {
   propertyFormFilledValues,
   propertyFormLocationTaxonomy,
 } from "./propertyFormStoryData";
+import { resolvePropertyFormConfig } from "./propertyFormConfig";
+import { getVisiblePricingFields } from "./propertyFormPricing";
 import {
   emptyTermsAcceptanceFormValues,
   mergePropertyFormValues,
@@ -14,6 +16,12 @@ import { ReviewAndSubmitStep } from "./ReviewAndSubmitStep";
 import type { TermsAcceptanceFormValues } from "./types";
 
 const filledValues = mergePropertyFormValues(propertyFormFilledValues);
+const resolvedConfig = resolvePropertyFormConfig();
+const visiblePricingFields = getVisiblePricingFields({
+  pricingFields: resolvedConfig.pricingFields,
+  listingPurposes: filledValues.basic_info.listing_purposes ?? [],
+  furnishingStatusOptions: resolvedConfig.furnishingStatusOptions,
+});
 
 const meta = {
   title: "Components/PropertyForm/ReviewAndSubmitStep",
@@ -29,7 +37,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof ReviewAndSubmitStep>;
+} satisfies Meta;
 
 export default meta;
 
@@ -57,6 +65,8 @@ function ReviewStepDemo({
       featuresAndAmenities={propertyFormFeaturesAndAmenities}
       termsAcceptance={termsAcceptance}
       onTermsAcceptanceChange={setTermsAcceptance}
+      resolvedConfig={resolvedConfig}
+      visiblePricingFields={visiblePricingFields}
     />
   );
 }
@@ -93,6 +103,8 @@ export const ReadOnly: Story = {
       featuresAndAmenities={propertyFormFeaturesAndAmenities}
       termsAcceptance={emptyTermsAcceptanceFormValues}
       onTermsAcceptanceChange={() => undefined}
+      resolvedConfig={resolvedConfig}
+      visiblePricingFields={visiblePricingFields}
       canEdit={false}
     />
   ),

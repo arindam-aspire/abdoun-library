@@ -20,17 +20,17 @@ import {
   isFeatureGroup,
   resolveSelectedCatalogItems,
 } from "./amenitiesFormOptions";
-import { nationalityOptions } from "./ownerInfoFormOptions";
+import { occupancyOptions, ownershipTypeOptions } from "./propertyDetailsFormOptions";
 import {
-  bathroomOptions,
-  bedroomOptions,
-  completionStatusOptions,
-  occupancyOptions,
-  orientationOptions,
-  ownershipTypeOptions,
-  parkingSpaceOptions,
-  propertyAgeOptions,
-} from "./propertyDetailsFormOptions";
+  optionLabel,
+  optionLabels,
+  type ResolvedPropertyFormConfig,
+} from "./propertyFormConfig";
+import {
+  getIdentificationFieldValue,
+  getPricingFieldValue,
+} from "./propertyFormDefaults";
+import { sortPropertyMediaForDisplay } from "./propertyFormMedia";
 import {
   areAllTermsAccepted,
   createAcceptedTermsValues,
@@ -69,29 +69,12 @@ const EMPTY_VALUE = "—";
 const REVIEW_CARD_CLASSES =
   "border border-secondary/10 bg-page p-4 sm:p-5";
 
-const listingPurposeLabels: Record<string, string> = {
-  sale: "Sale",
-  rent: "Rent",
-};
-
 function displayValue(value: string | number | null | undefined): string {
   if (value === null || value === undefined || value === "") {
     return EMPTY_VALUE;
   }
 
   return String(value);
-}
-
-function optionLabel(
-  options: readonly { value: string; label: string }[],
-  value: string | number | null | undefined,
-): string {
-  if (value === null || value === undefined || value === "") {
-    return EMPTY_VALUE;
-  }
-
-  const match = options.find((option) => option.value === String(value));
-  return match?.label ?? String(value);
 }
 
 function formatPriceField(value: string, currency: string): string {
@@ -150,31 +133,17 @@ function resolveCityName(
   );
 }
 
-function resolveAreaNames(
+function resolveAreaName(
   locationTaxonomy: LocationTaxonomyCity[],
   cityId: number | null,
-  areaIds: number[],
+  areaId: number | null,
 ): string {
-  if (areaIds.length === 0) {
+  if (areaId == null) {
     return EMPTY_VALUE;
   }
 
   const city = locationTaxonomy.find((item) => item.id === cityId);
-  const names = areaIds
-    .map((areaId) => city?.areas.find((area) => area.id === areaId)?.name)
-    .filter((name): name is string => Boolean(name));
-
-  return names.length > 0 ? names.join(", ") : areaIds.join(", ");
-}
-
-function resolveNationality(value: string): string {
-  if (!value) {
-    return EMPTY_VALUE;
-  }
-
-  return (
-    nationalityOptions.find((option) => option.value === value)?.label ?? value
-  );
+  return city?.areas.find((area) => area.id === areaId)?.name ?? String(areaId);
 }
 
 function isImageDocument(document: SelectedDocument): boolean {
@@ -280,13 +249,15 @@ function DocumentList({ documents }: { documents: SelectedDocument[] }) {
 }
 
 function MediaPreviewGrid({ mediaFiles }: { mediaFiles: SelectedDocument[] }) {
-  if (mediaFiles.length === 0) {
+  const sortedMedia = sortPropertyMediaForDisplay(mediaFiles);
+
+  if (sortedMedia.length === 0) {
     return <span>{EMPTY_VALUE}</span>;
   }
 
   return (
     <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-      {mediaFiles.map((file, index) => (
+      {sortedMedia.map((file) => (
         <li
           key={`${file.name}-${file.uri}`}
           className="overflow-hidden rounded-lg border border-secondary/10 bg-page-ghost/40"
@@ -314,7 +285,7 @@ function MediaPreviewGrid({ mediaFiles }: { mediaFiles: SelectedDocument[] }) {
                 <span className={textMetaMediumClasses}>Media</span>
               </div>
             )}
-            {index === 0 ? (
+            {file.is_primary ? (
               <span className="absolute left-2 top-2 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white sm:text-[11px]">
                 Primary
               </span>
@@ -339,10 +310,14 @@ function OwnerReviewFields({
   owner,
   index,
   hasMultipleOwners,
+  nationalityOptions,
+  ownerModeLabel,
 }: {
   owner: OwnerInfoItem;
   index: number;
   hasMultipleOwners: boolean;
+  nationalityOptions: { value: string; label: string }[];
+  ownerModeLabel?: string;
 }) {
   return (
     <div
@@ -351,14 +326,17 @@ function OwnerReviewFields({
         hasMultipleOwners && index > 0 && "mt-4",
       )}
     >
-      {hasMultipleOwners ? (
+      {hasMultipleOwners || ownerModeLabel ? (
         <h4 className={cn("mb-4 font-semibold text-secondary", textBodySmClasses)}>
-          Owner {index + 1}
+          {ownerModeLabel ?? `Owner ${index + 1}`}
         </h4>
       ) : null}
 
       <dl className={propertyFormGridClasses}>
-        <ReviewField label="Owner Name" value={displayValue(owner.owner_name)} />
+        <ReviewField
+          label="Owner Name"
+          value={displayValue(owner.full_name || owner.owner_name)}
+        />
         <ReviewField
           label="Phone Number"
           value={displayValue(
@@ -370,11 +348,11 @@ function OwnerReviewFields({
         <ReviewField label="Email Address" value={displayValue(owner.email)} />
         <ReviewField
           label="Nationality"
-          value={resolveNationality(owner.nationality)}
+          value={optionLabel(nationalityOptions, owner.nationality, EMPTY_VALUE)}
         />
         <ReviewField
           label="Social Security ID"
-          value={displayValue(owner.social_security_id)}
+          value={displayValue(owner.ssi || owner.social_security_id)}
           className="md:col-span-2"
         />
         <div className="md:col-span-2">
@@ -401,6 +379,11 @@ export interface ReviewAndSubmitStepProps {
   featuresAndAmenities: FeaturesAndAmenities[];
   termsAcceptance: TermsAcceptanceFormValues;
   onTermsAcceptanceChange: (terms: TermsAcceptanceFormValues) => void;
+  resolvedConfig: ResolvedPropertyFormConfig;
+  visiblePricingFields: {
+    key: string;
+    label: string;
+  }[];
   /** When false, the terms agreement checkbox is disabled. */
   canEdit?: boolean;
   /**
@@ -429,6 +412,8 @@ export function ReviewAndSubmitStep({
   featuresAndAmenities,
   termsAcceptance,
   onTermsAcceptanceChange,
+  resolvedConfig,
+  visiblePricingFields,
   canEdit = true,
   className,
 }: ReviewAndSubmitStepProps) {
@@ -486,13 +471,12 @@ export function ReviewAndSubmitStep({
       <ReviewSection title="Basic Information">
         <dl className={propertyFormGridClasses}>
           <ReviewField
-            label="Listing Purpose"
-            value={
-              basicInfo.listing_purpose
-                ? (listingPurposeLabels[basicInfo.listing_purpose] ??
-                  basicInfo.listing_purpose)
-                : EMPTY_VALUE
-            }
+            label={resolvedConfig.listingPurposeLabel}
+            value={optionLabels(
+              resolvedConfig.listingPurposeOptions,
+              basicInfo.listing_purposes ?? [],
+              EMPTY_VALUE,
+            )}
           />
           <ReviewField
             label="Category"
@@ -522,13 +506,30 @@ export function ReviewAndSubmitStep({
             value={resolveCityName(locationTaxonomy, location.city_id)}
           />
           <ReviewField
-            label="Areas"
-            value={resolveAreaNames(
+            label={resolvedConfig.areaLabel}
+            value={resolveAreaName(
               locationTaxonomy,
               location.city_id,
-              location.area_ids,
+              location.area_id,
             )}
           />
+          <ReviewField
+            label={resolvedConfig.mapLocationLabels.latitude}
+            value={displayValue(location.latitude)}
+          />
+          <ReviewField
+            label={resolvedConfig.mapLocationLabels.longitude}
+            value={displayValue(location.longitude)}
+          />
+          {resolvedConfig.identificationFields.map((field) => (
+            <ReviewField
+              key={field.key}
+              label={field.label}
+              value={displayValue(
+                getIdentificationFieldValue(location, field.key),
+              )}
+            />
+          ))}
           <ReviewField
             label="Address"
             value={displayValue(location.address)}
@@ -541,11 +542,11 @@ export function ReviewAndSubmitStep({
         <dl className={propertyFormGridClasses}>
           <ReviewField
             label="Bedrooms"
-            value={optionLabel(bedroomOptions, propertyDetails.bedrooms)}
+            value={displayValue(propertyDetails.bedrooms)}
           />
           <ReviewField
             label="Bathrooms"
-            value={optionLabel(bathroomOptions, propertyDetails.bathrooms)}
+            value={displayValue(propertyDetails.bathrooms)}
           />
           <ReviewField
             label={builtUpAreaLabel(propertyDetails.built_up_area_unit)}
@@ -553,17 +554,34 @@ export function ReviewAndSubmitStep({
           />
           <ReviewField
             label="Parking Spaces"
-            value={optionLabel(parkingSpaceOptions, propertyDetails.parking_spaces)}
+            value={displayValue(propertyDetails.parking_spaces)}
           />
           <ReviewField
-            label="Property Age"
-            value={optionLabel(propertyAgeOptions, propertyDetails.property_age)}
+            label={resolvedConfig.yearBuiltLabel}
+            value={displayValue(propertyDetails.year_built)}
+          />
+          <ReviewField
+            label={resolvedConfig.furnishingStatusLabel}
+            value={optionLabel(
+              resolvedConfig.furnishingStatusOptions,
+              propertyDetails.furnishing_status,
+              EMPTY_VALUE,
+            )}
           />
           <ReviewField
             label="Completion Status"
             value={optionLabel(
-              completionStatusOptions,
+              resolvedConfig.completionStatusOptions,
               propertyDetails.completion_status,
+              EMPTY_VALUE,
+            )}
+          />
+          <ReviewField
+            label={resolvedConfig.floorLevelLabel}
+            value={optionLabel(
+              resolvedConfig.floorLevelOptions,
+              propertyDetails.floor_level,
+              EMPTY_VALUE,
             )}
           />
           <ReviewField
@@ -572,24 +590,34 @@ export function ReviewAndSubmitStep({
           />
           <ReviewField
             label="Occupancy"
-            value={optionLabel(occupancyOptions, propertyDetails.occupancy)}
+            value={optionLabel(occupancyOptions, propertyDetails.occupancy, EMPTY_VALUE)}
           />
           <ReviewField
             label="Ownership Type"
-            value={optionLabel(ownershipTypeOptions, propertyDetails.ownership_type)}
+            value={optionLabel(
+              ownershipTypeOptions,
+              propertyDetails.ownership_type,
+              EMPTY_VALUE,
+            )}
           />
           <ReviewField
             label="Orientation"
-            value={optionLabel(orientationOptions, propertyDetails.orientation)}
+            value={optionLabel(
+              resolvedConfig.orientationOptions,
+              propertyDetails.orientation,
+              EMPTY_VALUE,
+            )}
           />
           <ReviewField
             label="Reference Number"
             value={displayValue(propertyDetails.reference_number)}
           />
-          <ReviewField
-            label="Permit / DLD Number"
-            value={displayValue(propertyDetails.permit_dld_number)}
-          />
+          {resolvedConfig.enableLegacyPermitDld ? (
+            <ReviewField
+              label="Permit / DLD Number"
+              value={displayValue(propertyDetails.permit_dld_number)}
+            />
+          ) : null}
           <ReviewField
             label="Guard Name"
             value={displayValue(propertyDetails.guard_name)}
@@ -615,6 +643,14 @@ export function ReviewAndSubmitStep({
               owner={owner}
               index={index}
               hasMultipleOwners={ownerInfo.owners.length > 1}
+              nationalityOptions={resolvedConfig.nationalityOptions}
+              ownerModeLabel={
+                owner.owner_id || ownerInfo.owner_id
+                  ? resolvedConfig.ownerModeLabels.selectedOwner
+                  : ownerInfo.owner_mode === "create"
+                    ? resolvedConfig.ownerModeLabels.createNew
+                    : undefined
+              }
             />
           ))
         )}
@@ -622,19 +658,31 @@ export function ReviewAndSubmitStep({
 
       <ReviewSection title="Pricing">
         <dl className={propertyFormGridClasses}>
+          {visiblePricingFields.map((field) => (
+            <ReviewField
+              key={field.key}
+              label={field.label}
+              value={formatPriceField(
+                getPricingFieldValue(pricing, field.key),
+                pricing.price_currency,
+              )}
+            />
+          ))}
+          {visiblePricingFields.length === 0 ? (
+            <ReviewField
+              label={resolvedConfig.pricingFieldLabels.price}
+              value={formatPriceField(pricing.price, pricing.price_currency)}
+            />
+          ) : null}
           <ReviewField
-            label="Price"
-            value={formatPriceField(pricing.price, pricing.price_currency)}
-          />
-          <ReviewField
-            label="Service Charge"
+            label={resolvedConfig.pricingFieldLabels.serviceCharge}
             value={formatPriceField(
               pricing.service_charge,
               pricing.service_charge_currency,
             )}
           />
           <ReviewField
-            label="Maintenance Fee"
+            label={resolvedConfig.pricingFieldLabels.maintenanceFee}
             value={formatPriceField(
               pricing.maintenance_fee,
               pricing.maintenance_fee_currency,

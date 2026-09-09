@@ -23,6 +23,12 @@ export function usePricingDetailsForm(
       service_charge_currency: "JOD",
       maintenance_fee: "",
       maintenance_fee_currency: "JOD",
+      furnished_sale_price: "",
+      unfurnished_sale_price: "",
+      furnished_rent_price: "",
+      unfurnished_rent_price: "",
+      semi_furnished_rent_price: "",
+      additional_prices: {},
       ...initialValues,
     },
     validate: validatePricingDetailsFormValues,
@@ -36,6 +42,11 @@ export function usePricingDetailsForm(
       service_charge_currency: true,
       maintenance_fee: true,
       maintenance_fee_currency: true,
+      furnished_sale_price: true,
+      unfurnished_sale_price: true,
+      furnished_rent_price: true,
+      unfurnished_rent_price: true,
+      semi_furnished_rent_price: true,
     };
 
     form.setTouched(allTouched);

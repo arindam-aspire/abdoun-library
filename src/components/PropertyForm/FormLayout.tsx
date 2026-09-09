@@ -40,6 +40,7 @@ export interface FormLayoutProps {
   /** When true, disables the Next button (e.g. incomplete Owner step). Defaults to `false`. */
   isNextDisabled?: boolean;
   isSubmitDisabled?: boolean;
+  submitError?: string | null;
   children?: ReactNode;
   className?: string;
 }
@@ -96,6 +97,7 @@ export function FormLayout({
   isFormLocked = false,
   isNextDisabled = false,
   isSubmitDisabled = false,
+  submitError,
   children,
   className,
 }: FormLayoutProps) {
@@ -163,6 +165,16 @@ export function FormLayout({
         <div className="flex flex-1 flex-col px-4 py-5 sm:px-6 md:py-6">
           {resolvedRejectionReason ? (
             <RejectionReasonAlert message={resolvedRejectionReason} />
+          ) : null}
+          {submitError?.trim() ? (
+            <div
+              role="alert"
+              className="mb-4 rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 sm:px-5 sm:py-4"
+            >
+              <p className={cn("font-semibold text-danger", textBodySmClasses)}>
+                {submitError}
+              </p>
+            </div>
           ) : null}
           <fieldset
             disabled={isFormLocked}

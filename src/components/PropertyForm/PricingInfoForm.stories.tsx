@@ -17,7 +17,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof PricingInfoForm>;
+} satisfies Meta;
 
 export default meta;
 

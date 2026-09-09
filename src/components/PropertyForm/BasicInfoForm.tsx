@@ -12,19 +12,27 @@ import {
 } from "../../lib/typography";
 import { Badge } from "../ui/Badge";
 import { Input } from "../ui/Input";
+import { MultiSelectDropdown } from "../ui/MultiSelectDropdown";
 import { SelectDropdown } from "../ui/SelectDropdown";
 import { SELECT_DROPDOWN_EMPTY_VALUE } from "../ui/SelectDropdown/types";
 import { Textarea } from "../ui/Textarea";
+import { resolvePropertyFormConfig } from "./propertyFormConfig";
+import { deriveLegacyListingPurpose } from "./propertyFormDefaults";
+import {
+  getExternalFieldError,
+  mergeFieldError,
+  propertyFormFieldProps,
+} from "./propertyFormErrors";
 import {
   propertyFormGridClasses,
   propertyFormGridSpanClasses,
 } from "./propertyFormFieldLayout";
-import type { BasicInfoFormValues, PropertyTaxonomyCategory } from "./types";
-
-const listingPurposeOptions = [
-  { value: "sale", label: "Sale" },
-  { value: "rent", label: "Rent" },
-];
+import type {
+  BasicInfoFormValues,
+  PropertyFormFieldErrors,
+  PropertyFormOption,
+  PropertyTaxonomyCategory,
+} from "./types";
 
 const BASIC_INFO_TITLE = "Basic Information";
 const BASIC_INFO_SUBTITLE =
@@ -65,14 +73,30 @@ function syncFieldErrors(
 export interface BasicInfoFormProps {
   categoryTaxonomy: PropertyTaxonomyCategory[];
   form: UseBasicInfoFormReturn;
+  listingPurposeOptions?: PropertyFormOption[];
+  listingPurposeLabel?: string;
+  listingPurposePlaceholder?: string;
+  fieldErrors?: PropertyFormFieldErrors;
   className?: string;
 }
 
 export function BasicInfoForm({
   categoryTaxonomy,
   form,
+  listingPurposeOptions,
+  listingPurposeLabel,
+  listingPurposePlaceholder,
+  fieldErrors,
   className,
 }: BasicInfoFormProps) {
+  const resolved = resolvePropertyFormConfig({
+    listingPurposeOptions,
+    listingPurposeLabel,
+    listingPurposePlaceholder,
+  });
+  const nextListingPurposeOptions = resolved.listingPurposeOptions;
+  const nextListingPurposeLabel = resolved.listingPurposeLabel;
+  const nextListingPurposePlaceholder = resolved.listingPurposePlaceholder;
   const categoryOptions = useMemo(
     () =>
       categoryTaxonomy.map((category) => ({
@@ -138,23 +162,36 @@ export function BasicInfoForm({
         </p>
       </header>
 
-      <SelectDropdown
-        name="listing_purpose"
-        label="Listing purpose"
-        placeholder="Select listing purpose"
-        options={listingPurposeOptions}
-        value={form.values.listing_purpose ?? "sale"}
-        onChange={(value) => {
-          const nextValues = { ...form.values, listing_purpose: value };
-          form.setValues(nextValues);
-          markSelectTouched("listing_purpose");
-          syncFieldErrors(form, nextValues, ["listing_purpose"]);
-        }}
-        onBlur={() => validateSelectField("listing_purpose")}
-        error={form.errors.listing_purpose}
-        isRequired
-        fullWidth
-      />
+      <div {...propertyFormFieldProps("basic_info.listing_purposes")}>
+        <MultiSelectDropdown
+          name="listing_purposes"
+          label={nextListingPurposeLabel}
+          placeholder={nextListingPurposePlaceholder}
+          options={nextListingPurposeOptions}
+          value={form.values.listing_purposes ?? []}
+          onChange={(values) => {
+            const nextValues = {
+              ...form.values,
+              listing_purposes: values,
+              listing_purpose: deriveLegacyListingPurpose(values),
+            };
+            form.setValues(nextValues);
+            markSelectTouched("listing_purposes");
+            syncFieldErrors(form, nextValues, ["listing_purposes"]);
+          }}
+          onBlur={() => validateSelectField("listing_purposes")}
+          error={mergeFieldError(
+            form.errors.listing_purposes,
+            getExternalFieldError(
+              fieldErrors,
+              "basic_info.listing_purposes",
+              "basic_information.listing_purposes",
+            ),
+          )}
+          isRequired
+          fullWidth
+        />
+      </div>
       <SelectDropdown
         name="category_id"
         label="Category"

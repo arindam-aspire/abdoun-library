@@ -433,7 +433,10 @@ type MediaUploadQueueCardProps = {
   processingFooterLabel: string;
   processingStatusLabel: string;
   readyStatusLabel: string;
+  showPrimaryAction?: boolean;
+  primaryActionLabel?: string;
   onRemove: () => void;
+  onSetPrimary?: () => void;
 };
 
 function MediaUploadQueueCard({
@@ -445,15 +448,25 @@ function MediaUploadQueueCard({
   processingFooterLabel,
   processingStatusLabel,
   readyStatusLabel,
+  showPrimaryAction = false,
+  primaryActionLabel = "Set as Primary Image",
   onRemove,
+  onSetPrimary,
 }: MediaUploadQueueCardProps) {
   const sizeLabel = media.size != null ? formatFileSize(media.size) : null;
   const canRemove = status === "completed" || status === "error";
+  const canSetPrimary =
+    showPrimaryAction &&
+    status === "completed" &&
+    isImageMedia(media) &&
+    !media.is_primary &&
+    Boolean(onSetPrimary);
 
   return (
     <li
       className={cn(
         "flex flex-col overflow-hidden rounded-lg border border-secondary/12 bg-surface shadow-[0_1px_0_rgba(46,45,116,0.04)]",
+        media.is_primary && "border-primary/40 ring-1 ring-primary/20",
         MEDIA_QUEUE_CARD_CLASS,
       )}
     >
@@ -464,6 +477,11 @@ function MediaUploadQueueCard({
           progress={progress}
           generatingPreviewLabel={generatingPreviewLabel}
         />
+        {media.is_primary && status === "completed" && isImageMedia(media) ? (
+          <span className="absolute left-1.5 top-1.5 rounded-full bg-primary px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white sm:text-[10px]">
+            Primary
+          </span>
+        ) : null}
       </div>
 
       <div className="flex flex-col gap-1 p-1.5 sm:gap-1.5 sm:p-2">
@@ -514,6 +532,22 @@ function MediaUploadQueueCard({
             readyStatusLabel={readyStatusLabel}
           />
         </div>
+        {canSetPrimary ? (
+          <button
+            type="button"
+            onClick={onSetPrimary}
+            disabled={disabled}
+            className={cn(
+              "w-full rounded-md border border-primary/20 bg-primary-light/40 px-1 py-1 text-center font-medium text-primary-dark transition-colors",
+              "text-[0.625rem] leading-tight sm:text-[0.6875rem]",
+              "hover:bg-primary-light/70",
+              "disabled:cursor-not-allowed disabled:opacity-40",
+              inheritOutlineFocusVisibleClasses,
+            )}
+          >
+            {primaryActionLabel}
+          </button>
+        ) : null}
       </div>
     </li>
   );
@@ -547,6 +581,9 @@ export const MediaInput = ({
   readyStatusLabel = "Ready",
   generatingPreviewLabel = "Generating Preview...",
   processingFooterLabel = "Processing",
+  showPrimaryAction = false,
+  primaryActionLabel = "Set as Primary Image",
+  onSetPrimary,
 }: MediaInputProps) => {
   const generatedId = useId();
   const inputId = `${generatedId}-media`;
@@ -596,12 +633,21 @@ export const MediaInput = ({
       .filter(Boolean)
       .join(" ") || undefined;
 
-  const completedQueueItems: InFlightQueueItem[] = value.map((media) => ({
-    id: `completed-${media.uri}-${media.name}`,
-    media,
-    status: "completed",
-    progress: 100,
-  }));
+  const completedQueueItems: InFlightQueueItem[] = [...value]
+    .sort((left, right) => {
+      const leftPrimary = left.is_primary ? 0 : 1;
+      const rightPrimary = right.is_primary ? 0 : 1;
+      if (leftPrimary !== rightPrimary) {
+        return leftPrimary - rightPrimary;
+      }
+      return (left.display_order ?? 0) - (right.display_order ?? 0);
+    })
+    .map((media) => ({
+      id: `completed-${media.uri}-${media.name}`,
+      media,
+      status: "completed" as const,
+      progress: 100,
+    }));
 
   const queueItems = [...completedQueueItems, ...inFlightItems];
   const hasQueueItems = queueItems.length > 0;
@@ -881,7 +927,14 @@ export const MediaInput = ({
                     processingFooterLabel={processingFooterLabel}
                     processingStatusLabel={processingStatusLabel}
                     readyStatusLabel={readyStatusLabel}
+                    showPrimaryAction={showPrimaryAction}
+                    primaryActionLabel={primaryActionLabel}
                     onRemove={() => handleRemoveQueueItem(item)}
+                    onSetPrimary={
+                      onSetPrimary
+                        ? () => onSetPrimary(item.media)
+                        : undefined
+                    }
                   />
                 ))}
               </ul>
