@@ -350,26 +350,39 @@ export function LocationInfoForm({
         fullWidth
       />
 
-      {nextIdentificationFields.map((field) => (
-        <Input
-          key={field.key}
-          name={field.key}
-          label={field.label}
-          placeholder={field.placeholder ?? `Enter ${field.label.toLowerCase()}`}
-          value={getIdentificationFieldValue(form.values, field.key)}
-          onChange={(event) => {
-            form.setValues(
-              setIdentificationFieldValue(
-                form.values,
-                field.key,
-                event.target.value,
-              ),
-            );
-          }}
-          isRequired={field.required}
-          fullWidth
-        />
-      ))}
+      {nextIdentificationFields.map((field) => {
+        const inputType = field.inputType ?? "text";
+        const inputMode =
+          field.inputMode ?? (inputType === "number" ? "numeric" : undefined);
+        const step =
+          field.step ?? (inputType === "number" ? "1" : undefined);
+
+        return (
+          <Input
+            key={field.key}
+            name={field.key}
+            label={field.label}
+            placeholder={
+              field.placeholder ?? `Enter ${field.label.toLowerCase()}`
+            }
+            type={inputType}
+            inputMode={inputMode}
+            step={step}
+            value={getIdentificationFieldValue(form.values, field.key)}
+            onChange={(event) => {
+              form.setValues(
+                setIdentificationFieldValue(
+                  form.values,
+                  field.key,
+                  event.target.value,
+                ),
+              );
+            }}
+            isRequired={field.required}
+            fullWidth
+          />
+        );
+      })}
     </form>
   );
 }

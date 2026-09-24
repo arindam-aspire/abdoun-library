@@ -74,6 +74,12 @@ export type PropertyIdentificationFieldDefinition = {
   label: string;
   placeholder?: string;
   required?: boolean;
+  /** HTML input type. Defaults to "text". Use "number" for floor_number, etc. */
+  inputType?: "text" | "number";
+  /** Optional inputMode override. For number fields default to "numeric". */
+  inputMode?: "text" | "numeric" | "decimal";
+  /** Optional step for number inputs. Defaults to "1" when inputType is "number". */
+  step?: string | number;
 };
 
 export type PropertyPricingFieldPurpose = "sale" | "rent" | (string & {});
@@ -508,6 +514,8 @@ export type { SelectedDocument };
 export type PropertyMediaFile = SelectedDocument & {
   is_primary?: boolean;
   display_order?: number;
+  /** Local blob URL used by MediaInput thumbnails; Review & Submit uses the same src. */
+  previewUri?: string;
 };
 
 export type OwnerInfoItem = {

@@ -124,6 +124,19 @@ export function OwnerInforForm({
     duplicateIdentityFields,
   });
   const nextOwnerModeLabels = resolved.ownerModeLabels;
+  const ownerModeItems = useMemo(
+    () => [
+      {
+        value: "search" as const,
+        label: nextOwnerModeLabels.searchExisting,
+      },
+      {
+        value: "create" as const,
+        label: nextOwnerModeLabels.createNew,
+      },
+    ],
+    [nextOwnerModeLabels.createNew, nextOwnerModeLabels.searchExisting],
+  );
   const nextNationalityOptions = resolved.nationalityOptions;
   const nextDebounceMs = resolved.ownerSearchDebounceMs;
   const nextDuplicateFields = resolved.duplicateIdentityFields;
@@ -158,7 +171,9 @@ export function OwnerInforForm({
 
   useEffect(() => {
     if (requiresExistingSelection && !form.values.owner_id) {
-      form.setErrors((previous) => ({ ...previous, owners: " " }));
+      form.setErrors((previous) =>
+        previous.owners === " " ? previous : { ...previous, owners: " " },
+      );
       return;
     }
 
@@ -170,7 +185,7 @@ export function OwnerInforForm({
       delete next.owners;
       return next;
     });
-  }, [form, form.values.owner_id, requiresExistingSelection]);
+  }, [form.setErrors, form.values.owner_id, requiresExistingSelection]);
 
   useEffect(() => {
     if (!enableOwnerSearch || !onSearchOwners) {
@@ -334,16 +349,7 @@ export function OwnerInforForm({
           value={ownerMode}
           onChange={setOwnerMode}
           aria-label="Owner mode"
-          items={[
-            {
-              value: "search",
-              label: nextOwnerModeLabels.searchExisting,
-            },
-            {
-              value: "create",
-              label: nextOwnerModeLabels.createNew,
-            },
-          ]}
+          items={ownerModeItems}
         />
       ) : null}
 

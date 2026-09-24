@@ -427,3 +427,52 @@ export const DetailsWithoutDld: Story = {
     expect(canvas.getByLabelText("Total Floor")).toBeInTheDocument();
   },
 };
+
+/** Host-configured identification fields including a numeric floor_number input. */
+export const NumericIdentificationFields: Story = {
+  args: {
+    activeStep: 2,
+    maxReachedStep: 2,
+    propertyDetails: propertyFormFilledValues,
+    config: {
+      identificationFields: [
+        {
+          key: "floor_number",
+          label: "Floor Number",
+          inputType: "number",
+        },
+        {
+          key: "apartment_number",
+          label: "Apartment Number",
+        },
+        {
+          key: "plot_number",
+          label: "Plot Number",
+        },
+        {
+          key: "basin_number",
+          label: "Basin Number",
+        },
+        {
+          key: "parcel_number",
+          label: "Parcel Number",
+        },
+        {
+          key: "building_number",
+          label: "Building Number",
+        },
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const floorNumber = canvas.getByLabelText("Floor Number");
+    expect(floorNumber).toHaveAttribute("type", "number");
+    expect(floorNumber).toHaveAttribute("inputmode", "numeric");
+    expect(floorNumber).toHaveAttribute("step", "1");
+    expect(canvas.getByLabelText("Apartment Number")).toHaveAttribute(
+      "type",
+      "text",
+    );
+  },
+};
