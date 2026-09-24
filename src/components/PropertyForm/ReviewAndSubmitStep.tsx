@@ -1,8 +1,13 @@
 "use client";
 
 import { FileText } from "lucide-react";
-import type { ReactNode } from "react";
-import { useMemo } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+  type SyntheticEvent,
+} from "react";
 import { cn } from "../../lib/cn";
 import {
   textBodySmClasses,
@@ -13,6 +18,11 @@ import {
 import { Card } from "../ui/Card";
 import { Checkbox } from "../ui/Checkbox";
 import { formatFileSize } from "../ui/FileSelectInput";
+import {
+  getMediaDisplayUri,
+  isImageMedia,
+  isVideoMedia,
+} from "../ui/MediaInput/utils";
 import { formatPriceValue } from "../ui/PriceInput/utils";
 import {
   getFilteredFeaturesAndAmenitiesCatalog,
@@ -48,6 +58,7 @@ import type {
   OwnerInfoItem,
   PricingDetailsFormValues,
   PropertyDetailsFormValues,
+  PropertyMediaFile,
   PropertyTaxonomyCategory,
   SelectedDocument,
   TermsAcceptanceFormValues,
@@ -146,20 +157,70 @@ function resolveAreaName(
   return city?.areas.find((area) => area.id === areaId)?.name ?? String(areaId);
 }
 
-function isImageDocument(document: SelectedDocument): boolean {
-  if (document.mimeType?.startsWith("image/")) {
-    return true;
+function ReviewMediaThumbnail({ file }: { file: PropertyMediaFile }) {
+  const [activePreviewUri, setActivePreviewUri] = useState(() =>
+    getMediaDisplayUri(file),
+  );
+  const [previewFailed, setPreviewFailed] = useState(false);
+  const isImage = isImageMedia(file);
+  const isVideo = isVideoMedia(file);
+  const hasPreview = Boolean(activePreviewUri) && !previewFailed;
+
+  useEffect(() => {
+    setPreviewFailed(false);
+    setActivePreviewUri(getMediaDisplayUri(file));
+  }, [file.name, file.previewUri, file.uri]);
+
+  const handlePreviewError = (
+    event: SyntheticEvent<HTMLImageElement | HTMLVideoElement>,
+  ) => {
+    event.currentTarget.onerror = null;
+
+    if (
+      file.previewUri &&
+      activePreviewUri === file.previewUri &&
+      file.uri &&
+      file.uri !== file.previewUri
+    ) {
+      setActivePreviewUri(file.uri);
+      return;
+    }
+
+    setPreviewFailed(true);
+  };
+
+  if (hasPreview && isVideo) {
+    return (
+      <video
+        src={activePreviewUri}
+        controls
+        playsInline
+        preload="metadata"
+        onLoadedData={(event) => {
+          event.currentTarget.pause();
+        }}
+        onError={handlePreviewError}
+        className="size-full object-cover"
+      />
+    );
   }
 
-  return /\.(jpe?g|png|gif|webp|bmp|svg)$/i.test(document.name);
-}
-
-function isVideoDocument(document: SelectedDocument): boolean {
-  if (document.mimeType?.startsWith("video/")) {
-    return true;
+  if (hasPreview && isImage) {
+    return (
+      <img
+        src={activePreviewUri}
+        alt={file.name}
+        onError={handlePreviewError}
+        className="size-full object-cover"
+      />
+    );
   }
 
-  return /\.(mp4|mov|webm)$/i.test(document.name);
+  return (
+    <div className="flex size-full items-center justify-center bg-secondary/5 text-muted">
+      <span className={textMetaMediumClasses}>Media</span>
+    </div>
+  );
 }
 
 function ReviewField({
@@ -248,7 +309,7 @@ function DocumentList({ documents }: { documents: SelectedDocument[] }) {
   );
 }
 
-function MediaPreviewGrid({ mediaFiles }: { mediaFiles: SelectedDocument[] }) {
+function MediaPreviewGrid({ mediaFiles }: { mediaFiles: PropertyMediaFile[] }) {
   const sortedMedia = sortPropertyMediaForDisplay(mediaFiles);
 
   if (sortedMedia.length === 0) {
@@ -259,32 +320,11 @@ function MediaPreviewGrid({ mediaFiles }: { mediaFiles: SelectedDocument[] }) {
     <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
       {sortedMedia.map((file) => (
         <li
-          key={`${file.name}-${file.uri}`}
+          key={`${file.name}-${file.uri}-${file.previewUri ?? ""}`}
           className="overflow-hidden rounded-lg border border-secondary/10 bg-page-ghost/40"
         >
           <div className="relative aspect-[4/3] bg-surface">
-            {isImageDocument(file) ? (
-              <img
-                src={file.uri}
-                alt={file.name}
-                className="size-full object-cover"
-              />
-            ) : isVideoDocument(file) ? (
-              <video
-                src={file.uri}
-                controls
-                playsInline
-                preload="metadata"
-                onLoadedData={(event) => {
-                  event.currentTarget.pause();
-                }}
-                className="size-full object-cover"
-              />
-            ) : (
-              <div className="flex size-full items-center justify-center bg-secondary/5 text-muted">
-                <span className={textMetaMediumClasses}>Media</span>
-              </div>
-            )}
+            <ReviewMediaThumbnail file={file} />
             {file.is_primary ? (
               <span className="absolute left-2 top-2 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white sm:text-[11px]">
                 Primary

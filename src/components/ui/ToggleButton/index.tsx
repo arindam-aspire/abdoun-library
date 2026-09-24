@@ -231,12 +231,20 @@ export function ToggleButton<T extends string = string>({
     }
     const containerRect = container.getBoundingClientRect();
     const segmentRect = segment.getBoundingClientRect();
-    setIndicator({
-      left: segmentRect.left - containerRect.left,
-      width: segmentRect.width,
-      top: segmentRect.top - containerRect.top,
-      height: segmentRect.height,
-    });
+    const next = {
+      left: Math.round(segmentRect.left - containerRect.left),
+      width: Math.round(segmentRect.width),
+      top: Math.round(segmentRect.top - containerRect.top),
+      height: Math.round(segmentRect.height),
+    };
+    setIndicator((previous) =>
+      previous.left === next.left &&
+      previous.width === next.width &&
+      previous.top === next.top &&
+      previous.height === next.height
+        ? previous
+        : next,
+    );
   }, [activeIndex]);
 
   useLayoutEffect(() => {
@@ -252,7 +260,14 @@ export function ToggleButton<T extends string = string>({
       observer.disconnect();
       window.removeEventListener("resize", updateIndicator);
     };
-  }, [updateIndicator, items, selectedValue, size, fullWidth, variant]);
+  }, [
+    updateIndicator,
+    items.length,
+    selectedValue,
+    size,
+    fullWidth,
+    variant,
+  ]);
 
   const handleItemClick = (
     item: (typeof items)[number],
@@ -278,7 +293,7 @@ export function ToggleButton<T extends string = string>({
       aria-label={ariaLabel}
       ref={containerRef}
       className={cn(
-        "relative inline-flex",
+        "relative inline-flex overflow-hidden",
         roundedContainer,
         toggleShellSizeClasses[size],
         variant === "ghost"
